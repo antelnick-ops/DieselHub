@@ -493,45 +493,50 @@ section{padding:100px 40px}
             <div style="display:flex;gap:8px">
               <input class="fi" type="text" id="apiKeyField" readonly style="font-family:monospace;font-size:13px;letter-spacing:.5px;color:var(--ember)">
               <button class="btn-action" style="flex-shrink:0;white-space:nowrap" onclick="copyApiKey()">📋 Copy</button>
+              <button class="btn-sm" style="flex-shrink:0;white-space:nowrap" onclick="regenerateApiKey()">🔄 Regenerate</button>
             </div>
-            <p style="font-size:11px;color:var(--t3);margin-top:6px">Keep this key secret. It authenticates all API requests for your account.</p>
+            <p style="font-size:11px;color:var(--t3);margin-top:6px">Keep this key secret. It authenticates all API requests for your account. Regenerating will deactivate your old key.</p>
           </div>
           <div style="margin-bottom:20px">
-            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);display:block;margin-bottom:6px">API Endpoint</label>
-            <div style="padding:14px;border-radius:10px;background:var(--bg);border:1px solid var(--smoke);font-family:monospace;font-size:13px;color:var(--t1)">POST https://black-stack-diesel.com/api/v1/products</div>
+            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);display:block;margin-bottom:6px">API Endpoint (Supabase REST)</label>
+            <div id="apiEndpointDisplay" style="padding:14px;border-radius:10px;background:var(--bg);border:1px solid var(--smoke);font-family:monospace;font-size:13px;color:var(--t1)">POST loading...</div>
+            <p style="font-size:11px;color:var(--t3);margin-top:6px">Your products are secured with Row Level Security — you can only access your own inventory.</p>
           </div>
           <div style="margin-bottom:20px">
-            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);display:block;margin-bottom:10px">Example Request</label>
-            <pre style="padding:16px;border-radius:10px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2);overflow-x:auto;line-height:1.7;white-space:pre-wrap">curl -X POST https://black-stack-diesel.com/api/v1/products \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);display:block;margin-bottom:10px">Example: Add a Product</label>
+            <pre style="padding:16px;border-radius:10px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2);overflow-x:auto;line-height:1.7;white-space:pre-wrap">curl -X POST '<span class="api-supa-url">YOUR_SUPABASE_URL</span>/rest/v1/products' \
+  -H "apikey: YOUR_SUPABASE_ANON_KEY" \
+  -H "Authorization: Bearer YOUR_SESSION_TOKEN" \
   -H "Content-Type: application/json" \
+  -H "Prefer: return=minimal" \
   -d '{
-    "products": [
-      {
-        "product_name": "FASS Titanium 150GPH",
-        "sku": "TS-F14-150G",
-        "brand": "FASS Fuel Systems",
-        "price": 549.99,
-        "shipping_cost": 29.99,
-        "stock_qty": 25,
-        "category": "Fuel Systems",
-        "condition": "new",
-        "fitment": "2003-2007 Dodge Ram 5.9L Cummins",
-        "description": "Titanium Signature Series...",
-        "image_url": "https://...",
-        "weight_lbs": 12.5
-      }
-    ]
+    "product_name": "FASS Titanium 150GPH",
+    "sku": "TS-F14-150G",
+    "brand": "FASS Fuel Systems",
+    "price": 549.99,
+    "shipping_cost": 29.99,
+    "stock_qty": 25,
+    "category": "Fuel Systems",
+    "condition": "new",
+    "fitment": "2003-2007 Dodge Ram 5.9L Cummins",
+    "vendor_id": "YOUR_VENDOR_UUID",
+    "description": "Titanium Signature Series...",
+    "image_url": "https://...",
+    "weight_lbs": 12.5
   }'</pre>
           </div>
-          <div>
-            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);display:block;margin-bottom:10px">Bulk Actions</label>
+          <div style="margin-bottom:20px">
+            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);display:block;margin-bottom:10px">Available Endpoints</label>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong>POST</strong> /products — Create / update products</div>
-              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong>PATCH</strong> /products/:sku — Update stock / price</div>
-              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong>DELETE</strong> /products/:sku — Remove listing</div>
-              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong>GET</strong> /products — List your products</div>
+              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong style="color:var(--green)">POST</strong> /rest/v1/products — Add products</div>
+              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong style="color:var(--blue)">GET</strong> /rest/v1/products — List your products</div>
+              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong style="color:var(--amber)">PATCH</strong> /rest/v1/products?sku=eq.XXXXX — Update</div>
+              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong style="color:var(--red)">DELETE</strong> /rest/v1/products?sku=eq.XXXXX — Remove</div>
             </div>
+          </div>
+          <div style="padding:16px;border-radius:10px;background:rgba(74,158,255,.06);border:1px solid rgba(74,158,255,.12)">
+            <p style="font-size:12px;color:var(--blue);margin-bottom:4px"><strong>💡 Tip: Using the Supabase JS Client?</strong></p>
+            <p style="font-size:12px;color:var(--t2);line-height:1.6">If you're building with JavaScript, use the Supabase client library instead of raw curl. Sign in with your vendor email/password, then use <code style="background:var(--bg);padding:2px 6px;border-radius:4px">sb.from('products').insert({...})</code> — RLS handles permissions automatically.</p>
           </div>
         </div>
       </div>
@@ -943,17 +948,55 @@ function showImportedProducts(products){
 }
 
 // ===== API PANEL =====
-function showApiPanel(){
+async function showApiPanel(){
   document.getElementById('apiPanel').style.display='block';
-  var key=vendorData?'bsd_'+vendorData.id.replace(/-/g,'').slice(0,24):'bsd_login_first';
-  document.getElementById('apiKeyField').value=key;
   document.getElementById('apiPanel').scrollIntoView({behavior:'smooth'});
+  if(!vendorData){document.getElementById('apiKeyField').value='Login first';return}
+
+  // Load real API key from vendor_api_keys table
+  document.getElementById('apiKeyField').value='Loading...';
+  try{
+    var res=await sb.from('vendor_api_keys').select('api_key').eq('vendor_id',vendorData.id).eq('is_active',true).limit(1);
+    if(res.error)throw res.error;
+    if(res.data&&res.data.length>0){
+      document.getElementById('apiKeyField').value=res.data[0].api_key;
+    }else{
+      // No key exists yet — generate one via the DB function
+      var gen=await sb.rpc('generate_vendor_api_key',{p_vendor_id:vendorData.id});
+      if(gen.error)throw gen.error;
+      document.getElementById('apiKeyField').value=gen.data;
+    }
+  }catch(e){
+    console.error('API key load error:',e);
+    document.getElementById('apiKeyField').value='Error loading key — try refreshing';
+  }
+
+  // Show the real Supabase REST endpoint in the panel
+  var endpoint=SUPA_URL+'/rest/v1/products';
+  var endpointEl=document.getElementById('apiEndpointDisplay');
+  if(endpointEl)endpointEl.textContent='POST '+endpoint;
 }
 function hideApiPanel(){document.getElementById('apiPanel').style.display='none'}
 function copyApiKey(){
   var el=document.getElementById('apiKeyField');
   el.select();el.setSelectionRange(0,99999);
   navigator.clipboard.writeText(el.value).then(function(){alert('API key copied!')});
+}
+async function regenerateApiKey(){
+  if(!vendorData)return;
+  if(!confirm('This will deactivate your current key and generate a new one. Continue?'))return;
+  try{
+    // Deactivate existing keys
+    await sb.from('vendor_api_keys').update({is_active:false}).eq('vendor_id',vendorData.id);
+    // Generate new one
+    var gen=await sb.rpc('generate_vendor_api_key',{p_vendor_id:vendorData.id});
+    if(gen.error)throw gen.error;
+    document.getElementById('apiKeyField').value=gen.data;
+    alert('New API key generated! Your old key is now deactivated.');
+  }catch(e){
+    console.error('Regenerate error:',e);
+    alert('Error generating new key. Please try again.');
+  }
 }
 
 // ===== DISTRIBUTOR PANEL =====
