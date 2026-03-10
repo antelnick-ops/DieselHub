@@ -1,11 +1,15 @@
 {
   "name": "black-stack-diesel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AI-powered diesel truck diagnostics and parts marketplace",
   "main": "index.html",
   "scripts": {
     "dev": "npx serve . -l 3000",
     "start": "npx serve . -l 3000"
+  },
+  "dependencies": {
+    "stripe": "^14.0.0",
+    "@supabase/supabase-js": "^2.39.0"
   },
   "author": "Dynamic Innovative Solutions LLC",
   "license": "MIT",

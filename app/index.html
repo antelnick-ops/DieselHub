@@ -438,9 +438,32 @@ function renderCart(){
   el.innerHTML=html;
   totalEl.textContent='$'+(total.toLocaleString());
 }
-function doCheckout(){
+async function doCheckout(){
   if(cart.length===0)return;
-  alert('Checkout coming soon! Your total: $'+cart.reduce(function(s,c){return s+c.price*c.qty},0).toLocaleString());
+  var btn=document.getElementById('checkoutBtn');
+  btn.textContent='Redirecting to Stripe...';btn.style.opacity='.6';btn.style.pointerEvents='none';
+  try{
+    var user=null;try{var s=await sb.auth.getSession();user=s.data.session?.user}catch(e){}
+    var vehicle=V.year?V.year+' '+V.make+' '+V.model+' — '+V.engine:'';
+    var res=await fetch('/api/create-checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        items:cart.map(function(c){return{id:c.id,name:c.name,brand:c.brand,price:c.price,qty:c.qty}}),
+        customer_email:user?user.email:null,
+        vehicle:vehicle
+      })
+    });
+    var data=await res.json();
+    if(data.url){
+      window.location.href=data.url;
+    }else{
+      throw new Error(data.error||'Could not create checkout session');
+    }
+  }catch(err){
+    alert('Checkout error: '+err.message+'\n\nPlease try again.');
+    btn.textContent='Checkout';btn.style.opacity='1';btn.style.pointerEvents='auto';
+  }
 }
 // === Category emoji map ===
 var catEmoji={injectors:'💉',turbos:'🌀','head studs':'🔩',egr:'🔧','fuel system':'⛽',engine:'🔧',exhaust:'💨',tuning:'📟',intake:'🌬️',gauges:'📊',cooling:'❄️'};
@@ -478,13 +501,22 @@ async function loadProducts(){
     var emoji=getCatEmoji(p.category);
     var stgClass=stg?'s'+stg:'';
     var stgLabel=stg?'STG '+stg:'';
-    html+='<div class="pc g" data-cat="'+cat+'" data-stage="'+stg+'" data-brand="'+brand+'" data-price="'+Math.round(price)+'">';
+    // Check fitment against user vehicle
+    var fits=false;
+    if(V.engine&&p.fitment_text){
+      var ft=p.fitment_text.toLowerCase();
+      var ue=V.engine.toLowerCase();
+      fits=(ft.indexOf(ue)>-1);
+    }
+    html+='<div class="pc g" data-cat="'+cat+'" data-stage="'+stg+'" data-brand="'+brand+'" data-price="'+Math.round(price)+'" data-fit="'+(fits?'1':'0')+'">';
     html+='<div class="pc-img">'+emoji;
-    html+='<div class="pc-fit">✓ Fits</div>';
+    if(V.engine){
+      if(fits)html+='<div class="pc-fit">✓ Fits Your Rig</div>';
+    }
     if(stg)html+='<div class="pc-stg '+stgClass+'">'+stgLabel+'</div>';
     html+='</div>';
     html+='<div class="pc-bd">';
-    if(p.brand)html+='<div class="pc-br">'+p.brand+'</div>';
+    if(p.brand)html+='<div class="pc-br">'+(p.brand||'').replace(/&/g,'&amp;')+'</div>';
     html+='<h4>'+p.product_name+'</h4>';
     html+='<div class="pc-bt"><div class="pc-pr mono">$'+price.toLocaleString()+'</div>';
     html+='<button class="ab" onclick="addToCart(\''+p.id+'\',\''+p.product_name.replace(/'/g,"\\'")+'\',\''+(p.brand||'').replace(/'/g,"\\'")+'\','+price+',\''+emoji+'\')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
@@ -492,17 +524,24 @@ async function loadProducts(){
   });
   html+='<div class="pc g noresult" style="display:none;grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--t3);font-size:14px" id="noResults">No parts match your filters</div>';
   grid.innerHTML=html;
+  // Rebind filter events after products load
+  document.querySelectorAll('.stg').forEach(function(b){b.onclick=function(){b.classList.toggle('on');filterProducts()}});
+  document.querySelectorAll('.dd').forEach(function(d){d.onchange=function(){filterProducts()}});
+  document.querySelector('.sbox input').addEventListener('input',function(){filterProducts()});
 }
 
 renderCart();
 uProg(1);initYrs();checkSession();loadProducts();
+// Handle return from Stripe checkout
+if(window.location.search.indexOf('checkout=success')>-1){
+  cart=[];saveCart();renderCart();
+  setTimeout(function(){alert('Payment successful! Your order is confirmed. You\'ll receive a confirmation email shortly.')},500);
+  history.replaceState(null,'','/app/');
+}else if(window.location.search.indexOf('checkout=cancelled')>-1){
+  setTimeout(function(){alert('Checkout was cancelled. Your cart is still saved.')},500);
+  history.replaceState(null,'','/app/');
+}
 document.getElementById('authPass').addEventListener('keydown',function(e){if(e.key==='Enter')handleAuth()});
-document.querySelectorAll('.ct').forEach(function(c){c.onclick=function(){document.querySelectorAll('.ct').forEach(function(x){x.classList.remove('on')});c.classList.add('on');filterProducts()}});
-document.querySelectorAll('.stg').forEach(function(b){b.onclick=function(){b.classList.toggle('on');filterProducts()}});
-// Dropdown filters
-document.querySelectorAll('.dd').forEach(function(d){d.onchange=function(){filterProducts()}});
-// Search filter
-document.querySelector('.sbox input').addEventListener('input',function(){filterProducts()});
 
 function filterProducts(){
 var activeCat=document.querySelector('.ct.on');
