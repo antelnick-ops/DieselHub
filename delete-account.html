@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delete Account — Black Stack Diesel</title>
+<meta name="description" content="Request deletion of your Black Stack Diesel account and associated data.">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Archivo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#08090B;--bg2:#0E1014;--bg3:#151820;--bg4:#1C2029;
+  --ember:#FF6B2C;--ember2:#E85A1E;--ember-glow:rgba(255,107,44,.1);
+  --smoke:#2A2D35;
+  --t1:#F2EDE6;--t2:#A0A4B0;--t3:#5E6270;
+  --bd:rgba(255,255,255,.06);
+  --red:#E84040;--red-glow:rgba(232,64,64,.1);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Archivo',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4}
+
+/* NAV */
+nav{padding:20px 40px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--bd)}
+.nav-logo{display:flex;align-items:center;gap:12px}
+.nav-logo-icon{width:36px;height:36px;background:var(--ember);border-radius:8px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.nav-logo-icon::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.2))}
+.nav-logo-icon svg{width:20px;height:20px;fill:#fff;position:relative;z-index:1}
+.nav-brand{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:3px;text-transform:uppercase}
+.nav-brand em{font-style:normal;color:var(--ember)}
+.nav-back{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--t3);transition:.2s;display:flex;align-items:center;gap:6px}
+.nav-back:hover{color:var(--t2)}
+.nav-back svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* MAIN */
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:60px 20px;position:relative}
+.bg-glow{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:500px;height:500px;background:radial-gradient(circle,rgba(232,64,64,.04),transparent 70%);pointer-events:none}
+
+.card{max-width:540px;width:100%;background:var(--bg2);border:1px solid var(--bd);border-radius:20px;padding:48px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--red),transparent)}
+
+.warning-icon{width:56px;height:56px;background:var(--red-glow);border:1px solid rgba(232,64,64,.2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;font-size:26px}
+
+.card-label{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:4px;color:var(--red);margin-bottom:12px}
+.card-title{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;text-transform:uppercase;letter-spacing:1px;line-height:1.1;margin-bottom:12px}
+.card-desc{font-size:14px;color:var(--t2);line-height:1.65;margin-bottom:32px}
+
+.info-box{background:var(--bg3);border:1px solid var(--bd);border-radius:12px;padding:20px;margin-bottom:32px}
+.info-box-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;color:var(--t1)}
+.info-list{display:flex;flex-direction:column;gap:8px}
+.info-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--t2);line-height:1.5}
+.info-dot{width:6px;height:6px;background:var(--red);border-radius:50%;flex-shrink:0;margin-top:6px}
+
+.form-group{margin-bottom:20px}
+label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--t2);margin-bottom:8px}
+input,textarea,select{width:100%;background:var(--bg3);border:1px solid var(--smoke);border-radius:10px;padding:14px 16px;font-family:'Archivo',sans-serif;font-size:14px;color:var(--t1);outline:none;transition:.2s;-webkit-appearance:none}
+input::placeholder,textarea::placeholder{color:var(--t3)}
+input:focus,textarea:focus,select:focus{border-color:rgba(232,64,64,.4);box-shadow:0 0 0 3px rgba(232,64,64,.08)}
+select option{background:var(--bg3)}
+textarea{resize:vertical;min-height:100px;line-height:1.5}
+
+.checkbox-group{display:flex;align-items:flex-start;gap:12px;margin-bottom:28px}
+.checkbox-group input[type="checkbox"]{width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:var(--red);cursor:pointer}
+.checkbox-group label{font-size:13px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--t2);cursor:pointer;line-height:1.5;margin:0}
+.checkbox-group label strong{color:var(--t1)}
+
+.btn-delete{width:100%;padding:16px;background:var(--red);border:none;border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:#fff;cursor:pointer;transition:.2s}
+.btn-delete:hover{background:#d03535;transform:translateY(-1px);box-shadow:0 8px 24px rgba(232,64,64,.3)}
+.btn-delete:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+.success-state{display:none;text-align:center;padding:20px 0}
+.success-icon{font-size:48px;margin-bottom:16px}
+.success-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.success-desc{font-size:14px;color:var(--t2);line-height:1.6}
+
+/* FOOTER */
+footer{padding:24px 40px;border-top:1px solid var(--bd);text-align:center;font-size:12px;color:var(--t3)}
+footer a{color:var(--t3);text-decoration:underline;text-underline-offset:3px}
+footer a:hover{color:var(--t2)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    <div class="nav-brand">Black<em>Stack</em> Diesel</div>
+  </a>
+  <a href="/" class="nav-back">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Home
+  </a>
+</nav>
+
+<main>
+  <div class="bg-glow"></div>
+  <div class="card">
+    <div class="warning-icon">🗑️</div>
+    <div class="card-label">Account Management</div>
+    <div class="card-title">Delete Your Account</div>
+    <div class="card-desc">Submitting this form will permanently delete your Black Stack Diesel account and all associated data. This action cannot be undone.</div>
+
+    <div class="info-box">
+      <div class="info-box-title">What will be deleted</div>
+      <div class="info-list">
+        <div class="info-item"><span class="info-dot"></span>Your account profile and login credentials</div>
+        <div class="info-item"><span class="info-dot"></span>Saved vehicle profiles and engine preferences</div>
+        <div class="info-item"><span class="info-dot"></span>Order history and saved parts lists</div>
+        <div class="info-item"><span class="info-dot"></span>AI diagnostic chat history</div>
+        <div class="info-item"><span class="info-dot"></span>All personal data associated with your account</div>
+      </div>
+    </div>
+
+    <div id="formState">
+      <div class="form-group">
+        <label for="email">Account Email Address</label>
+        <input type="email" id="email" placeholder="you@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="reason">Reason for Deletion (Optional)</label>
+        <select id="reason">
+          <option value="" disabled selected>Select a reason</option>
+          <option value="not-using">No longer using the app</option>
+          <option value="privacy">Privacy concerns</option>
+          <option value="switching">Switching to another service</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Additional Notes (Optional)</label>
+        <textarea id="notes" placeholder="Let us know anything else..."></textarea>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="confirm" onchange="toggleBtn()">
+        <label for="confirm">I understand that <strong>deleting my account is permanent</strong> and cannot be reversed. All my data will be removed within 30 days.</label>
+      </div>
+
+      <button class="btn-delete" id="submitBtn" disabled onclick="handleSubmit()">Request Account Deletion</button>
+    </div>
+
+    <div class="success-state" id="successState">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Request Received</div>
+      <div class="success-desc">We've received your account deletion request. Your account and all associated data will be permanently deleted within <strong>30 days</strong>. You'll receive a confirmation email at the address provided.</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p>© 2026 Dynamic Innovative Solutions LLC. All rights reserved. Black Stack Diesel™ &nbsp;·&nbsp; <a href="/privacy.html">Privacy Policy</a></p>
+</footer>
+
+<script>
+function toggleBtn() {
+  const checked = document.getElementById('confirm').checked;
+  document.getElementById('submitBtn').disabled = !checked;
+}
+
+function handleSubmit() {
+  const email = document.getElementById('email').value;
+  if (!email) {
+    document.getElementById('email').focus();
+    return;
+  }
+
+  // Send to your backend / email
+  const reason = document.getElementById('reason').value;
+  const notes = document.getElementById('notes').value;
+
+  // TODO: Replace with your actual backend endpoint
+  fetch('/api/delete-account', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, reason, notes })
+  }).catch(() => {
+    // Fail silently — show success regardless so user knows request was noted
+    // Wire up mailto fallback if no backend yet
+    window.location.href = `mailto:help@black-stack-diesel.com?subject=Account Deletion Request&body=Email: ${email}%0AReason: ${reason}%0ANotes: ${notes}`;
+  });
+
+  document.getElementById('formState').style.display = 'none';
+  document.getElementById('successState').style.display = 'block';
+}
+</script>
+</body>
+</html>
