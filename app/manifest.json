@@ -6,10 +6,16 @@
   "id": "/app/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
   "orientation": "portrait",
   "background_color": "#07070A",
   "theme_color": "#FF6B2C",
+  "lang": "en",
+  "dir": "ltr",
   "categories": ["shopping", "business"],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "prefer_related_applications": false,
+  "related_applications": [],
   "icons": [
     {
       "src": "/app/icon-192.png",
@@ -34,6 +40,36 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/app/screenshots/screenshot-1.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Smart Fitment — Only parts that fit your rig"
+    },
+    {
+      "src": "/app/screenshots/screenshot-2.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Marketplace — Shop by your build stage"
+    },
+    {
+      "src": "/app/screenshots/screenshot-3.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "AI Diesel Diagnostics — Describe your symptoms, get answers"
+    },
+    {
+      "src": "/app/screenshots/screenshot-4.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Black Stack Diesel — Diesel parts and diagnostics in one app"
     }
   ]
 }
