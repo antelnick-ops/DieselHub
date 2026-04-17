@@ -11,11 +11,22 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
   const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_KEY
   );
+
+  if (!stripeSecretKey) {
+    console.error('Missing STRIPE_SECRET_KEY');
+    return res.status(500).json({ error: 'Stripe key not configured' });
+  }
+
+  const stripe = new Stripe(stripeSecretKey);
+
+  console.log('CREATE_CHECKOUT host:', req.headers.host);
+  console.log('CREATE_CHECKOUT origin:', req.headers.origin);
+  console.log('CREATE_CHECKOUT stripe prefix:', stripeSecretKey.slice(0, 8));
 
   try {
     const { items, customer_email, customer_id, vehicle, shipping_method } = req.body;
@@ -24,10 +35,7 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'No items in cart' });
     }
 
-    // Pull live product data from Supabase so checkout price is based on DB truth
-    const productIds = items
-      .map(i => i.id)
-      .filter(Boolean);
+    const productIds = items.map((i) => i.id).filter(Boolean);
 
     const { data: dbProducts, error: productsError } = await supabase
       .from('products')
@@ -53,13 +61,15 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'Failed to load product data' });
     }
 
-    const productMap = new Map((dbProducts || []).map(p => [p.id, p]));
+    const productMap = new Map((dbProducts || []).map((p) => [p.id, p]));
 
-    const normalizedItems = items.map(item => {
+    const normalizedItems = items.map((item) => {
       const db = productMap.get(item.id);
+
       if (!db) {
         throw new Error(`Product not found: ${item.id}`);
       }
+
       if (db.status !== 'active') {
         throw new Error(`Product is not active: ${db.product_name}`);
       }
@@ -83,7 +93,7 @@ module.exports = async (req, res) => {
       };
     });
 
-    const line_items = normalizedItems.map(item => ({
+    const line_items = normalizedItems.map((item) => ({
       price_data: {
         currency: 'usd',
         product_data: {
@@ -132,8 +142,11 @@ module.exports = async (req, res) => {
 
     const origin =
       req.headers.origin ||
+      `https://${req.headers.host}` ||
       process.env.APP_URL ||
       'https://black-stack-diesel.com';
+
+    console.log('CREATE_CHECKOUT success_url origin:', origin);
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -154,6 +167,8 @@ module.exports = async (req, res) => {
       success_url: `${origin}/app/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/app/?checkout=cancelled`
     });
+
+    console.log('CREATE_CHECKOUT session id:', session.id);
 
     return res.status(200).json({
       url: session.url,
