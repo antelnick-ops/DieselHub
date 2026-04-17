@@ -160,18 +160,20 @@ footer{padding:48px 40px;border-top:1px solid var(--bd);display:flex;justify-con
     <a href="#features">Features</a>
     <a href="#app">App</a>
     <a href="#engines">Engines</a>
-    <a href="#signup" class="nav-cta">Get Early Access</a>
+    <button id="installBtnNav" class="nav-cta" style="display:none;border:none;cursor:pointer;">📲 Install App</button>
+    <a href="/app/" id="openAppNav" class="nav-cta">Open App</a>
   </div>
 </nav>
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-grid"></div>
   <div class="hero-content">
-    <div class="hero-badge"><span class="hero-badge-dot"></span> Coming Soon — 2026</div>
+    <div class="hero-badge"><span class="hero-badge-dot"></span> Now Live — Install Free Today</div>
     <h1>Your Diesel.<br><em>Diagnosed Right.</em></h1>
     <p>AI-powered diagnostics and parts for diesel trucks. Input your rig — year, make, model, engine — and only see what fits your truck. Nothing else.</p>
     <div class="hero-ctas">
-      <a href="#signup" class="btn-main">Get Early Access</a>
+      <button id="installBtnHero" class="btn-main" style="display:none;">📲 Install App — Free</button>
+      <a href="/app/" id="openAppBtn" class="btn-main">Open App</a>
       <a href="#features" class="btn-ghost">See Features</a>
     </div>
     <div class="hero-stats">
@@ -254,15 +256,25 @@ footer{padding:48px 40px;border-top:1px solid var(--bd);display:flex;justify-con
 <section class="cta-section" id="signup">
   <div class="cta-glow"></div>
   <div class="container reveal">
-    <div class="section-label">Early Access</div>
-    <div class="section-title">Be First to Know When We Launch.</div>
-    <div class="section-desc">Drop your email and we'll let you know the second Black Stack Diesel goes live. No spam, just diesel.</div>
-    <form class="email-form" id="emailForm" onsubmit="handleSignup(event)">
-      <input class="email-input" type="email" placeholder="you@email.com" required>
-      <button class="email-submit" type="submit">Notify Me</button>
-    </form>
-    <div class="email-note">We respect your inbox. Unsubscribe anytime.</div>
-    <div class="email-success" id="emailSuccess">You're on the list. We'll be in touch soon.</div>
+    <div class="section-label">Available Now</div>
+    <div class="section-title">Install Black Stack Diesel Free.</div>
+    <div class="section-desc">No app store required. Install directly to your home screen in seconds. Works on Android and iPhone.</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:40px">
+      <button id="installBtnCta" class="btn-main" style="display:none;font-size:20px;padding:20px 56px;">📲 Install App — Free</button>
+      <a href="/app/" class="btn-main" id="openAppCta" style="font-size:20px;padding:20px 56px;">Open App</a>
+      <div style="font-size:13px;color:var(--t3);margin-top:8px">Works on Chrome (Android) · Safari (iPhone) · Desktop</div>
+      <div style="display:flex;gap:32px;margin-top:24px;flex-wrap:wrap;justify-content:center">
+        <div style="text-align:center">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--ember);margin-bottom:6px">Android</div>
+          <div style="font-size:13px;color:var(--t3)">Tap the Install button above<br>or tap ⋮ → Add to Home Screen</div>
+        </div>
+        <div style="width:1px;background:var(--bd)"></div>
+        <div style="text-align:center">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--ember);margin-bottom:6px">iPhone</div>
+          <div style="font-size:13px;color:var(--t3)">Tap the Share button in Safari<br>then tap Add to Home Screen</div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 <footer>
@@ -285,7 +297,41 @@ footer{padding:48px 40px;border-top:1px solid var(--bd);display:flex;justify-con
 </footer>
 <script>
 const observer=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)}})},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(e=>observer.observe(e));
 document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'})})});
+
+// PWA Install Logic
+var deferredPrompt;
+var installBtns=[document.getElementById('installBtnHero'),document.getElementById('installBtnNav'),document.getElementById('installBtnCta')];
+var openBtns=[document.getElementById('openAppBtn'),document.getElementById('openAppNav'),document.getElementById('openAppCta')];
+
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault();
+  deferredPrompt=e;
+  // Show install buttons, hide open app buttons
+  installBtns.forEach(function(b){if(b)b.style.display='inline-block'});
+  openBtns.forEach(function(b){if(b)b.style.display='none'});
+});
+
+installBtns.forEach(function(btn){
+  if(!btn)return;
+  btn.addEventListener('click',function(){
+    if(!deferredPrompt)return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(r){
+      if(r.outcome==='accepted'){
+        installBtns.forEach(function(b){if(b)b.style.display='none'});
+        openBtns.forEach(function(b){if(b)b.style.display='inline-block'});
+      }
+      deferredPrompt=null;
+    });
+  });
+});
+
+window.addEventListener('appinstalled',function(){
+  installBtns.forEach(function(b){if(b)b.style.display='none'});
+  openBtns.forEach(function(b){if(b)b.style.display='inline-block'});
+});
 </script>
 </body>
 </html>
