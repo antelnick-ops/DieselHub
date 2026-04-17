@@ -7,11 +7,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Black Stack Diesel — AI Diagnostics & Parts for Diesel Trucks</title>
 <meta name="description" content="Black Stack Diesel is a mobile app for diesel truck owners and mechanics. AI-powered diagnostics, engine-specific parts, and photo-based troubleshooting. Only see what fits your truck.">
-<meta property="og:title" content="Black Stack Diesel — Coming Soon">
+<meta property="og:title" content="Black Stack Diesel — AI Diagnostics & Parts for Diesel Trucks">
 <meta property="og:description" content="AI-powered diagnostics and parts for diesel trucks. Built by truck people, for truck people.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://black-stack-diesel.com">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="manifest" href="/app/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BlackStack">
+<meta name="theme-color" content="#FF6B2C">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Archivo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -332,6 +337,11 @@ window.addEventListener('appinstalled',function(){
   installBtns.forEach(function(b){if(b)b.style.display='none'});
   openBtns.forEach(function(b){if(b)b.style.display='inline-block'});
 });
+
+// Register service worker so install prompt fires on landing page
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/app/sw.js').catch(function(){});
+}
 </script>
 </body>
 </html>
