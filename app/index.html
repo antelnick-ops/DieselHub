@@ -900,17 +900,33 @@ function getVehicleAliases(){
 
 function scoreProductForVehicle(p){
   if(!V.year || !V.make || !V.model || !V.engine) return 0;
-  const text = [p.product_name,p.description,p.fitment_text,p.category,p.brand,p.sku].filter(Boolean).join(' ').toLowerCase();
+  const text = [p.product_name,p.description,p.fitment_text,p.sku].filter(Boolean).join(' ').toLowerCase();
   let score = 0;
-  const aliases = getVehicleAliases();
-  aliases.forEach(a => { if(a && text.includes(a)) score += 2; });
+
+  // Exact year match (strong signal)
   if(text.includes(String(V.year))) score += 3;
-  if(text.includes(V.make.toLowerCase())) score += 4;
-  if(text.includes(V.model.toLowerCase()) || text.includes(V.model.toLowerCase().replace('-',''))) score += 5;
+
+  // Make match — but only count if it's in fitment_text or product_name, not just description
+  const fitText = [p.fitment_text, p.product_name].filter(Boolean).join(' ').toLowerCase();
+  if(fitText.includes(V.make.toLowerCase())) score += 4;
+
+  // Model match
+  const modelLower = V.model.toLowerCase();
+  if(fitText.includes(modelLower) || fitText.includes(modelLower.replace('-',''))) score += 5;
+
+  // Engine-specific match (strongest signal)
   const eng = V.engine.toLowerCase();
-  if(text.includes(eng)) score += 7;
-  if((eng.includes('power stroke') || eng.includes('powerstroke')) && (text.includes('power stroke') || text.includes('powerstroke'))) score += 5;
-  if(eng.includes('7.3') && text.includes('7.3')) score += 8;
+  if(text.includes(eng)) score += 10;
+
+  // Engine displacement match — only count if specific displacement found
+  const dispMatch = eng.match(/(\d+\.\d+)/);
+  if(dispMatch && text.includes(dispMatch[1] + 'l')) score += 6;
+  else if(dispMatch && text.includes(dispMatch[1])) score += 3;
+
+  // Engine code match (LB7, LML, L5P, etc.)
+  const codeMatch = eng.match(/\b(lb7|lly|lbz|lmm|lml|l5p|isb|ho)\b/i);
+  if(codeMatch && text.includes(codeMatch[1].toLowerCase())) score += 8;
+
   return score;
 }
 
@@ -1051,7 +1067,6 @@ async function loadProducts() {
   const { data, error } = await sb
     .from('products')
     .select('*')
-    .eq('is_visible', true)
     .order('brand', { ascending: true })
     .order('product_name', { ascending: true });
 
@@ -1068,12 +1083,15 @@ async function loadProducts() {
 
   MATCHED_PRODUCTS = [];
 
-  const V = CURRENT_VEHICLE || {};
-
   ALL_PRODUCTS.forEach(function (p) {
+    // Clean image URL for each product
+    p.__img = cleanImageUrl(p.image_url || p.image || p.images || '');
+
     p.__score = scoreProductForVehicle(p);
 
-    p.__fit = p.__score >= 4;
+    // Require a high score to mark as "fits" — the product must match
+    // engine-specific terms, not just generic words like "diesel"
+    p.__fit = p.__score >= 12;
 
     if (p.__fit) {
       MATCHED_PRODUCTS.push(p);
@@ -1101,7 +1119,15 @@ function renderProducts(){
   const grid = document.getElementById('pgrid');
   if(!grid) return;
 
-  let products = (V.engine && MATCHED_PRODUCTS.length > 0) ? MATCHED_PRODUCTS.slice() : ALL_PRODUCTS.slice();
+  let products = ALL_PRODUCTS.slice();
+  // Sort: fits first, then by score, then alphabetical
+  if(V.engine){
+    products.sort((a,b) => {
+      if((b.__fit?1:0) !== (a.__fit?1:0)) return (b.__fit?1:0) - (a.__fit?1:0);
+      if((b.__score||0) !== (a.__score||0)) return (b.__score||0) - (a.__score||0);
+      return String(a.product_name||'').localeCompare(String(b.product_name||''));
+    });
+  }
 
   const activeCat = document.querySelector('.ct.on');
   const catFilter = activeCat ? activeCat.textContent.trim().toLowerCase() : 'all';
@@ -1184,7 +1210,9 @@ function renderProducts(){
 
   let html = '';
   if(V.engine && MATCHED_PRODUCTS.length > 0){
-    html += `<div class="feed-msg">Showing ${MATCHED_PRODUCTS.length.toLocaleString()} likely matches for your ${escapeHtml(V.year + ' ' + V.make + ' ' + V.model)} • ${escapeHtml(V.engine)}</div>`;
+    html += `<div class="feed-msg">${MATCHED_PRODUCTS.length} confirmed fit${MATCHED_PRODUCTS.length===1?'':'s'} for your ${escapeHtml(V.year + ' ' + V.make + ' ' + V.model)} • ${escapeHtml(V.engine)} — shown first</div>`;
+  }else if(V.engine && MATCHED_PRODUCTS.length === 0){
+    html += `<div class="feed-msg">Showing all products — fitment matches for your ${escapeHtml(V.engine)} will appear first when available</div>`;
   }
 
   if(products.length === 0){
@@ -1207,7 +1235,7 @@ function renderProducts(){
     return `
       <div class="pc g">
         <div class="pc-img">
-          ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.product_name || 'Product')}" loading="lazy">` : emoji}
+          ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.product_name || 'Product')}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="pc-emoji-fallback" style="display:none">${emoji}</span>` : `<span class="pc-emoji-fallback">${emoji}</span>`}
           ${fit}
           ${stg ? `<div class="pc-stg ${stgClass}">STG ${escapeHtml(stg)}</div>` : ''}
         </div>
