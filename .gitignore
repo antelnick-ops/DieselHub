@@ -44,3 +44,7 @@ coverage/
 # Misc
 .cache/
 tmp/
+ 
+# Distributor data feeds (never commit) 
+tmp/ 
+*.csv 
