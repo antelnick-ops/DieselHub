@@ -294,9 +294,12 @@ async function onAuth(user){
   var name=email.split('@')[0].split('.').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);}).join(' ');
   var initials=name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
 
-  document.getElementById('pAv').textContent=initials||'BS';
-  document.getElementById('pName').textContent=name||'BlackStack User';
-  document.getElementById('pEmail').textContent=email;
+  var pAv = document.getElementById('pAv');
+  if(pAv) pAv.textContent=initials||'BS';
+  var pName = document.getElementById('pName');
+  if(pName) pName.textContent=name||'BlackStack User';
+  var pEmail = document.getElementById('pEmail');
+  if(pEmail) pEmail.textContent=email;
 
   var acctVehicle=(user.user_metadata&&user.user_metadata.vehicle)?user.user_metadata.vehicle:null;
   var saved=vehicleObjIsComplete(acctVehicle)?acctVehicle:getStoredVehicle();
@@ -683,6 +686,7 @@ function getCatEmoji(cat){
 
 async function loadProducts(){
   var grid=document.getElementById('pgrid');
+  if(!grid) return;
   var res=await sb.from('products').select('*').eq('status','active').order('created_at',{ascending:false});
 
   if(res.error||!res.data||res.data.length===0){
@@ -718,7 +722,8 @@ async function loadProducts(){
 
   var tabHtml='<div class="ct on">All</div>';
   Array.from(cats).sort().forEach(function(c){tabHtml+='<div class="ct">'+c+'</div>';});
-  document.getElementById('catTabs').innerHTML=tabHtml;
+  var catTabsEl = document.getElementById('catTabs');
+  if(catTabsEl) catTabsEl.innerHTML=tabHtml;
   document.querySelectorAll('.ct').forEach(function(c){
     c.onclick=function(){
       document.querySelectorAll('.ct').forEach(function(x){x.classList.remove('on');});
@@ -729,7 +734,8 @@ async function loadProducts(){
 
   var brandHtml='<option>Brand: All</option>';
   Array.from(brands).sort().forEach(function(b){brandHtml+='<option>'+b+'</option>';});
-  document.getElementById('brandDd').innerHTML=brandHtml;
+  var brandDdEl = document.getElementById('brandDd');
+  if(brandDdEl) brandDdEl.innerHTML=brandHtml;
 
   var countHtml='';
   if(V.engine&&vehicleMatched.length>0){
@@ -777,7 +783,8 @@ async function loadProducts(){
   document.querySelectorAll('.dd').forEach(function(d){
     d.onchange=function(){filterProducts();};
   });
-  document.querySelector('.sbox input').addEventListener('input',function(){filterProducts();});
+  var searchInput = document.querySelector('.sbox input');
+  if(searchInput) searchInput.addEventListener('input',function(){filterProducts();});
 }
 
 function filterProducts(){
@@ -865,3 +872,150 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/app/sw.js').catch(function(){});
 }
 </script>
+
+<body>
+<div id="app">
+  <!-- Auth Screen -->
+  <div id="auth" class="screen">
+    <div class="auth-card">
+      <h1>Black Stack Diesel</h1>
+      <p>AI-powered diagnostics & parts</p>
+      <div id="authErr" class="err"></div>
+      <input id="authEmail" type="email" placeholder="Email" required>
+      <input id="authPass" type="password" placeholder="Password" required>
+      <div id="confirmWrap" style="display:none;">
+        <input id="authConfirm" type="password" placeholder="Confirm Password" required>
+      </div>
+      <button id="authBtn" onclick="handleAuth()">Sign In</button>
+      <div id="authToggle">
+        No account? <a href="#" onclick="toggleAuthMode(event)">Sign Up</a>
+      </div>
+      <div class="oauth">
+        <button onclick="oAuth('google')">Continue with Google</button>
+        <button onclick="oAuth('apple')">Continue with Apple</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vehicle Setup -->
+  <div id="veh" class="screen hid">
+    <div class="v-card">
+      <h2>Select Your Truck</h2>
+      <div class="prog">
+        <div id="p1" class="pb"></div>
+        <div id="p2" class="pb"></div>
+        <div id="p3" class="pb"></div>
+        <div id="p4" class="pb"></div>
+      </div>
+      <div id="vprev" class="vprev hid">
+        <button onclick="vehBack()">← Back</button>
+      </div>
+      <div id="vBtn" class="vbtn hid">
+        <button onclick="confirmV()">Confirm Vehicle</button>
+      </div>
+      <div id="vg-year" class="vg">
+        <h3>Year</h3>
+        <div id="yearP" class="pills"></div>
+      </div>
+      <div id="vg-make" class="vg hid">
+        <h3>Make</h3>
+        <div id="makeP" class="pills"></div>
+      </div>
+      <div id="vg-model" class="vg hid">
+        <h3>Model</h3>
+        <div id="modelP" class="pills"></div>
+      </div>
+      <div id="vg-engine" class="vg hid">
+        <h3>Engine</h3>
+        <div id="engineP" class="pills"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="main" class="screen hid">
+    <!-- Header -->
+    <div class="hdr">
+      <div class="logo">BSD</div>
+      <div class="hdr-right">
+        <div class="cbdg">0</div>
+        <button onclick="toggleCart()">Cart</button>
+        <div class="prof" onclick="toggleProf()">
+          <div id="pAv" class="pav">BS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Dropdown -->
+    <div id="prof" class="prof-dd hid">
+      <div class="pd-item">
+        <div id="pName" class="pn">BlackStack User</div>
+        <div id="pEmail" class="pe"></div>
+      </div>
+      <div class="pd-item" onclick="go('veh')">Change Vehicle</div>
+      <div class="pd-item" onclick="signOut()">Sign Out</div>
+    </div>
+
+    <!-- Products -->
+    <div class="content">
+      <div class="filters">
+        <div class="sbox">
+          <input type="text" placeholder="Search parts...">
+        </div>
+        <div id="catTabs" class="cats"></div>
+        <div class="stgs">
+          <div class="stg">Stage 1</div>
+          <div class="stg">Stage 2</div>
+          <div class="stg">Stage 3</div>
+        </div>
+        <div class="dds">
+          <select class="dd">
+            <option>Price: All</option>
+            <option>$0 - $500</option>
+            <option>$500 - $2000</option>
+            <option>$2000+</option>
+          </select>
+          <select id="brandDd" class="dd">
+            <option>Brand: All</option>
+          </select>
+          <select class="dd">
+            <option>Sort: Relevance</option>
+            <option>Price: Low to High</option>
+            <option>Price: High to Low</option>
+            <option>Name: A-Z</option>
+          </select>
+        </div>
+      </div>
+      <div id="pgrid" class="pgrid"></div>
+    </div>
+
+    <!-- Product Detail -->
+    <div id="pDetail" class="pd hid">
+      <div class="pd-close" onclick="closeProduct()">×</div>
+      <div id="pdContent"></div>
+    </div>
+
+    <!-- Cart -->
+    <div id="cD" class="cd hid">
+      <div class="cd-hdr">
+        <h3>Cart</h3>
+        <div class="cd-close" onclick="toggleCart()">×</div>
+      </div>
+      <div id="cartItems" class="cd-body"></div>
+      <div class="cd-foot">
+        <div class="cd-tot">
+          <span>Total:</span>
+          <span id="cartTotal">$0</span>
+        </div>
+        <div id="cartCount"></div>
+        <button id="checkoutBtn" onclick="doCheckout()">Checkout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Add minimal styles here if needed, but assuming CSS is in head */
+</style>
+</body>
+</html>
