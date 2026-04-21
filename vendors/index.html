@@ -4,1075 +4,613 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TDGHS7EY89"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TDGHS7EY89');</script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sell on Black Stack Diesel — Vendor Portal</title>
-<meta name="description" content="List your diesel truck parts on Black Stack Diesel. Commission-only, no upfront fees.">
-<link rel="icon" type="image/x-icon" href="../favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#07070A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BlackStack">
+<link rel="manifest" href="/app/manifest.json">
+<title>BlackStack Diesel</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Archivo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#08090B;--bg2:#0E1014;--bg3:#151820;--bg4:#1C2029;--ember:#FF6B2C;--ember2:#E85A1E;--ember-glow:rgba(255,107,44,.1);--amber:#F5A623;--smoke:#2A2D35;--t1:#F2EDE6;--t2:#A0A4B0;--t3:#5E6270;--bd:rgba(255,255,255,.06);--green:#34C759;--red:#E84545;--blue:#4A9EFF}
-html{scroll-behavior:smooth}
-body{font-family:'Archivo',sans-serif;background:var(--bg);color:var(--t1);overflow-x:hidden;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4}
 
-/* ============ SHARED ============ */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 40px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(to bottom,rgba(8,9,11,.95),transparent);backdrop-filter:blur(10px)}
-.nav-logo{display:flex;align-items:center;gap:12px}
-.nav-brand{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:3px;text-transform:uppercase}
-.nav-brand em{font-style:normal;color:var(--ember)}
-.nav-links{display:flex;gap:24px;align-items:center}
-.nav-links a{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--t2);transition:.2s}
-.nav-links a:hover{color:var(--ember)}
-.nav-cta{padding:10px 24px;background:var(--ember);border-radius:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#fff;transition:.2s;cursor:pointer;border:none}
-.nav-cta:hover{background:var(--ember2);transform:translateY(-1px)}
-.fg{margin-bottom:14px;text-align:left}
-.fg label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:6px}
-.fi{width:100%;height:46px;background:var(--bg);border:2px solid var(--smoke);border-radius:10px;padding:0 14px;font-size:14px;color:var(--t1);font-family:'Archivo',sans-serif;outline:none;transition:.2s}
-.fi:focus{border-color:var(--ember);box-shadow:0 0 0 3px var(--ember-glow)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#07070A;--c1:#0D0D12;--c2:#131318;--c3:#1A1A22;--c4:#25252F;
+  --gl:rgba(255,255,255,.035);--glb:rgba(255,255,255,.055);--glh:rgba(255,255,255,.07);
+  --gold:#EDAE0A;--gold2:#D4990B;--goldg:linear-gradient(140deg,#FBBF24,#F59E0B,#D97706);
+  --goldgl:rgba(237,174,10,.12);--goldb:rgba(237,174,10,.1);
+  --red:#F87171;--grn:#34D399;--blu:#60A5FA;--pur:#A78BFA;
+  --t1:#F1F5F9;--t2:rgba(241,245,249,.5);--t3:rgba(241,245,249,.22);--t4:rgba(241,245,249,.1);
+  --r:14px;--r2:18px;--r3:24px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:'Manrope',sans-serif;color:var(--t1)}
+
+.phone{width:100%;height:100dvh;background:var(--bg);position:relative;overflow:hidden}
+
+/* Ambient blobs */
+.blob{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.blob-1{width:260px;height:260px;background:rgba(237,174,10,.045);top:-60px;right:-40px;animation:float1 22s ease infinite alternate}
+.blob-2{width:200px;height:200px;background:rgba(96,165,250,.03);bottom:60px;left:-50px;animation:float2 18s ease infinite alternate}
+.blob-3{width:160px;height:160px;background:rgba(167,139,250,.025);top:40%;left:50%;animation:float3 25s ease infinite alternate}
+@keyframes float1{to{transform:translate(-30px,50px) scale(1.15)}}
+@keyframes float2{to{transform:translate(40px,-40px) scale(.9)}}
+@keyframes float3{to{transform:translate(-50px,30px) scale(1.2)}}
+
+/* Noise texture overlay */
+.phone::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");opacity:.5;pointer-events:none;z-index:0}
+
+.sbar{height:env(safe-area-inset-top,12px);min-height:12px;z-index:200;position:relative}
+
+.sw{height:calc(100dvh - env(safe-area-inset-top,12px));position:relative;overflow:hidden;z-index:1}
+.scr{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;opacity:0;pointer-events:none;transition:opacity .45s var(--ease),transform .45s var(--ease);transform:translateY(8px) scale(.985)}
+.scr::-webkit-scrollbar{display:none}
+.scr.on{opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
+
+/* Nav */
+.bnav{position:absolute;bottom:0;left:0;right:0;z-index:100;padding:0 24px calc(env(safe-area-inset-bottom,6px) + 6px)}
+.bnav-in{display:flex;align-items:center;justify-content:space-around;height:60px;background:rgba(13,13,18,.92);backdrop-filter:blur(40px) saturate(1.8);-webkit-backdrop-filter:blur(40px) saturate(1.8);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:0 8px;box-shadow:0 -4px 30px rgba(0,0,0,.5)}
+.ni{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 24px;border-radius:100px;position:relative;transition:.3s var(--ease)}
+.ni svg{width:22px;height:22px;stroke:rgba(241,245,249,.4);fill:none;stroke-width:1.8;transition:.35s var(--ease)}
+.ni span{font-size:10px;font-weight:700;color:rgba(241,245,249,.4);text-transform:uppercase;letter-spacing:1.8px;transition:.35s var(--ease)}
+.ni.on svg{stroke:var(--gold)}
+.ni.on span{color:var(--gold)}
+.ni.on::before{content:'';position:absolute;inset:0;border-radius:100px;background:rgba(237,174,10,.05);border:1px solid rgba(237,174,10,.08)}
+.hid{display:none!important}
+
+/* Shared */
+.g{background:var(--gl);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glb);border-radius:var(--r2)}
+.gs{background:var(--gl);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glb);border-radius:var(--r)}
+.btn-g{width:100%;height:54px;background:var(--goldg);border:none;border-radius:var(--r);font-family:'Manrope',sans-serif;font-size:15px;font-weight:700;letter-spacing:.3px;color:#0a0a0a;cursor:pointer;transition:.2s;position:relative;overflow:hidden;box-shadow:0 0 30px rgba(237,174,10,.12),inset 0 1px 0 rgba(255,255,255,.25)}
+.btn-g:active{transform:scale(.97);box-shadow:none}
+.mono{font-family:'DM Mono',monospace}
+
+/* ========== LOGIN ========== */
+#s-login{display:flex;flex-direction:column;padding:40px 28px;justify-content:center;align-items:center}
+.l-logo{width:100px;height:100px;border-radius:20px;background:transparent;display:flex;align-items:center;justify-content:center;margin-bottom:20px;position:relative;overflow:hidden}
+.l-logo img{width:100%;height:100%;object-fit:contain}
+.l-logo::after{content:'';position:absolute;inset:-6px;border-radius:26px;border:none;pointer-events:none}
+.l-mark{font-size:30px;font-weight:800;letter-spacing:-.8px;margin-bottom:2px}
+.l-mark em{font-style:normal;color:var(--gold)}
+.l-sub{color:var(--t3);font-size:14px;margin-bottom:36px;letter-spacing:.4px;font-weight:500}
+.fg{width:100%;margin-bottom:12px}
+.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--t3);margin-bottom:6px}
+.fi{width:100%;height:52px;background:var(--gl);border:1px solid var(--glb);border-radius:12px;padding:0 16px;font-size:16px;color:var(--t1);font-family:'Manrope',sans-serif;outline:none;transition:.3s var(--ease)}
+.fi:focus{border-color:rgba(237,174,10,.25);box-shadow:0 0 0 4px rgba(237,174,10,.04)}
 .fi::placeholder{color:var(--t3)}
-textarea.fi{height:100px;padding:12px 14px;resize:vertical}
-select.fi{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%235E6270' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:18px}
-.form-btn{width:100%;height:52px;background:var(--ember);border:none;border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#fff;cursor:pointer;transition:.2s;margin-top:8px}
-.form-btn:hover{background:var(--ember2);transform:translateY(-1px);box-shadow:0 6px 24px rgba(255,107,44,.3)}
-.form-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-.form-err{color:var(--red);font-size:12px;text-align:center;margin-bottom:8px;display:none}
-.badge{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
-.badge-pending{background:rgba(245,166,35,.15);color:var(--amber)}
-.badge-new{background:rgba(74,158,255,.15);color:var(--blue)}
-.badge-shipped{background:rgba(52,199,89,.15);color:var(--green)}
-.badge-active{background:rgba(52,199,89,.15);color:var(--green)}
-.dist-card{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:20px;cursor:pointer;transition:.2s}
-.dist-card:hover{border-color:rgba(255,107,44,.15)}
-.dist-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.dist-top strong{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
-.dist-card p{font-size:12px;color:var(--t3);line-height:1.5}
-.dist-fields{margin-top:14px;border-top:1px solid var(--bd);padding-top:14px}
-footer{padding:48px 40px;border-top:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
-.footer-brand{display:flex;align-items:center;gap:10px}
-.footer-brand span{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--t3)}
-.footer-links{display:flex;gap:24px}
-.footer-links a{font-size:13px;color:var(--t3);transition:.2s}
-.footer-links a:hover{color:var(--ember)}
-.footer-legal{font-size:11px;color:var(--t3);width:100%;text-align:center;margin-top:20px}
+.sep{display:flex;align-items:center;gap:16px;width:100%;margin:22px 0}.sep::before,.sep::after{content:'';flex:1;height:1px;background:var(--glb)}.sep span{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:2.5px;font-weight:600}
+.soc{display:flex;gap:10px;width:100%}
+.soc-b{flex:1;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:var(--t2);transition:.2s}
+.soc-b:active{transform:scale(.95)}
+.soc-b svg{width:17px;height:17px}
+.l-ft{margin-top:24px;font-size:14px;color:var(--t3)}.l-ft a{color:var(--gold);text-decoration:none;font-weight:700}
 
-/* ============ PITCH PAGE ============ */
-#pitchPage .hero{min-height:80vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:140px 40px 80px}
-.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(255,107,44,.06),transparent 60%),radial-gradient(ellipse at 70% 60%,rgba(245,166,35,.04),transparent 50%)}
-.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
-.hero-content{max-width:800px;text-align:center;position:relative;z-index:2}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:var(--bg3);border:1px solid var(--bd);border-radius:40px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--ember);margin-bottom:32px}
-.hero h1{font-family:'Rajdhani',sans-serif;font-size:clamp(42px,7vw,80px);font-weight:700;line-height:.95;text-transform:uppercase;letter-spacing:2px;margin-bottom:24px}
-.hero h1 em{font-style:normal;color:var(--ember)}
-.hero p{font-size:clamp(16px,2vw,20px);color:var(--t2);max-width:600px;margin:0 auto 40px;line-height:1.6;font-weight:300}
-.hero-ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
-.btn-main{padding:16px 40px;background:var(--ember);border:none;border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:#fff;cursor:pointer;transition:.2s;display:inline-block}
-.btn-main:hover{background:var(--ember2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(255,107,44,.3)}
-.btn-ghost{padding:16px 40px;background:transparent;border:2px solid var(--smoke);border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--t2);cursor:pointer;transition:.2s;display:inline-block}
-.btn-ghost:hover{border-color:var(--t2);color:var(--t1)}
-.stats-bar{display:flex;justify-content:center;gap:48px;padding:40px;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);background:var(--bg2)}
-.stat{text-align:center}
-.stat-val{font-family:'Rajdhani',sans-serif;font-size:42px;font-weight:700;color:var(--ember)}
-.stat-lbl{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--t3);margin-top:4px}
-section{padding:100px 40px}
-.container{max-width:1100px;margin:0 auto}
-.section-label{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:4px;color:var(--ember);margin-bottom:16px}
-.section-title{font-family:'Rajdhani',sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700;text-transform:uppercase;letter-spacing:1px;line-height:1.1;margin-bottom:20px}
-.section-desc{font-size:17px;color:var(--t2);max-width:560px;line-height:1.65;font-weight:300}
-.why{background:var(--bg2)}
-.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
-.why-card{background:var(--bg3);border:1px solid var(--bd);border-radius:16px;padding:32px 24px;position:relative;overflow:hidden;transition:.3s}
-.why-card:hover{transform:translateY(-4px);border-color:rgba(255,107,44,.15);box-shadow:0 12px 40px rgba(0,0,0,.4)}
-.why-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--ember),transparent);opacity:0;transition:.3s}
-.why-card:hover::before{opacity:1}
-.why-icon{width:48px;height:48px;background:var(--ember-glow);border:1px solid rgba(255,107,44,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-size:22px}
-.why-card h3{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.why-card p{font-size:14px;color:var(--t2);line-height:1.6}
-.how-steps{display:flex;gap:32px;margin-top:48px;counter-reset:step}
-.step{flex:1;position:relative;padding:32px 24px;background:var(--bg3);border:1px solid var(--bd);border-radius:16px}
-.step::before{counter-increment:step;content:counter(step);font-family:'Rajdhani',sans-serif;font-size:48px;font-weight:700;color:var(--ember);opacity:.3;position:absolute;top:16px;right:20px;line-height:1}
-.step h3{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:8px}
-.step p{font-size:14px;color:var(--t2);line-height:1.6}
-.step-icon{font-size:28px}
-.comm{background:var(--bg2)}
-.comm-box{background:var(--bg3);border:1px solid var(--bd);border-radius:20px;padding:48px;margin-top:40px;display:flex;gap:48px;align-items:center}
-.comm-left{flex:1;text-align:center}
-.comm-rate{font-family:'Rajdhani',sans-serif;font-size:72px;font-weight:700;color:var(--ember);line-height:1}
-.comm-rate span{font-size:32px;color:var(--t3);font-weight:500}
-.comm-sub{font-size:14px;color:var(--t2);margin-top:8px}
-.comm-right{flex:1}
-.comm-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd)}
-.comm-item:last-child{border:none}
-.comm-check{color:var(--green);font-size:18px}
-.comm-item span{font-size:14px;color:var(--t2)}
-.login-section{padding:80px 40px;border-bottom:1px solid var(--bd)}
-.login-box{max-width:420px;margin:0 auto;background:var(--bg3);border:1px solid var(--bd);border-radius:20px;padding:40px;text-align:center}
-.login-box h2{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
-.login-box p{font-size:14px;color:var(--t3);margin-bottom:24px}
-.form-switch{font-size:13px;color:var(--t3);margin-top:16px}
-.form-switch a{color:var(--ember);cursor:pointer;font-weight:600}
-.apply-section{position:relative;overflow:hidden}
-.apply-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(255,107,44,.06),transparent 70%);pointer-events:none}
-.apply-form{max-width:640px;margin:40px auto 0;background:var(--bg3);border:1px solid var(--bd);border-radius:20px;padding:40px}
-.apply-form h3{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px}
-.apply-form p{font-size:14px;color:var(--t3);margin-bottom:24px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
-.checkbox-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--t2);cursor:pointer}
-.checkbox-item input[type="checkbox"]{appearance:none;width:18px;height:18px;background:var(--bg);border:2px solid var(--smoke);border-radius:4px;cursor:pointer;transition:.2s;flex-shrink:0}
-.checkbox-item input[type="checkbox"]:checked{background:var(--ember);border-color:var(--ember)}
-.checkbox-item input[type="checkbox"]:checked::after{content:'✓';display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;width:100%;height:100%}
-.form-success{display:none;padding:20px;background:rgba(52,199,89,.1);border:1px solid rgba(52,199,89,.2);border-radius:12px;color:var(--green);font-weight:600;text-align:center}
+/* ========== VEHICLE ========== */
+#s-veh{padding:0}
+.v-top{display:flex;align-items:center;padding:10px 24px 0}
+.v-back{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+.v-back:active{transform:scale(.86)}
+.v-back svg{width:20px;height:20px;stroke:var(--t2);fill:none;stroke-width:2}
+.v-body{padding:4px 24px 40px}
+.v-heading{text-align:center;margin-bottom:24px}
+.v-heading h2{font-size:22px;font-weight:800;letter-spacing:-.4px}
+.v-heading p{color:var(--t3);font-size:14px;margin-top:4px;font-weight:500}
+.prog-bar{display:flex;gap:5px;margin-bottom:28px}
+.pb{flex:1;height:3px;border-radius:2px;background:var(--t4);transition:.6s var(--ease);position:relative;overflow:hidden}
+.pb.done{background:var(--gold)}
+.pb.done::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);animation:shim 2.5s ease infinite}
+@keyframes shim{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.pb.cur{background:rgba(237,174,10,.25)}
+.lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--t3);margin-bottom:10px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.pill{padding:11px 22px;border-radius:12px;font-size:15px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .3s var(--ease);white-space:nowrap;position:relative;background:var(--gl);border:1px solid var(--glb)}
+.pill:active{transform:scale(.93)}
+.pill.sel{color:var(--gold);background:var(--goldgl);border-color:rgba(237,174,10,.2);box-shadow:0 0 20px rgba(237,174,10,.04)}
+.vprev{border-radius:var(--r2);padding:20px;margin-top:20px;position:relative;overflow:hidden}
+.vprev::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--goldg)}
+.vprev .vl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:var(--t3);margin-bottom:8px}
+.vprev .vn{font-size:20px;font-weight:800;background:var(--goldg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.3px}
+.vprev .ve{font-size:12px;color:var(--t2);margin-top:4px;font-weight:500}
+.vprev .vt{display:flex;gap:6px;margin-top:12px}
+.vprev .tag{padding:4px 12px;border-radius:8px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t2)}
 
-/* ============ VENDOR DASHBOARD ============ */
-#vendorDash{display:none}
-.dash-topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:16px 32px;border-bottom:1px solid var(--bd);background:rgba(14,16,20,.95);backdrop-filter:blur(10px)}
-.dash-topbar-left{display:flex;align-items:center;gap:12px}
-.dash-topbar-left img{width:32px;height:32px;border-radius:8px}
-.dash-topbar-left span{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:2px}
-.dash-topbar-left em{font-style:normal;color:var(--ember)}
-.dash-topbar-right{display:flex;align-items:center;gap:16px}
-.dash-user{font-size:12px;color:var(--t3)}
-.btn-sm{padding:8px 16px;background:var(--smoke);border:none;border-radius:8px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;transition:.2s}
-.btn-sm:hover{background:var(--bg4);color:var(--t1)}
+/* ========== AI ========== */
+#s-ai{padding:20px 24px calc(80px + env(safe-area-inset-bottom,6px))}
+.sec-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.sec-h h2{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.badge{padding:5px 14px;border-radius:100px;font-size:9px;font-weight:700;letter-spacing:.6px;color:var(--gold);background:var(--goldgl);border:1px solid var(--goldb)}
+.ai-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;height:calc(100% - 100px)}
+.orb{width:96px;height:96px;border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:44px;margin-bottom:28px;position:relative;background:var(--c1)}
+.orb::before{content:'';position:absolute;inset:-2px;border-radius:32px;background:conic-gradient(from 180deg,var(--gold),transparent 25%,transparent 75%,var(--gold));opacity:.35;animation:spin 10s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orb span{position:relative;z-index:1}
+.ai-t{font-size:20px;font-weight:800;background:var(--goldg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.ai-d{font-size:15px;color:var(--t2);line-height:1.8;max-width:270px;margin-bottom:22px;font-weight:400}
+.ai-j{font-size:14px;color:var(--t3);line-height:1.75;max-width:250px;font-style:italic;margin-bottom:30px;padding:16px 20px;border-radius:14px;background:var(--gl);border-left:2px solid rgba(237,174,10,.15);font-weight:400}
+.ai-soon{padding:10px 26px;border-radius:100px;display:flex;align-items:center;gap:10px;border:1px solid var(--goldb);background:var(--goldgl)}
+.ai-soon .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pul 2s ease infinite}
+@keyframes pul{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.15;transform:scale(.6)}}
+.ai-soon span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:var(--t2)}
 
-.dash-tabs{position:fixed;top:65px;left:0;right:0;z-index:99;display:flex;padding:0 32px;background:var(--bg2);border-bottom:1px solid var(--bd);overflow-x:auto}
-.dash-tab{padding:14px 24px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--t3);cursor:pointer;border-bottom:3px solid transparent;transition:.2s;white-space:nowrap}
-.dash-tab.active{color:var(--ember);border-bottom-color:var(--ember)}
-.dash-tab:hover{color:var(--t1)}
+/* ========== MARKETPLACE ========== */
+#s-mkt{padding:14px 18px calc(80px + env(safe-area-inset-bottom,6px))}
+.mk-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:0 2px}
+.mk-top h2{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.cbtn{position:relative;width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cbtn:active{transform:scale(.88)}
+.cbtn svg{width:19px;height:19px;stroke:var(--t2);fill:none;stroke-width:1.7}
+.cbdg{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;background:var(--goldg);border-radius:100px;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);padding:0 4px;color:#0a0a0a}
+.vstrip{padding:10px 14px;border-radius:12px;display:flex;align-items:center;gap:9px;margin-bottom:14px;font-size:13px;font-weight:600;color:var(--gold)}
+.vstrip svg{width:15px;height:15px;stroke:var(--gold);fill:none;stroke-width:2;flex-shrink:0}
+.cats{display:flex;gap:5px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none;padding-bottom:2px}.cats::-webkit-scrollbar{display:none}
+.ct{padding:9px 18px;border-radius:100px;font-size:12px;font-weight:700;color:var(--t3);cursor:pointer;white-space:nowrap;transition:.25s var(--ease);background:var(--gl);border:1px solid var(--glb)}
+.ct.on{color:var(--gold);background:var(--goldgl);border-color:rgba(237,174,10,.15)}
+.stg-row{display:flex;gap:6px;margin-bottom:10px}
+.stg{padding:6px 14px;border-radius:10px;font-size:9px;font-weight:800;letter-spacing:1px;color:var(--t3);cursor:pointer;transition:.25s var(--ease);text-transform:uppercase;background:var(--gl);border:1px solid var(--glb)}
+.stg.on{color:var(--gold);background:var(--goldgl);border-color:rgba(237,174,10,.15)}
+.dds{display:flex;gap:6px;margin-bottom:12px}
+.dd{flex:1;height:36px;background:var(--gl);border:1px solid var(--glb);border-radius:10px;padding:0 8px;font-size:10px;font-weight:600;color:var(--t2);font-family:'Manrope',sans-serif;outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='rgba(255,255,255,0.15)' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;background-size:12px;padding-right:22px}
+.dd:focus{border-color:rgba(237,174,10,.2)}
+.dd option{background:#151519;color:#e2e2e2}
+.sbox{position:relative;margin-bottom:16px}
+.sbox input{width:100%;height:44px;background:var(--gl);border:1px solid var(--glb);border-radius:13px;padding:0 14px 0 42px;font-size:15px;color:var(--t1);outline:none;font-family:'Manrope',sans-serif;transition:.25s var(--ease)}
+.sbox input::placeholder{color:var(--t3);font-weight:500}
+.sbox input:focus{border-color:rgba(237,174,10,.15)}
+.sbox svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;stroke:var(--t3);fill:none;stroke-width:1.8}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pc{border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:.25s var(--ease)}
+.pc:active{transform:scale(.965)}
+.pc-img{height:120px;background:rgba(255,255,255,.015);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;font-size:34px;border-bottom:1px solid var(--glb)}.pc-img img{display:block}.pc-emoji{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.pc-fit{position:absolute;top:7px;left:7px;padding:3px 8px;border-radius:7px;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;background:rgba(52,211,153,.06);color:var(--grn);border:1px solid rgba(52,211,153,.1)}
+.pc-stg{position:absolute;top:7px;right:7px;padding:3px 8px;border-radius:7px;font-size:7px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.s1{background:rgba(96,165,250,.06);color:var(--blu);border:1px solid rgba(96,165,250,.1)}
+.s2{background:var(--goldgl);color:var(--gold);border:1px solid var(--goldb)}
+.s3{background:rgba(248,113,113,.06);color:var(--red);border:1px solid rgba(248,113,113,.1)}
+.pc-bd{padding:10px 12px 12px}
+.pc-br{font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:3px}
+.pc-bd h4{font-size:13px;font-weight:600;line-height:1.4;margin-bottom:8px;color:var(--t1)}
+.pc-bt{display:flex;justify-content:space-between;align-items:center}
+.pc-pr{font-size:18px;font-weight:800;color:var(--gold);font-family:'DM Mono',monospace;letter-spacing:-.5px}
+.ab{width:32px;height:32px;background:var(--goldg);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;transition:.15s;box-shadow:0 2px 10px rgba(237,174,10,.1)}
+.ab:active{transform:scale(.8)}
+.ab svg{width:14px;height:14px;stroke:#0a0a0a;stroke-width:2.5;fill:none}
 
-.dash-content{padding:140px 32px 32px}
-.dash-panel{display:none}
-.dash-panel.active{display:block}
+/* Cart */
+.cd{position:absolute;inset:0;z-index:300;pointer-events:none;display:none}.cd.op{pointer-events:auto;display:block}
+.cd-bg{position:absolute;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);opacity:0;transition:.4s}.cd.op .cd-bg{opacity:1}
+.cd-sh{position:absolute;bottom:0;left:0;right:0;background:rgba(13,13,18,.96);backdrop-filter:blur(40px);border-radius:24px 24px 0 0;padding:20px 24px 36px;transform:translateY(100%);transition:.5s var(--ease);max-height:70%;overflow-y:auto;border:1px solid var(--glb);border-bottom:none}.cd.op .cd-sh{transform:translateY(0)}
+.cd-h{width:32px;height:3px;background:var(--t4);border-radius:2px;margin:0 auto 18px}
+.cd-t{font-size:17px;font-weight:800;margin-bottom:14px;letter-spacing:-.2px}
+.cd-e{text-align:center;padding:32px 0;color:var(--t3);font-size:12px;font-weight:500}
+.cd-items{display:flex;flex-direction:column;gap:10px;max-height:40vh;overflow-y:auto;scrollbar-width:none}
+.cd-items::-webkit-scrollbar{display:none}
+.ci{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--r);background:var(--gl);border:1px solid var(--glb)}
+.ci-img{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ci-info{flex:1;min-width:0}
+.ci-info h4{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-info p{font-size:11px;color:var(--t3);margin-top:2px}
+.ci-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.ci-price{font-size:15px;font-weight:800;font-family:'DM Mono',monospace;color:var(--gold)}
+.ci-rm{width:26px;height:26px;border-radius:8px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+.ci-rm:active{transform:scale(.8)}
+.ci-rm svg{width:12px;height:12px;stroke:var(--red);fill:none;stroke-width:2.5}
+.cd-tot{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid var(--glb);margin:14px 0}
+.cd-tot span{font-size:12px;color:var(--t2);font-weight:500}
+.cd-tot strong{font-size:22px;font-weight:800;font-family:'DM Mono',monospace;color:var(--gold)}
 
-.dash-stats{display:flex;gap:16px;margin-bottom:32px;flex-wrap:wrap}
-.dash-stat{flex:1;min-width:140px;background:var(--bg3);border:1px solid var(--bd);border-radius:14px;padding:20px 24px;position:relative;overflow:hidden}
-.dash-stat .dv{font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700}
-.dash-stat .dl{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--t3);margin-top:2px}
-.dash-stat.ember .dv{color:var(--ember)}.dash-stat.green .dv{color:var(--green)}.dash-stat.blue .dv{color:var(--blue)}.dash-stat.amber .dv{color:var(--amber)}
-.dash-stat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
-.dash-stat.ember::after{background:var(--ember)}.dash-stat.green::after{background:var(--green)}.dash-stat.blue::after{background:var(--blue)}.dash-stat.amber::after{background:var(--amber)}
+/* ========== PROFILE ========== */
+#s-pro{padding:20px 24px calc(80px + env(safe-area-inset-bottom,6px))}
+.p-head{text-align:center;padding:20px 0 8px}
+.p-av{width:76px;height:76px;border-radius:24px;background:var(--goldg);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#0a0a0a;box-shadow:0 8px 36px rgba(237,174,10,.12);position:relative}
+.p-av::after{content:'';position:absolute;inset:-4px;border-radius:28px;border:1px solid rgba(237,174,10,.08)}
+.p-name{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.p-email{font-size:11px;color:var(--t3);margin-top:3px;font-weight:500}
+.p-truck{border-radius:var(--r2);padding:16px;margin:22px 0 18px;display:flex;align-items:center;gap:12px}
+.p-trk-i{width:46px;height:46px;background:var(--goldgl);border:1px solid var(--goldb);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.p-trk-t h4{font-size:15px;font-weight:700;background:var(--goldg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.p-trk-t p{font-size:10px;color:var(--t3);margin-top:2px;font-weight:500}
+.p-edit{margin-left:auto;padding:7px 16px;border-radius:10px;font-size:9px;font-weight:700;color:var(--t2);cursor:pointer;font-family:'Manrope',sans-serif;letter-spacing:.5px;text-transform:uppercase}
+.p-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:22px}
+.p-st{border-radius:var(--r);padding:14px 6px;text-align:center}
+.p-stv{font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:var(--gold)}
+.p-stl{font-size:8px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1.4px;margin-top:4px}
+.p-list{display:flex;flex-direction:column;gap:1px;border-radius:var(--r2);overflow:hidden}
+.p-row{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--gl);cursor:pointer;transition:.15s}
+.p-row:active{background:var(--glh)}
+.p-ri{width:36px;height:36px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid var(--glb);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.p-ri svg{width:16px;height:16px;stroke:var(--t2);fill:none;stroke-width:1.7}
+.p-row span{flex:1;font-size:15px;font-weight:500}.p-row .ch{color:var(--t4);font-size:15px}
+.so-btn{width:100%;height:48px;background:transparent;border:1px solid rgba(248,113,113,.1);border-radius:var(--r);margin-top:20px;font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;color:var(--red);cursor:pointer;transition:.2s;letter-spacing:.3px}
+.so-btn:active{background:rgba(248,113,113,.04)}
 
-.card{background:var(--bg3);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
-.card-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--bd)}
-.card-header h3{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:2px}
-.tbl{width:100%;border-collapse:collapse;font-size:13px}
-.tbl th{text-align:left;padding:12px 16px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);border-bottom:1px solid var(--bd);font-weight:600;background:var(--bg2)}
-.tbl td{padding:12px 16px;border-bottom:1px solid var(--bd);color:var(--t2)}
-.tbl tr:hover td{background:rgba(255,255,255,.02)}
+/* Desktop cap */
+@media(min-width:500px){.phone{max-width:430px;margin:0 auto}}
 
-.empty-state{text-align:center;padding:60px 20px;color:var(--t3)}
-.empty-state .icon{font-size:48px;margin-bottom:12px;opacity:.5}
-.empty-state h4{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--t2);margin-bottom:8px}
-.empty-state p{font-size:13px;line-height:1.6;max-width:400px;margin:0 auto}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.pc{animation:fadeIn .5s var(--ease) both}
+.pc:nth-child(2){animation-delay:.05s}.pc:nth-child(3){animation-delay:.1s}
+.pc:nth-child(4){animation-delay:.15s}.pc:nth-child(5){animation-delay:.2s}.pc:nth-child(6){animation-delay:.25s}
 
-.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:20px}
-.product-card{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:20px;transition:.2s}
-.product-card:hover{border-color:rgba(255,107,44,.15)}
-.product-card h4{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.product-card .price{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--ember)}
-.product-card .meta{font-size:11px;color:var(--t3);margin-top:8px}
+/* Sub-screens */
+.sub{position:absolute;inset:0;z-index:200;background:var(--bg);overflow-y:auto;scrollbar-width:none;transform:translateX(100%);transition:transform .35s var(--ease);pointer-events:none;padding:0 24px 40px}
+.sub::-webkit-scrollbar{display:none}
+.sub.open{transform:translateX(0);pointer-events:auto}
+.sub-top{display:flex;align-items:center;gap:12px;padding:16px 0}
+.sub-top h3{font-size:18px;font-weight:800}
+.sub-back{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sub-back:active{transform:scale(.85)}
+.sub-back svg{width:18px;height:18px;stroke:var(--t2);fill:none;stroke-width:2}
+.sub-empty{text-align:center;padding:60px 20px;color:var(--t3);font-size:15px;line-height:1.7}
+.sub-empty .si{font-size:44px;margin-bottom:16px;display:block}
+.sub-item{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r);margin-bottom:8px}
+.sub-item h4{font-size:15px;font-weight:600}
+.sub-item p{font-size:12px;color:var(--t3);margin-top:2px}
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:14px;border-radius:var(--r);margin-bottom:8px}
+.tog-row span{font-size:15px;font-weight:500}
+.tog{width:44px;height:26px;border-radius:13px;background:var(--t4);position:relative;cursor:pointer;transition:.3s}
+.tog.on{background:var(--gold)}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.3s}
+.tog.on::after{left:21px}
+/* Auth error */
+.auth-err{display:none;width:100%;padding:10px 14px;border-radius:10px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.15);color:var(--red);font-size:13px;font-weight:500;margin-bottom:12px;text-align:center}
 
-.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.settings-card{background:var(--bg3);border:1px solid var(--bd);border-radius:14px;padding:24px}
-.settings-card h3{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
-
-.btn-action{padding:8px 18px;background:var(--ember);border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fff;cursor:pointer;transition:.2s}
-.btn-action:hover{background:var(--ember2)}
-
-@media(max-width:900px){
-  nav{padding:16px 20px}.nav-links a:not(.nav-cta){display:none}
-  section{padding:60px 20px}
-  .why-grid{grid-template-columns:1fr}
-  .how-steps{flex-direction:column}
-  .comm-box{flex-direction:column;padding:32px 24px}
-  .stats-bar{flex-wrap:wrap;gap:24px}
-  .form-row{grid-template-columns:1fr}
-  .dash-content{padding:130px 16px 16px}
-  .dash-stats .dash-stat{min-width:calc(50% - 8px)}
-  .settings-grid{grid-template-columns:1fr}
-}
-@media(max-width:600px){
-  .hero h1{font-size:36px}
-  .hero-ctas{flex-direction:column;align-items:center}
-  .btn-main,.btn-ghost{width:100%;text-align:center}
-}
 </style>
 </head>
 <body>
+<div class="phone">
+<div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+<div class="sbar"></div>
+<div class="sw">
 
-<!-- ============================================================ -->
-<!-- PITCH PAGE (shown to non-logged-in visitors)                  -->
-<!-- ============================================================ -->
-<div id="pitchPage">
-
-<nav id="pitchNav">
-  <div class="nav-logo">
-    <a href="/" style="display:flex;align-items:center;gap:12px">
-      <img src="../logo.png" alt="BlackStack Diesel" style="width:40px;height:40px;border-radius:8px;object-fit:contain">
-      <span class="nav-brand">Black<em>Stack</em>Diesel</span>
-    </a>
-  </div>
-  <div class="nav-links">
-    <a href="#why">Why Sell</a>
-    <a href="#how">How It Works</a>
-    <a href="#login-section" class="nav-cta">Vendor Login</a>
-  </div>
-</nav>
-
-<section class="hero">
-  <div class="hero-bg"></div><div class="hero-grid"></div>
-  <div class="hero-content">
-    <div class="hero-badge">Vendor Portal</div>
-    <h1>Sell on<br><em>Black Stack Diesel</em></h1>
-    <p>List your diesel truck parts on the marketplace that matches every product to the customer's exact rig. Zero upfront fees. You only pay when we make you a sale.</p>
-    <div class="hero-ctas">
-      <a href="#apply" class="btn-main">Apply to Sell</a>
-      <a href="#login-section" class="btn-ghost">Vendor Login</a>
-    </div>
-  </div>
-</section>
-
-<div class="stats-bar">
-  <div class="stat"><div class="stat-val">0%</div><div class="stat-lbl">Upfront Cost</div></div>
-  <div class="stat"><div class="stat-val">12%</div><div class="stat-lbl">Commission Only</div></div>
-  <div class="stat"><div class="stat-val">Instant</div><div class="stat-lbl">Payouts on Ship</div></div>
-  <div class="stat"><div class="stat-val">30+</div><div class="stat-lbl">Years of Trucks</div></div>
+<!-- LOGIN -->
+<div class="scr on" id="s-login">
+<div class="l-logo"><img src="/app/icon-512.png" alt="Black Stack Diesel"></div>
+<div class="l-mark">Black<em>Stack</em></div>
+<div class="l-sub">Diesel parts & diagnostics</div>
+<div class="auth-err" id="authErr"></div>
+<div class="fg"><div class="fl">Email</div><input class="fi" id="authEmail" type="email" placeholder="you@email.com" autocomplete="email"></div>
+<div class="fg"><div class="fl">Password</div><input class="fi" id="authPass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+<div id="confirmWrap" class="fg" style="display:none"><div class="fl">Confirm Password</div><input class="fi" id="authConfirm" type="password" placeholder="••••••••"></div>
+<button class="btn-g" id="authBtn" onclick="handleAuth()">Sign In</button>
+<div class="sep"><span>or</span></div>
+<div class="soc">
+<div class="soc-b gs" onclick="oAuth('google')"><svg viewBox="0 0 24 24" fill="#4285F4"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google</div>
+</div>
+<div class="l-ft" id="authToggle">No account? <a href="#" onclick="toggleAuthMode(event)">Sign Up</a></div>
 </div>
 
-<section class="why" id="why">
-  <div class="container" style="text-align:center">
-    <div class="section-label">Why Sell With Us</div>
-    <div class="section-title">Your Parts. Our Customers. Zero Risk.</div>
-    <div class="section-desc" style="margin:0 auto">Every customer on Black Stack Diesel has already entered their exact truck. They only see parts that fit.</div>
-    <div class="why-grid">
-      <div class="why-card"><div class="why-icon">💰</div><h3>Commission Only</h3><p>No monthly fees, no listing fees, no signup cost. 12% on the part price — that's it.</p></div>
-      <div class="why-card"><div class="why-icon">🎯</div><h3>Pre-Qualified Buyers</h3><p>Every customer has entered their exact vehicle. They're ready to buy parts that fit.</p></div>
-      <div class="why-card"><div class="why-icon">⚡</div><h3>Instant Payouts</h3><p>Get paid the moment you confirm shipment via Stripe Connect.</p></div>
-      <div class="why-card"><div class="why-icon">🚛</div><h3>You Handle Shipping</h3><p>Set your own shipping rates. Ship directly to the customer.</p></div>
-      <div class="why-card"><div class="why-icon">🧠</div><h3>AI-Powered Matching</h3><p>Our AI recommends your parts when customers describe symptoms.</p></div>
-      <div class="why-card"><div class="why-icon">📊</div><h3>Vendor Dashboard</h3><p>Track orders, view payouts, manage inventory — all in one place.</p></div>
-    </div>
-  </div>
-</section>
+<!-- VEHICLE -->
+<div class="scr" id="s-veh">
+<div class="v-top"><div class="v-back gs" onclick="vehBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div></div>
+<div class="v-body">
+<div class="v-heading"><h2>Set Up Your Truck</h2><p>Only parts that fit your rig</p></div>
+<div class="prog-bar"><div class="pb" id="p1"></div><div class="pb" id="p2"></div><div class="pb" id="p3"></div><div class="pb" id="p4"></div></div>
+<div id="vg-year"><div class="lbl">Year</div><div class="pills" id="yearP"></div></div>
+<div id="vg-make" class="hid"><div class="lbl">Make</div><div class="pills" id="makeP"></div></div>
+<div id="vg-model" class="hid"><div class="lbl">Model</div><div class="pills" id="modelP"></div></div>
+<div id="vg-engine" class="hid"><div class="lbl">Engine</div><div class="pills" id="engineP"></div></div>
+<div class="vprev g hid" id="vprev"><div class="vl">Your Vehicle</div><div class="vn" id="vpN"></div><div class="ve" id="vpE"></div><div class="vt" id="vpT"></div></div>
+<button class="btn-g hid" id="vBtn" style="margin-top:16px" onclick="confirmV()">Continue</button>
+</div>
+</div>
 
-<section id="how">
-  <div class="container" style="text-align:center">
-    <div class="section-label">How It Works</div>
-    <div class="section-title">From Application to First Sale</div>
-    <div class="how-steps">
-      <div class="step"><div class="step-icon">📋</div><h3>Apply</h3><p>Fill out the vendor application below. We review within 48 hours.</p></div>
-      <div class="step"><div class="step-icon">📦</div><h3>Import Catalog</h3><p>Upload your inventory via CSV, connect your API, or sync with major diesel distributors.</p></div>
-      <div class="step"><div class="step-icon">🔔</div><h3>Get Orders</h3><p>Customer buys your part — you get instant notification with shipping address.</p></div>
-      <div class="step"><div class="step-icon">💵</div><h3>Get Paid</h3><p>Confirm shipment with tracking. Get paid immediately. 12% deducted automatically.</p></div>
-    </div>
-  </div>
-</section>
+<!-- AI -->
+<div class="scr" id="s-ai">
+<div class="sec-h"><h2>AI Diagnostics</h2><div class="badge" id="aiBadge">—</div></div>
+<div class="ai-lock">
+<div class="orb"><span>🔧</span></div>
+<div class="ai-t">Under The Hood</div>
+<div class="ai-d">Our AI is getting a full rebuild — new turbo, bigger injectors, and a custom tune. She’ll be rollin’ coal in no time.</div>
+<div class="ai-j">“Why did the diesel mechanic break up with the gas engine? Because she just couldn’t handle the pressure.”</div>
+<div class="ai-soon"><div class="dot"></div><span>Coming Soon</span></div>
+</div>
+</div>
 
-<section class="comm" id="pricing">
-  <div class="container" style="text-align:center">
-    <div class="section-label">Transparent Pricing</div>
-    <div class="section-title">Simple. No Surprises.</div>
-    <div class="comm-box">
-      <div class="comm-left"><div class="comm-rate">12<span>%</span></div><div class="comm-sub">Commission per sale on part price</div></div>
-      <div class="comm-right">
-        <div class="comm-item"><span class="comm-check">✓</span><span>No monthly fees or subscriptions</span></div>
-        <div class="comm-item"><span class="comm-check">✓</span><span>No listing fees — list unlimited products</span></div>
-        <div class="comm-item"><span class="comm-check">✓</span><span>Commission on part price only, not shipping</span></div>
-        <div class="comm-item"><span class="comm-check">✓</span><span>Instant payout when shipment confirmed</span></div>
-        <div class="comm-item"><span class="comm-check">✓</span><span>You set your own prices and shipping rates</span></div>
-        <div class="comm-item"><span class="comm-check">✓</span><span>Stripe processing fees included in commission</span></div>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- MARKETPLACE -->
+<div class="scr" id="s-mkt">
+<div class="mk-top"><h2>Marketplace</h2><div class="cbtn gs" onclick="toggleCart()"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg><div class="cbdg">0</div></div></div>
+<div class="vstrip g"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span id="vsText">Select your vehicle first</span></div>
+<div class="cats" id="catTabs"><div class="ct on">All</div></div>
+<div class="stg-row"><div class="stg">Stage 1</div><div class="stg">Stage 2</div><div class="stg">Stage 3</div></div>
+<div class="dds">
+<select class="dd"><option>Price: All</option><option>Under $100</option><option>$100–$500</option><option>$500–$1K</option><option>$1K+</option></select>
+<select class="dd" id="brandDd"><option>Brand: All</option></select>
+<select class="dd"><option>Sort</option><option>Low → High</option><option>High → Low</option></select>
+</div>
+<div class="sbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="Search parts…"></div>
+<div class="pgrid" id="pgrid">
+<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--t3);font-size:14px">Loading products…</div>
+</div>
+</div>
 
-<section class="login-section" id="login-section">
-  <div class="login-box">
-    <h2>Vendor Login</h2>
-    <p>Access your dashboard, orders, and payouts</p>
-    <div class="form-err" id="loginErr"></div>
-    <div class="fg"><label>Email</label><input class="fi" type="email" id="loginEmail" placeholder="you@company.com"></div>
-    <div class="fg"><label>Password</label><input class="fi" type="password" id="loginPw" placeholder="••••••••" onkeydown="if(event.key==='Enter')vendorLogin()"></div>
-    <button class="form-btn" onclick="vendorLogin()">Sign In</button>
-    <div class="form-switch">Don't have an account? <a href="#apply">Apply to sell</a></div>
-  </div>
-</section>
+<!-- PROFILE -->
+<div class="scr" id="s-pro">
+<div class="p-head"><div class="p-av" id="pAv">BS</div><div class="p-name" id="pName">BlackStack User</div><div class="p-email"><span id="pEmail"></span></div></div>
+<div class="p-truck g"><div class="p-trk-i">🚛</div><div class="p-trk-t"><h4 id="pTrk">No vehicle set</h4><p id="pEng">Select your truck</p></div><button class="p-edit gs" onclick="resetVeh()">Edit</button></div>
+<div class="p-grid">
+<div class="p-st g"><div class="p-stv mono">0</div><div class="p-stl">Orders</div></div>
+<div class="p-st g"><div class="p-stv mono">$0</div><div class="p-stl">Spent</div></div>
+<div class="p-st g"><div class="p-stv mono">0</div><div class="p-stl">Chats</div></div>
+</div>
+<div class="p-list">
+<div class="p-row" onclick="openSub('orders')"><div class="p-ri"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span>Order History</span><span class="ch">›</span></div>
+<div class="p-row" onclick="openSub('payment')"><div class="p-ri"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><span>Payment Methods</span><span class="ch">›</span></div>
+<div class="p-row" onclick="openSub('address')"><div class="p-ri"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><span>Saved Addresses</span><span class="ch">›</span></div>
+<div class="p-row" onclick="openSub('notif')"><div class="p-ri"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div><span>Notifications</span><span class="ch">›</span></div>
+<div class="p-row" onclick="openSub('help')"><div class="p-ri"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><span>Help & Support</span><span class="ch">›</span></div>
+</div>
+<button class="so-btn" onclick="handleSignOut()">Sign Out</button>
+</div>
 
-<section class="apply-section" id="apply">
-  <div class="apply-glow"></div>
-  <div class="container" style="text-align:center">
-    <div class="section-label">Get Started</div>
-    <div class="section-title">Apply to Sell on Black Stack Diesel</div>
-    <div class="section-desc" style="margin:0 auto">Fill out the form below. We review every application within 48 hours.</div>
-  </div>
-  <div class="apply-form" id="applyForm">
-    <h3>Vendor Application</h3><p>All fields marked * are required</p>
-    <div class="form-err" id="applyErr"></div>
-    <div class="form-row">
-      <div class="fg"><label>Business Name *</label><input class="fi" type="text" id="appBiz" placeholder="Your Company LLC"></div>
-      <div class="fg"><label>Contact Name *</label><input class="fi" type="text" id="appName" placeholder="John Smith"></div>
-    </div>
-    <div class="form-row">
-      <div class="fg"><label>Email *</label><input class="fi" type="email" id="appEmail" placeholder="you@company.com"></div>
-      <div class="fg"><label>Phone</label><input class="fi" type="tel" id="appPhone" placeholder="(555) 555-5555"></div>
-    </div>
-    <div class="fg"><label>Website</label><input class="fi" type="url" id="appWeb" placeholder="https://yoursite.com"></div>
-    <div class="fg"><label>Business Type *</label><select class="fi" id="appType"><option value="">Select...</option><option value="distributor">Distributor / Wholesaler</option><option value="manufacturer">Manufacturer</option><option value="retailer">Retailer / Dealer</option><option value="shop">Diesel Shop / Installer</option><option value="other">Other</option></select></div>
-    <div class="fg"><label>Product Categories</label>
-      <div class="checkbox-grid">
-        <label class="checkbox-item"><input type="checkbox" value="Injectors"> Injectors</label>
-        <label class="checkbox-item"><input type="checkbox" value="Turbos"> Turbos</label>
-        <label class="checkbox-item"><input type="checkbox" value="Fuel Systems"> Fuel Systems</label>
-        <label class="checkbox-item"><input type="checkbox" value="Exhaust"> Exhaust</label>
-        <label class="checkbox-item"><input type="checkbox" value="Engine Parts"> Engine Parts</label>
-        <label class="checkbox-item"><input type="checkbox" value="Transmission"> Transmission</label>
-        <label class="checkbox-item"><input type="checkbox" value="Filters"> Filters / Fluids</label>
-        <label class="checkbox-item"><input type="checkbox" value="Electrical"> Electrical</label>
-        <label class="checkbox-item"><input type="checkbox" value="DPF/DEF"> DPF / DEF / Emissions</label>
-        <label class="checkbox-item"><input type="checkbox" value="Suspension"> Suspension / Lift</label>
-        <label class="checkbox-item"><input type="checkbox" value="Accessories"> Accessories</label>
-        <label class="checkbox-item"><input type="checkbox" value="Other"> Other</label>
-      </div>
-    </div>
-    <div class="fg"><label>Estimated SKUs</label><select class="fi" id="appSkus"><option value="">How many products?</option><option value="1-50">1 – 50</option><option value="51-200">51 – 200</option><option value="201-1000">201 – 1,000</option><option value="1000+">1,000+</option></select></div>
-    <div class="fg"><label>Anything else?</label><textarea class="fi" id="appMsg" placeholder="Tell us about your business..."></textarea></div>
-    <button class="form-btn" id="applyBtn" onclick="handleApply()">Submit Application</button>
-  </div>
-  <div class="form-success" id="applySuccess" style="max-width:640px;margin:40px auto 0">
-    <div style="font-size:28px;margin-bottom:8px">🎉</div>
-    <div style="font-size:20px;margin-bottom:8px">Application Received!</div>
-    <div style="font-weight:400;color:var(--t2)">We'll review your application and get back to you within 48 hours.</div>
-  </div>
-</section>
+<!-- PROFILE SUB-SCREENS (outside #s-pro so they don't block scrolling) -->
+<div class="sub" id="sub-orders"><div class="sub-top"><div class="sub-back gs" onclick="closeSub('orders')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div><h3>Order History</h3></div><div class="sub-empty"><span class="si">📦</span>No orders yet<br>Your purchases will appear here</div></div>
+<div class="sub" id="sub-payment"><div class="sub-top"><div class="sub-back gs" onclick="closeSub('payment')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div><h3>Payment Methods</h3></div><div class="sub-empty"><span class="si">💳</span>No payment methods<br>Add one at checkout</div></div>
+<div class="sub" id="sub-address"><div class="sub-top"><div class="sub-back gs" onclick="closeSub('address')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div><h3>Saved Addresses</h3></div><div class="sub-empty"><span class="si">📍</span>No saved addresses<br>Add one at checkout</div></div>
+<div class="sub" id="sub-notif"><div class="sub-top"><div class="sub-back gs" onclick="closeSub('notif')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div><h3>Notifications</h3></div><div class="tog-row g"><span>Order Updates</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div><div class="tog-row g"><span>Price Drops</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div><div class="tog-row g"><span>New Products</span><div class="tog" onclick="this.classList.toggle('on')"></div></div><div class="tog-row g"><span>Promotions</span><div class="tog" onclick="this.classList.toggle('on')"></div></div></div>
+<div class="sub" id="sub-help"><div class="sub-top"><div class="sub-back gs" onclick="closeSub('help')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div><h3>Help & Support</h3></div><div class="sub-item g"><div style="font-size:22px;width:40px;text-align:center">📧</div><div><h4>Email Us</h4><p style="color:var(--t3)">Coming soon</p></div></div><div class="sub-item g"><div style="font-size:22px;width:40px;text-align:center">💬</div><div><h4>Live Chat</h4><p>Coming soon</p></div></div><div class="sub-item g"><div style="font-size:22px;width:40px;text-align:center">📖</div><div><h4>FAQ</h4><p>Common questions answered</p></div></div><div class="sub-item g" style="margin-top:20px"><div style="font-size:22px;width:40px;text-align:center">📱</div><div><h4>App Version</h4><p>v1.0.0</p></div></div></div>
 
-<footer>
-  <div class="footer-brand"><img src="../logo.png" alt="BSD" style="width:32px;height:32px;border-radius:6px;object-fit:contain"><span>Black Stack Diesel</span></div>
-  <div class="footer-links"><a href="/">Home</a><a href="#why">Why Sell</a><a href="#apply">Apply</a><a href="#" onclick="return false" style="cursor:default;opacity:.5">Contact (Coming Soon)</a></div>
-  <div class="footer-legal">© 2026 Dynamic Innovative Solutions LLC. All rights reserved. Black Stack Diesel™</div>
-</footer>
+<!-- CART -->
+<div class="cd" id="cD"><div class="cd-bg" onclick="toggleCart()"></div><div class="cd-sh"><div class="cd-h"></div><div class="cd-t">Your Cart <span id="cartCount" style="color:var(--t3);font-size:13px;font-weight:500"></span></div><div id="cartItems"></div><div class="cd-tot"><span>Total</span><strong class="mono" id="cartTotal">$0</strong></div><button class="btn-g" id="checkoutBtn" onclick="doCheckout()">Checkout</button></div></div>
 
-</div><!-- end pitchPage -->
+<!-- NAV -->
+<div class="bnav hid" id="bnav"><div class="bnav-in">
+<div class="ni" data-s="ai" onclick="nav(this)"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 017 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 01-1 1H9a1 1 0 01-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 017-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg><span>AI</span></div>
+<div class="ni on" data-s="mkt" onclick="nav(this)"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span>Shop</span></div>
+<div class="ni" data-s="pro" onclick="nav(this)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+</div></div>
 
-
-<!-- ============================================================ -->
-<!-- VENDOR DASHBOARD (shown after login)                          -->
-<!-- ============================================================ -->
-<div id="vendorDash">
-
-  <div class="dash-topbar">
-    <div class="dash-topbar-left">
-      <img src="../logo.png" alt="BSD">
-      <span>Black<em>Stack</em> Vendor</span>
-    </div>
-    <div class="dash-topbar-right">
-      <span class="dash-user" id="dashUser"></span>
-      <button class="btn-sm" onclick="vendorLogout()">Sign Out</button>
-    </div>
-  </div>
-
-  <div class="dash-tabs">
-    <div class="dash-tab active" onclick="dashTab('overview',this)">Overview</div>
-    <div class="dash-tab" onclick="dashTab('orders',this)">Orders</div>
-    <div class="dash-tab" onclick="dashTab('products',this)">Products</div>
-    <div class="dash-tab" onclick="dashTab('payouts',this)">Payouts</div>
-    <div class="dash-tab" onclick="dashTab('settings',this)">Settings</div>
-  </div>
-
-  <div class="dash-content">
-
-    <!-- OVERVIEW -->
-    <div class="dash-panel active" id="dp-overview">
-      <div class="dash-stats">
-        <div class="dash-stat green"><div class="dv">$0.00</div><div class="dl">Total Earnings</div></div>
-        <div class="dash-stat ember"><div class="dv">0</div><div class="dl">Total Orders</div></div>
-        <div class="dash-stat blue"><div class="dv">0</div><div class="dl">Products Listed</div></div>
-        <div class="dash-stat amber"><div class="dv">$0.00</div><div class="dl">Pending Payout</div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div class="card">
-          <div class="card-header"><h3>Recent Orders</h3></div>
-          <div class="empty-state"><div class="icon">📦</div><h4>No Orders Yet</h4><p>When customers buy your parts, orders will appear here. Make sure your products are listed and priced competitively.</p></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h3>Quick Actions</h3></div>
-          <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
-            <button class="btn-action" onclick="dashTab('products',document.querySelectorAll('.dash-tab')[2])" style="width:100%;height:48px;font-size:14px">📥 Import Inventory</button>
-            <button class="btn-action" onclick="dashTab('orders',document.querySelectorAll('.dash-tab')[1])" style="width:100%;height:48px;font-size:14px;background:var(--smoke);color:var(--t2)">📋 View All Orders</button>
-            <button class="btn-action" onclick="dashTab('settings',document.querySelectorAll('.dash-tab')[4])" style="width:100%;height:48px;font-size:14px;background:var(--smoke);color:var(--t2)">⚙️ Update Profile</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ORDERS -->
-    <div class="dash-panel" id="dp-orders">
-      <div class="dash-stats">
-        <div class="dash-stat amber"><div class="dv">0</div><div class="dl">Pending</div></div>
-        <div class="dash-stat blue"><div class="dv">0</div><div class="dl">Processing</div></div>
-        <div class="dash-stat green"><div class="dv">0</div><div class="dl">Shipped</div></div>
-        <div class="dash-stat ember"><div class="dv">0</div><div class="dl">Total</div></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h3>All Orders</h3></div>
-        <div class="empty-state"><div class="icon">📦</div><h4>No Orders Yet</h4><p>Orders will appear here when customers purchase your parts. You'll receive a notification with the order details and shipping address.</p></div>
-      </div>
-    </div>
-
-    <!-- PRODUCTS / INVENTORY -->
-    <div class="dash-panel" id="dp-products">
-      <div class="dash-stats">
-        <div class="dash-stat blue"><div class="dv" id="productCount">0</div><div class="dl">Total Products</div></div>
-        <div class="dash-stat green"><div class="dv" id="activeCount">0</div><div class="dl">Active</div></div>
-        <div class="dash-stat amber"><div class="dv" id="syncStatus">—</div><div class="dl">Last Sync</div></div>
-      </div>
-
-      <!-- IMPORT METHODS -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px">
-
-        <!-- CSV UPLOAD -->
-        <div class="card" style="cursor:pointer" onclick="document.getElementById('csvFile').click()">
-          <div style="padding:28px;text-align:center">
-            <div style="font-size:36px;margin-bottom:12px">📄</div>
-            <h3 style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">CSV Upload</h3>
-            <p style="font-size:13px;color:var(--t2);line-height:1.6">Drop in any CSV — we auto-detect your columns. No mapping needed.</p>
-            <div style="margin-top:16px;padding:8px 20px;border-radius:8px;background:var(--ember);color:#fff;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;display:inline-block">Upload CSV</div>
-          </div>
-        </div>
-        <input type="file" id="csvFile" accept=".csv,.tsv,.txt" style="display:none" onchange="handleCSV(this)">
-
-        <!-- API INTEGRATION -->
-        <div class="card">
-          <div style="padding:28px;text-align:center">
-            <div style="font-size:36px;margin-bottom:12px">🔗</div>
-            <h3 style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">API Integration</h3>
-            <p style="font-size:13px;color:var(--t2);line-height:1.6">Push products directly from your system using your unique API key and our REST endpoint.</p>
-            <div style="margin-top:16px;padding:8px 20px;border-radius:8px;background:var(--smoke);color:var(--t1);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;display:inline-block;cursor:pointer" onclick="showApiPanel()">View API Key</div>
-          </div>
-        </div>
-
-        <!-- DISTRIBUTOR SYNC -->
-        <div class="card">
-          <div style="padding:28px;text-align:center">
-            <div style="font-size:36px;margin-bottom:12px">🔄</div>
-            <h3 style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Distributor Sync</h3>
-            <p style="font-size:13px;color:var(--t2);line-height:1.6">Auto-sync inventory from APG, Meyer, Turn 14, or other diesel parts distributors.</p>
-            <div style="margin-top:16px;padding:8px 20px;border-radius:8px;background:var(--smoke);color:var(--t1);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;display:inline-block;cursor:pointer" onclick="showDistPanel()">Connect</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CSV PREVIEW (hidden until CSV uploaded) -->
-      <div class="card" id="csvMapper" style="display:none;margin-bottom:20px">
-        <div class="card-header"><h3>📄 CSV Preview</h3><button class="btn-sm" onclick="cancelCSV()">✕ Cancel</button></div>
-        <div style="padding:24px">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-            <div style="padding:8px 16px;border-radius:8px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.15);font-size:13px;color:#34D399"><strong id="csvRowCount">0</strong> products detected</div>
-            <div style="padding:8px 16px;border-radius:8px;background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.15);font-size:13px;color:#4A9EFF"><strong id="csvColCount">0</strong> columns matched</div>
-          </div>
-          <div class="form-err" id="csvErr"></div>
-          <div style="overflow-x:auto;margin-bottom:16px;border-radius:10px;border:1px solid var(--bd)">
-            <table style="width:100%;border-collapse:collapse;font-size:12px" id="csvPreviewTable">
-            </table>
-          </div>
-          <div id="csvWarnings" style="display:none;margin-bottom:16px;padding:12px 16px;border-radius:10px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.12)">
-            <p style="font-size:12px;color:#FBBF24" id="csvWarningText"></p>
-          </div>
-          <button class="form-btn" onclick="importCSV()" id="csvImportBtn">Import <span id="csvImportCount">0</span> Products</button>
-        </div>
-      </div>
-
-      <!-- API PANEL (hidden) -->
-      <div class="card" id="apiPanel" style="display:none;margin-bottom:20px">
-        <div class="card-header"><h3>API Integration</h3><button class="btn-sm" onclick="hideApiPanel()">✕ Close</button></div>
-        <div style="padding:24px">
-          <div style="margin-bottom:20px">
-            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);display:block;margin-bottom:6px">Your Vendor API Key</label>
-            <div style="display:flex;gap:8px">
-              <input class="fi" type="text" id="apiKeyField" readonly style="font-family:monospace;font-size:13px;letter-spacing:.5px;color:var(--ember)">
-              <button class="btn-action" style="flex-shrink:0;white-space:nowrap" onclick="copyApiKey()">📋 Copy</button>
-              <button class="btn-sm" style="flex-shrink:0;white-space:nowrap" onclick="regenerateApiKey()">🔄 Regenerate</button>
-            </div>
-            <p style="font-size:11px;color:var(--t3);margin-top:6px">Keep this key secret. It authenticates all API requests for your account. Regenerating will deactivate your old key.</p>
-          </div>
-          <div style="margin-bottom:20px">
-            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);display:block;margin-bottom:6px">API Endpoint (Supabase REST)</label>
-            <div id="apiEndpointDisplay" style="padding:14px;border-radius:10px;background:var(--bg);border:1px solid var(--smoke);font-family:monospace;font-size:13px;color:var(--t1)">POST loading...</div>
-            <p style="font-size:11px;color:var(--t3);margin-top:6px">Your products are secured with Row Level Security — you can only access your own inventory.</p>
-          </div>
-          <div style="margin-bottom:20px">
-            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);display:block;margin-bottom:10px">Example: Add a Product</label>
-            <pre style="padding:16px;border-radius:10px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2);overflow-x:auto;line-height:1.7;white-space:pre-wrap">curl -X POST '<span class="api-supa-url">YOUR_SUPABASE_URL</span>/rest/v1/products' \
-  -H "apikey: YOUR_SUPABASE_ANON_KEY" \
-  -H "Authorization: Bearer YOUR_SESSION_TOKEN" \
-  -H "Content-Type: application/json" \
-  -H "Prefer: return=minimal" \
-  -d '{
-    "product_name": "FASS Titanium 150GPH",
-    "sku": "TS-F14-150G",
-    "brand": "FASS Fuel Systems",
-    "price": 549.99,
-    "shipping_cost": 29.99,
-    "stock_qty": 25,
-    "category": "Fuel Systems",
-    "condition": "new",
-    "fitment": "2003-2007 Dodge Ram 5.9L Cummins",
-    "vendor_id": "YOUR_VENDOR_UUID",
-    "description": "Titanium Signature Series...",
-    "image_url": "https://...",
-    "weight_lbs": 12.5
-  }'</pre>
-          </div>
-          <div style="margin-bottom:20px">
-            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);display:block;margin-bottom:10px">Available Endpoints</label>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong style="color:var(--green)">POST</strong> /rest/v1/products — Add products</div>
-              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong style="color:var(--blue)">GET</strong> /rest/v1/products — List your products</div>
-              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong style="color:var(--amber)">PATCH</strong> /rest/v1/products?sku=eq.XXXXX — Update</div>
-              <div style="padding:10px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--smoke);font-size:12px;color:var(--t2)"><strong style="color:var(--red)">DELETE</strong> /rest/v1/products?sku=eq.XXXXX — Remove</div>
-            </div>
-          </div>
-          <div style="padding:16px;border-radius:10px;background:rgba(74,158,255,.06);border:1px solid rgba(74,158,255,.12)">
-            <p style="font-size:12px;color:var(--blue);margin-bottom:4px"><strong>💡 Tip: Using the Supabase JS Client?</strong></p>
-            <p style="font-size:12px;color:var(--t2);line-height:1.6">If you're building with JavaScript, use the Supabase client library instead of raw curl. Sign in with your vendor email/password, then use <code style="background:var(--bg);padding:2px 6px;border-radius:4px">sb.from('products').insert({...})</code> — RLS handles permissions automatically.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- DISTRIBUTOR PANEL (hidden) -->
-      <div class="card" id="distPanel" style="display:none;margin-bottom:20px">
-        <div class="card-header"><h3>Distributor Sync</h3><button class="btn-sm" onclick="hideDistPanel()">✕ Close</button></div>
-        <div style="padding:24px">
-          <p style="font-size:13px;color:var(--t2);margin-bottom:20px">Connect your distributor account to auto-import and sync inventory. Pricing, stock levels, and fitment data update automatically.</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="distList">
-            <div class="dist-card" onclick="connectDist('apg')">
-              <div class="dist-top"><strong>APG Wholesale</strong><span class="badge badge-new">Ready</span></div>
-              <p>Auto-sync diesel parts catalog. Requires dealer account.</p>
-              <div class="dist-fields" id="dist-apg" style="display:none">
-                <div class="fg"><label>Dealer Account #</label><input class="fi" type="text" id="apgAcct" placeholder="APG-XXXXXX"></div>
-                <div class="fg"><label>API Key</label><input class="fi" type="text" id="apgKey" placeholder="Your APG API key"></div>
-                <button class="form-btn" onclick="saveDist('apg')" style="margin-top:4px">Connect APG</button>
-              </div>
-            </div>
-            <div class="dist-card" onclick="connectDist('meyer')">
-              <div class="dist-top"><strong>Meyer Distributing</strong><span class="badge badge-pending">Coming Soon</span></div>
-              <p>Truck accessories and performance parts.</p>
-            </div>
-            <div class="dist-card" onclick="connectDist('turn14')">
-              <div class="dist-top"><strong>Turn 14 Distribution</strong><span class="badge badge-pending">Coming Soon</span></div>
-              <p>Performance diesel parts from 800+ brands.</p>
-            </div>
-            <div class="dist-card" onclick="connectDist('custom')">
-              <div class="dist-top"><strong>Custom / Other</strong><span class="badge badge-new">Ready</span></div>
-              <p>Connect any system that exports CSV, XML, or JSON feeds.</p>
-              <div class="dist-fields" id="dist-custom" style="display:none">
-                <div class="fg"><label>Feed URL</label><input class="fi" type="url" id="customFeedUrl" placeholder="https://your-system.com/feed.csv"></div>
-                <div class="fg"><label>Feed Format</label><select class="fi" id="customFeedFmt"><option value="csv">CSV</option><option value="json">JSON</option><option value="xml">XML</option></select></div>
-                <div class="fg"><label>Sync Frequency</label><select class="fi" id="customFeedFreq"><option value="daily">Daily</option><option value="12h">Every 12 Hours</option><option value="6h">Every 6 Hours</option><option value="hourly">Hourly</option></select></div>
-                <button class="form-btn" onclick="saveDist('custom')" style="margin-top:4px">Save Feed</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- PRODUCT LIST TABLE -->
-      <div class="card">
-        <div class="card-header">
-          <h3>Your Products</h3>
-          <div style="display:flex;gap:8px">
-            <input class="fi" type="text" id="prodSearch" placeholder="Search SKU or name..." style="width:240px;height:38px;font-size:13px" oninput="filterProducts()">
-          </div>
-        </div>
-        <div id="productList">
-          <div class="empty-state"><div class="icon">🔧</div><h4>No Products Listed</h4><p>Import your catalog using CSV, API, or distributor sync above to get started.</p></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PAYOUTS -->
-    <div class="dash-panel" id="dp-payouts">
-      <div class="dash-stats">
-        <div class="dash-stat green"><div class="dv">$0.00</div><div class="dl">Total Earned</div></div>
-        <div class="dash-stat ember"><div class="dv">$0.00</div><div class="dl">Commission Paid</div></div>
-        <div class="dash-stat blue"><div class="dv">$0.00</div><div class="dl">Net Payouts</div></div>
-        <div class="dash-stat amber"><div class="dv">—</div><div class="dl">Stripe Status</div></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h3>Payout History</h3></div>
-        <div class="empty-state">
-          <div class="icon">💵</div>
-          <h4>No Payouts Yet</h4>
-          <p>Your payout history will appear here once you complete your first sale and confirm shipment. Payouts are instant via Stripe Connect.</p>
-          <br>
-          <button class="btn-action" style="opacity:.5;cursor:not-allowed">Connect Stripe Account (Coming Soon)</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- SETTINGS -->
-    <div class="dash-panel" id="dp-settings">
-      <div class="settings-grid">
-        <div class="settings-card">
-          <h3>Business Information</h3>
-          <div class="fg"><label>Business Name</label><input class="fi" type="text" id="setBiz" disabled></div>
-          <div class="fg"><label>Contact Name</label><input class="fi" type="text" id="setContact" disabled></div>
-          <div class="fg"><label>Email</label><input class="fi" type="email" id="setEmail" disabled></div>
-          <div class="fg"><label>Phone</label><input class="fi" type="tel" id="setPhone"></div>
-          <div class="fg"><label>Website</label><input class="fi" type="url" id="setWeb"></div>
-          <button class="form-btn" onclick="saveSettings()" style="margin-top:4px">Save Changes</button>
-        </div>
-        <div class="settings-card">
-          <h3>Account</h3>
-          <div style="padding:8px 0">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--bd)">
-              <div><div style="font-size:13px;color:var(--t1);font-weight:600">Commission Rate</div><div style="font-size:12px;color:var(--t3)">Applied to each sale</div></div>
-              <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--ember)">12%</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--bd)">
-              <div><div style="font-size:13px;color:var(--t1);font-weight:600">Payout Speed</div><div style="font-size:12px;color:var(--t3)">After shipment confirmed</div></div>
-              <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--green)">Instant</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--bd)">
-              <div><div style="font-size:13px;color:var(--t1);font-weight:600">Stripe Connect</div><div style="font-size:12px;color:var(--t3)">Payment processing</div></div>
-              <span class="badge badge-pending">Not Connected</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0">
-              <div><div style="font-size:13px;color:var(--t1);font-weight:600">Account Status</div><div style="font-size:12px;color:var(--t3)">Vendor account</div></div>
-              <span class="badge badge-active">Active</span>
-            </div>
-          </div>
-          <h3 style="margin-top:24px">Change Password</h3>
-          <div class="fg"><label>New Password</label><input class="fi" type="password" id="setNewPw" placeholder="••••••••"></div>
-          <div class="fg"><label>Confirm Password</label><input class="fi" type="password" id="setConfPw" placeholder="••••••••"></div>
-          <button class="form-btn" onclick="changePassword()">Update Password</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div><!-- end vendorDash -->
-
+</div>
+</div>
 
 <script>
-var SUPA_URL='https://jfjbilfsiebifzddveof.supabase.co';
-var SUPA_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmamJpbGZzaWViaWZ6ZGR2ZW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2OTg4ODUsImV4cCI6MjA4NzI3NDg4NX0.bbTQ0l4HsHoKUzoKACBvbXJ0TbnUM5tltK4YLKyuMr8';
-var sb=supabase.createClient(SUPA_URL,SUPA_ANON);
-var vendorData=null;
+var sb=supabase.createClient('https://jfjbilfsiebifzddveof.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmamJpbGZzaWViaWZ6ZGR2ZW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2OTg4ODUsImV4cCI6MjA4NzI3NDg4NX0.bbTQ0l4HsHoKUzoKACBvbXJ0TbnUM5tltK4YLKyuMr8');
+var DB={Dodge:{"Ram 2500":{y:[1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009],e:{"1994-1998":["5.9L 12V Cummins"],"1998-2002":["5.9L 24V Cummins ISB"],"2003-2007":["5.9L Cummins ISB 325"],"2007-2009":["6.7L Cummins ISB"]}},"Ram 3500":{y:[1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009],e:{"1994-1998":["5.9L 12V Cummins"],"1998-2002":["5.9L 24V Cummins ISB"],"2003-2007":["5.9L Cummins ISB 325"],"2007-2009":["6.7L Cummins ISB"]}}},Ram:{"2500":{y:[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],e:{"2010-2012":["6.7L Cummins ISB"],"2013-2018":["6.7L Cummins ISB 385"],"2019-2026":["6.7L Cummins HO 420"]}},"3500":{y:[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],e:{"2010-2012":["6.7L Cummins ISB"],"2013-2018":["6.7L Cummins ISB 385"],"2019-2026":["6.7L Cummins HO 420"]}}},Ford:{"F-250":{y:[1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],e:{"1994-1997":["7.3L Power Stroke"],"1999-2003":["7.3L Power Stroke"],"2003-2007":["6.0L Power Stroke"],"2008-2010":["6.4L Power Stroke"],"2011-2016":["6.7L Power Stroke"],"2017-2019":["6.7L Power Stroke Gen2"],"2020-2026":["6.7L Power Stroke Gen3"]}},"F-350":{y:[1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],e:{"1994-1997":["7.3L Power Stroke"],"1999-2003":["7.3L Power Stroke"],"2003-2007":["6.0L Power Stroke"],"2008-2010":["6.4L Power Stroke"],"2011-2016":["6.7L Power Stroke"],"2017-2019":["6.7L Power Stroke Gen2"],"2020-2026":["6.7L Power Stroke Gen3"]}},"F-450":{y:[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],e:{"1999-2003":["7.3L Power Stroke"],"2003-2007":["6.0L Power Stroke"],"2008-2010":["6.4L Power Stroke"],"2011-2016":["6.7L Power Stroke"],"2017-2019":["6.7L Power Stroke Gen2"],"2020-2026":["6.7L Power Stroke Gen3"]}},"F-550":{y:[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],e:{"1999-2003":["7.3L Power Stroke"],"2003-2007":["6.0L Power Stroke"],"2008-2010":["6.4L Power Stroke"],"2011-2016":["6.7L Power Stroke"],"2017-2019":["6.7L Power Stroke Gen2"],"2020-2026":["6.7L Power Stroke Gen3"]}},"Excursion":{y:[2000,2001,2002,2003,2004,2005],e:{"2000-2003":["7.3L Power Stroke"],"2003-2005":["6.0L Power Stroke"]}}},Chevrolet:{"Silverado 2500HD":{y:[2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],e:{"2001-2004":["6.6L Duramax LB7"],"2004-2006":["6.6L Duramax LLY"],"2006-2007":["6.6L Duramax LBZ"],"2007-2010":["6.6L Duramax LMM"],"2011-2016":["6.6L Duramax LML"],"2017-2019":["6.6L Duramax L5P"],"2020-2026":["6.6L Duramax L5P Gen2"]}},"Silverado 3500HD":{y:[2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],e:{"2001-2004":["6.6L Duramax LB7"],"2004-2006":["6.6L Duramax LLY"],"2006-2007":["6.6L Duramax LBZ"],"2007-2010":["6.6L Duramax LMM"],"2011-2016":["6.6L Duramax LML"],"2017-2019":["6.6L Duramax L5P"],"2020-2026":["6.6L Duramax L5P Gen2"]}}},GMC:{"Sierra 2500HD":{y:[2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],e:{"2001-2004":["6.6L Duramax LB7"],"2004-2006":["6.6L Duramax LLY"],"2006-2007":["6.6L Duramax LBZ"],"2007-2010":["6.6L Duramax LMM"],"2011-2016":["6.6L Duramax LML"],"2017-2019":["6.6L Duramax L5P"],"2020-2026":["6.6L Duramax L5P Gen2"]}},"Sierra 3500HD":{y:[2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],e:{"2001-2004":["6.6L Duramax LB7"],"2004-2006":["6.6L Duramax LLY"],"2006-2007":["6.6L Duramax LBZ"],"2007-2010":["6.6L Duramax LMM"],"2011-2016":["6.6L Duramax LML"],"2017-2019":["6.6L Duramax L5P"],"2020-2026":["6.6L Duramax L5P Gen2"]}}}};
+var V={year:null,make:null,model:null,engine:null};
+var ym='r',isSignUp=false;
+function showErr(m){var e=document.getElementById('authErr');e.textContent=m;e.style.display='block'}
+function hideErr(){document.getElementById('authErr').style.display='none'}
+function toggleAuthMode(e){e.preventDefault();isSignUp=!isSignUp;hideErr();document.getElementById('authBtn').textContent=isSignUp?'Create Account':'Sign In';document.getElementById('confirmWrap').style.display=isSignUp?'block':'none';document.getElementById('authToggle').innerHTML=isSignUp?'Already have an account? <a href="#" onclick="toggleAuthMode(event)">Sign In</a>':'No account? <a href="#" onclick="toggleAuthMode(event)">Sign Up</a>'}
+async function handleAuth(){hideErr();var email=document.getElementById('authEmail').value.trim(),pass=document.getElementById('authPass').value;if(!email||!pass)return showErr('Please enter email and password');if(isSignUp){if(pass!==document.getElementById('authConfirm').value)return showErr('Passwords do not match');if(pass.length<6)return showErr('Password must be at least 6 characters')}var btn=document.getElementById('authBtn');btn.textContent=isSignUp?'Creating account...':'Signing in...';btn.style.opacity='.6';btn.style.pointerEvents='none';try{var res;if(isSignUp){res=await sb.auth.signUp({email:email,password:pass});if(res.error)throw res.error;if(res.data.session){await onAuth(res.data.session.user,true);return}if(res.data.user&&!res.data.session){btn.textContent='Create Account';btn.style.opacity='1';btn.style.pointerEvents='auto';showErr('Check your email to confirm your account, then sign in.');isSignUp=false;document.getElementById('authBtn').textContent='Sign In';document.getElementById('confirmWrap').style.display='none';document.getElementById('authToggle').innerHTML='No account? <a href="#" onclick="toggleAuthMode(event)">Sign Up</a>';return}}else{res=await sb.auth.signInWithPassword({email:email,password:pass});if(res.error)throw res.error;await onAuth(res.data.session.user,false)}}catch(err){showErr(err.message||'Authentication failed');btn.textContent=isSignUp?'Create Account':'Sign In';btn.style.opacity='1';btn.style.pointerEvents='auto'}}
+async function oAuth(p){hideErr();var r=await sb.auth.signInWithOAuth({provider:p,options:{redirectTo:location.origin+'/app/'}});if(r.error)showErr(r.error.message)}
+function getVehiclePayload(){return{year:V.year,make:V.make,model:V.model,engine:V.engine}}
+function hasVehicle(v){return !!(v&&v.year&&v.make&&v.model&&v.engine)}
+function getStoredVehicle(){var saved=localStorage.getItem('bsd_vehicle');if(!saved)return null;try{return JSON.parse(saved)}catch(e){return null}}
+async function saveVehicleToAccount(){try{var s=await sb.auth.getSession();var user=s.data.session&&s.data.session.user?s.data.session.user:null;if(!user||!hasVehicle(V))return;await sb.auth.updateUser({data:{vehicle:getVehiclePayload()}})}catch(e){}}
+async function loadVehicleForUser(user){var metaVehicle=user&&user.user_metadata&&user.user_metadata.vehicle?user.user_metadata.vehicle:null;var localVehicle=getStoredVehicle();var vehicle=hasVehicle(metaVehicle)?metaVehicle:(hasVehicle(localVehicle)?localVehicle:null);if(vehicle){V.year=vehicle.year;V.make=vehicle.make;V.model=vehicle.model;V.engine=vehicle.engine;localStorage.setItem('bsd_vehicle',JSON.stringify(vehicle));applyVehicle();return true}return false}
+async function onAuth(user,isNew){var email=user.email||'',name=email.split('@')[0].split('.').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1)}).join(' '),initials=name.split(' ').map(function(w){return w[0]}).join('').slice(0,2).toUpperCase();document.getElementById('pAv').textContent=initials;document.getElementById('pName').textContent=name;document.getElementById('pEmail').textContent=email;if(await loadVehicleForUser(user)){go('mkt');showNav();loadProducts();return}go('veh');hideNav();loadProducts()}
+function applyVehicle(){document.getElementById('vsText').textContent='Parts for: '+V.year+' '+V.make+' '+V.model;document.getElementById('aiBadge').textContent=String(V.year).slice(-2)+"' "+V.make.charAt(0)+'. '+V.model;document.getElementById('pTrk').textContent=V.year+' '+V.make+' '+V.model;document.getElementById('pEng').textContent=V.engine}
+async function handleSignOut(){await sb.auth.signOut();localStorage.removeItem('bsd_cart');cart=[];renderCart();V.year=V.make=V.model=V.engine=null;document.getElementById('authEmail').value='';document.getElementById('authPass').value='';hideErr();hideNav();go('login')}
+async function checkSession(){try{var r=await sb.auth.getSession();if(r.data.session&&r.data.session.user)await onAuth(r.data.session.user,false)}catch(e){}}
+function go(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});document.getElementById('s-'+id).classList.add('on')}
+function nav(el){document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('on')});el.classList.add('on');go(el.dataset.s)}
+function showNav(){document.getElementById('bnav').classList.remove('hid')}
+function hideNav(){document.getElementById('bnav').classList.add('hid')}
+function toggleCart(){document.getElementById('cD').classList.toggle('op')}
+function uProg(s){for(var i=1;i<=4;i++){var e=document.getElementById('p'+i);e.className='pb';if(i<s)e.classList.add('done');else if(i===s)e.classList.add('cur')}}
+function sG(id){document.getElementById('vg-'+id).classList.remove('hid')}
+function hG(id){document.getElementById('vg-'+id).classList.add('hid')}
+function hPrev(){document.getElementById('vprev').classList.add('hid');document.getElementById('vBtn').classList.add('hid')}
+function sPrev(){document.getElementById('vpN').textContent=V.year+' '+V.make+' '+V.model;document.getElementById('vpE').textContent=V.engine;document.getElementById('vpT').innerHTML='<div class="tag gs">Diesel</div><div class="tag gs">'+V.engine.split(' ')[0]+'</div>';document.getElementById('vprev').classList.remove('hid');document.getElementById('vBtn').classList.remove('hid')}
+function mkPill(txt,fn){var d=document.createElement('div');d.className='pill';d.textContent=txt;d.onclick=function(){d.parentElement.querySelectorAll('.pill').forEach(function(x){x.classList.remove('sel')});d.classList.add('sel');fn(txt)};return d}
+function initYrs(){ym='r';var e=document.getElementById('yearP');e.innerHTML='';['2025-2026','2020-2024','2015-2019','2010-2014','2005-2009','2000-2004','1994-1999'].forEach(function(r){e.appendChild(mkPill(r,function(){expYrs(r)}))})}
+function expYrs(rng){ym='i';var p=rng.split('-').map(Number),s=p[0],e=p[1];var yrs=new Set();Object.values(DB).forEach(function(mk){Object.values(mk).forEach(function(m){m.y.filter(function(y){return y>=s&&y<=e}).forEach(function(y){yrs.add(y)})})});var el=document.getElementById('yearP');el.innerHTML='';var bk=document.createElement('div');bk.className='pill';bk.textContent='← All Years';bk.style.color='var(--gold)';bk.onclick=function(){V.year=V.make=V.model=V.engine=null;hG('make');hG('model');hG('engine');hPrev();uProg(1);initYrs()};el.appendChild(bk);Array.from(yrs).sort(function(a,b){return b-a}).forEach(function(y){el.appendChild(mkPill(String(y),function(t){V.year=parseInt(t);V.make=V.model=V.engine=null;hG('model');hG('engine');hPrev();uProg(2);ldMakes();sG('make')}))})}
+function ldMakes(){var el=document.getElementById('makeP');el.innerHTML='';var ms=new Set();Object.entries(DB).forEach(function(e){var mk=e[0],mds=e[1];Object.values(mds).forEach(function(m){if(m.y.includes(V.year))ms.add(mk)})});Array.from(ms).sort().forEach(function(mk){el.appendChild(mkPill(mk,function(t){V.make=t;V.model=V.engine=null;hG('engine');hPrev();uProg(3);ldModels();sG('model')}))})}
+function ldModels(){var el=document.getElementById('modelP');el.innerHTML='';Object.keys(DB[V.make]).filter(function(m){return DB[V.make][m].y.includes(V.year)}).forEach(function(m){el.appendChild(mkPill(m,function(t){V.model=t;V.engine=null;hPrev();uProg(4);ldEngs();sG('engine')}))})}
+function ldEngs(){var el=document.getElementById('engineP');el.innerHTML='';var md=DB[V.make][V.model];var engs=[];Object.entries(md.e).forEach(function(e){var p=e[0].split('-').map(Number);if(V.year>=p[0]&&V.year<=p[1])engs=engs.concat(e[1])});Array.from(new Set(engs)).forEach(function(eng){el.appendChild(mkPill(eng,function(t){V.engine=t;sPrev()}))})}
+function vehBack(){if(V.engine){V.engine=null;document.querySelectorAll('#engineP .pill').forEach(function(o){o.classList.remove('sel')});hPrev();uProg(4);return}if(V.model){V.model=V.engine=null;hG('engine');hPrev();document.querySelectorAll('#modelP .pill').forEach(function(o){o.classList.remove('sel')});uProg(3);return}if(V.make){V.make=V.model=V.engine=null;hG('model');hG('engine');hPrev();document.querySelectorAll('#makeP .pill').forEach(function(o){o.classList.remove('sel')});uProg(2);return}if(V.year){V.year=V.make=V.model=V.engine=null;hG('make');hG('model');hG('engine');hPrev();uProg(1);if(ym==='i')initYrs();else document.querySelectorAll('#yearP .pill').forEach(function(o){o.classList.remove('sel')});return}go('mkt');showNav()}
+async function confirmV(){localStorage.setItem('bsd_vehicle',JSON.stringify(getVehiclePayload()));await saveVehicleToAccount();applyVehicle();go('mkt');showNav();loadProducts()}
+async function resetVeh(){V.year=V.make=V.model=V.engine=null;localStorage.removeItem('bsd_vehicle');uProg(1);initYrs();hG('make');hG('model');hG('engine');hPrev();go('veh');hideNav()}
+function openSub(id){document.getElementById('sub-'+id).classList.add('open')}
+function closeSub(id){document.getElementById('sub-'+id).classList.remove('open')}
 
-// ===== CHECK SESSION ON LOAD =====
-(async function(){
-  var r=await sb.auth.getSession();
-  if(r.data.session){
-    var user=r.data.session.user;
-    var meta=user.user_metadata||{};
-    if(meta.role==='vendor'){
-      await loadVendorDash(user);
-    }
+// === Cart ===
+var cart=JSON.parse(localStorage.getItem('bsd_cart')||'[]');
+function saveCart(){localStorage.setItem('bsd_cart',JSON.stringify(cart))}
+function addToCart(id,name,brand,price,emoji){
+  var existing=cart.find(function(c){return c.id===id});
+  if(existing){existing.qty++;} else {cart.push({id:id,name:name,brand:brand,price:price,emoji:emoji,qty:1})}
+  saveCart();renderCart();
+  document.getElementById('cD').classList.add('op');
+}
+function removeFromCart(id){
+  var idx=cart.findIndex(function(c){return c.id===id});
+  if(idx>-1){if(cart[idx].qty>1){cart[idx].qty--}else{cart.splice(idx,1)}}
+  saveCart();renderCart();
+}
+function renderCart(){
+  var el=document.getElementById('cartItems');
+  var badge=document.querySelector('.cbdg');
+  var totalEl=document.getElementById('cartTotal');
+  var countEl=document.getElementById('cartCount');
+  var total=0,count=0;
+  cart.forEach(function(c){total+=c.price*c.qty;count+=c.qty});
+  badge.textContent=count;
+  countEl.textContent=count>0?'('+count+' items)':'';
+  if(cart.length===0){
+    el.innerHTML='<div class="cd-e">Your cart is empty</div>';
+    totalEl.textContent='$0';
+    return;
   }
-})();
-
-// ===== VENDOR LOGIN =====
-async function vendorLogin(){
-  var email=document.getElementById('loginEmail').value.trim();
-  var pw=document.getElementById('loginPw').value;
-  var errEl=document.getElementById('loginErr');
-  if(!email||!pw){errEl.textContent='Enter email and password.';errEl.style.display='block';return}
-  errEl.style.display='none';
-  var r=await sb.auth.signInWithPassword({email:email,password:pw});
-  if(r.error){errEl.textContent=r.error.message;errEl.style.display='block';return}
-  var meta=r.data.user.user_metadata||{};
-  if(meta.role!=='vendor'){errEl.textContent='This account is not a vendor account.';errEl.style.display='block';await sb.auth.signOut();return}
-  await loadVendorDash(r.data.user);
-}
-
-async function vendorLogout(){
-  await sb.auth.signOut();
-  vendorData=null;
-  document.getElementById('vendorDash').style.display='none';
-  document.getElementById('pitchPage').style.display='block';
-  window.scrollTo(0,0);
-}
-
-async function loadVendorDash(user){
-  // Get vendor data
-  var r=await sb.from('vendors').select('*').eq('email',user.email).single();
-  if(r.data)vendorData=r.data;
-
-  // Switch views
-  document.getElementById('pitchPage').style.display='none';
-  document.getElementById('vendorDash').style.display='block';
-
-  // Fill dashboard
-  var name=vendorData?vendorData.business_name:(user.user_metadata.business_name||user.email);
-  document.getElementById('dashUser').textContent=name;
-
-  // Fill settings
-  if(vendorData){
-    document.getElementById('setBiz').value=vendorData.business_name||'';
-    document.getElementById('setContact').value=vendorData.contact_name||'';
-    document.getElementById('setEmail').value=vendorData.email||'';
-    document.getElementById('setPhone').value=vendorData.phone||'';
-    document.getElementById('setWeb').value=vendorData.website||'';
-    // Load existing products
-    var pr=await sb.from('products').select('*').eq('vendor_id',vendorData.id).eq('status','active');
-    if(pr.data&&pr.data.length>0){
-      showImportedProducts(pr.data);
-      document.getElementById('productCount').textContent=pr.data.length;
-    }
-  }
-  window.scrollTo(0,0);
-}
-
-// ===== DASHBOARD TABS =====
-function dashTab(id,el){
-  document.querySelectorAll('.dash-tab').forEach(function(t){t.classList.remove('active')});
-  document.querySelectorAll('.dash-panel').forEach(function(p){p.classList.remove('active')});
-  el.classList.add('active');
-  document.getElementById('dp-'+id).classList.add('active');
-}
-
-// ===== CSV UPLOAD (Smart Auto-Detect) =====
-var csvData=null,csvHeaders=[],csvMapping={};
-
-// Smart column matching — maps common header variations to our fields
-var headerAliases={
-  product_name:['product_name','name','product name','product','title','item','item name','item_name','part','part name','part_name','description_short'],
-  sku:['sku','part_number','part number','partnumber','item_number','item number','upc','mpn','mfr_part','mfr part','product_id','id','item_id','catalog_number'],
-  brand:['brand','manufacturer','mfg','make','vendor','brand_name','mfr','supplier'],
-  price:['price','retail','retail_price','retail price','msrp','sell','sell_price','unit_price','amount','cost_price','sale_price','list_price'],
-  shipping_cost:['shipping_cost','shipping','ship_cost','freight','shipping_price','delivery_cost'],
-  stock_qty:['stock_qty','qty','quantity','stock','in_stock','inventory','available','on_hand','count','units'],
-  category:['category','type','product_type','product type','department','class','group','product_category'],
-  condition:['condition','status','product_condition','state'],
-  fitment:['fitment','engine_compatibility','engine','compatibility','fits','vehicle','application','fit','engines','makes_models','fitment_text'],
-  description:['description','desc','product_description','long_description','details','notes','info','about','summary'],
-  image_url:['image_url','image','img','photo','picture','thumbnail','image_link','img_url','photo_url','main_image'],
-  weight_lbs:['weight_lbs','weight','lbs','ship_weight','package_weight','wt'],
-  stage:['stage','performance_stage','build_stage','level']
-};
-
-function matchHeader(h){
-  var clean=h.toLowerCase().trim().replace(/[\s\-]+/g,'_').replace(/[^a-z0-9_]/g,'');
-  for(var field in headerAliases){
-    for(var i=0;i<headerAliases[field].length;i++){
-      if(clean===headerAliases[field][i].replace(/[\s\-]+/g,'_'))return field;
-    }
-  }
-  return null;
-}
-
-function handleCSV(input){
-  var file=input.files[0];if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var text=e.target.result;
-    // Handle quoted fields with commas inside
-    var lines=[];var current='';var inQuote=false;
-    for(var c=0;c<text.length;c++){
-      var ch=text[c];
-      if(ch==='"')inQuote=!inQuote;
-      else if((ch==='\n'||ch==='\r')&&!inQuote){if(current.trim())lines.push(current);current=''}
-      else current+=ch;
-    }
-    if(current.trim())lines.push(current);
-    if(lines.length<2){alert('CSV needs at least a header row and one data row.');return}
-    var delim=lines[0].indexOf('\t')>-1?'\t':',';
-    csvHeaders=lines[0].split(delim).map(function(h){return h.trim().replace(/^"|"$/g,'')});
-    csvData=[];
-    for(var i=1;i<lines.length;i++){
-      var vals=lines[i].split(delim).map(function(v){return v.trim().replace(/^"|"$/g,'')});
-      if(vals.length>=2)csvData.push(vals);
-    }
-    // Auto-match columns
-    csvMapping={};
-    var matched=0,warnings=[];
-    csvHeaders.forEach(function(h,idx){
-      var field=matchHeader(h);
-      if(field){csvMapping[field]=idx;matched++}
-    });
-    // Validate required fields
-    if(!csvMapping.hasOwnProperty('product_name')&&!csvMapping.hasOwnProperty('sku')){
-      warnings.push('Could not detect a product name or SKU column. Import may not work correctly.');
-    }
-    if(!csvMapping.hasOwnProperty('price')){
-      warnings.push('Could not detect a price column.');
-    }
-    // Count valid products
-    var validCount=0;
-    csvData.forEach(function(row){
-      var hasName=(csvMapping.product_name!==undefined&&row[csvMapping.product_name])||(csvMapping.sku!==undefined&&row[csvMapping.sku]);
-      var hasPrice=csvMapping.price!==undefined&&parseFloat(row[csvMapping.price])>0;
-      if(hasName&&hasPrice)validCount++;
-    });
-
-    document.getElementById('csvRowCount').textContent=validCount;
-    document.getElementById('csvColCount').textContent=matched;
-    document.getElementById('csvImportCount').textContent=validCount;
-
-    // Build preview table
-    var mappedFields=Object.keys(csvMapping);
-    var thtml='<thead><tr>';
-    mappedFields.forEach(function(f){thtml+='<th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ember);background:var(--bg2);border-bottom:1px solid var(--bd);white-space:nowrap">'+f.replace(/_/g,' ')+'</th>'});
-    thtml+='</tr></thead><tbody>';
-    var previewRows=Math.min(csvData.length,5);
-    for(var r=0;r<previewRows;r++){
-      thtml+='<tr>';
-      mappedFields.forEach(function(f){
-        var val=csvData[r][csvMapping[f]]||'—';
-        if(val.length>40)val=val.substring(0,40)+'…';
-        if(f==='price'||f==='shipping_cost')val=parseFloat(val)?'$'+parseFloat(val).toFixed(2):(val||'—');
-        thtml+='<td style="padding:8px 14px;font-size:12px;color:var(--t2);border-bottom:1px solid var(--bd);white-space:nowrap">'+val+'</td>';
-      });
-      thtml+='</tr>';
-    }
-    if(csvData.length>5)thtml+='<tr><td colspan="'+mappedFields.length+'" style="padding:10px 14px;font-size:12px;color:var(--t3);text-align:center;font-style:italic">…and '+(csvData.length-5)+' more rows</td></tr>';
-    thtml+='</tbody>';
-    document.getElementById('csvPreviewTable').innerHTML=thtml;
-
-    // Show warnings if any
-    if(warnings.length>0){
-      document.getElementById('csvWarningText').innerHTML='⚠️ '+warnings.join('<br>⚠️ ');
-      document.getElementById('csvWarnings').style.display='block';
-    }else{
-      document.getElementById('csvWarnings').style.display='none';
-    }
-
-    document.getElementById('csvMapper').style.display='block';
-    document.getElementById('csvMapper').scrollIntoView({behavior:'smooth'});
-  };
-  reader.readAsText(file);
-  input.value='';
-}
-
-function cancelCSV(){csvData=null;csvHeaders=[];csvMapping={};document.getElementById('csvMapper').style.display='none'}
-
-function importCSV(){
-  if(!csvMapping.hasOwnProperty('price')){
-    document.getElementById('csvErr').textContent='Cannot import without a price column detected.';
-    document.getElementById('csvErr').style.display='block';return;
-  }
-  document.getElementById('csvErr').style.display='none';
-  var products=[];
-  csvData.forEach(function(row){
-    var p={};
-    Object.keys(csvMapping).forEach(function(f){p[f]=row[csvMapping[f]]||null});
-    // If no product_name but has sku, use sku as name
-    if(!p.product_name&&p.sku)p.product_name=p.sku;
-    if(p.price)p.price=parseFloat(p.price)||0;
-    if(p.shipping_cost)p.shipping_cost=parseFloat(p.shipping_cost)||0;
-    if(p.stock_qty)p.stock_qty=parseInt(p.stock_qty)||0;
-    if(p.weight_lbs)p.weight_lbs=parseFloat(p.weight_lbs)||0;
-    // Map stage text to smallint
-    if(p.stage){var sm=String(p.stage).replace(/[^0-9]/g,'');p.stage=([1,2,3].indexOf(parseInt(sm))>-1)?parseInt(sm):null}
-    // Map fitment to fitment_text
-    if(p.fitment&&!p.fitment_text){p.fitment_text=p.fitment;delete p.fitment}
-    if(p.product_name&&p.price>0)products.push(p);
-  });
-  if(products.length===0){
-    document.getElementById('csvErr').textContent='No valid products found. Each row needs at least a name and price > $0.';
-    document.getElementById('csvErr').style.display='block';return;
-  }
-  var btn=document.getElementById('csvImportBtn');btn.textContent='Importing...';btn.disabled=true;
-
-  // Allowed columns in the products table
-  var allowedCols=['product_name','sku','brand','price','shipping_cost','stock_qty','category','condition','stage','fitment_text','fitment_makes','fitment_engines','description','image_url','image_urls','weight_lbs','source','source_ref','status','vendor_id'];
-
-  // Insert into Supabase if vendor is logged in
-  if(vendorData&&vendorData.id){
-    var rows=products.map(function(p){
-      // Clean and transform fields
-      var clean={};
-      clean.vendor_id=vendorData.id;
-      clean.product_name=p.product_name;
-      if(p.sku)clean.sku=String(p.sku);
-      if(p.brand)clean.brand=p.brand;
-      clean.price=parseFloat(p.price)||0;
-      if(p.shipping_cost)clean.shipping_cost=parseFloat(p.shipping_cost)||0;
-      if(p.stock_qty)clean.stock_qty=parseInt(p.stock_qty)||0;
-      if(p.category)clean.category=p.category;
-      if(p.condition&&['new','remanufactured','used'].indexOf(p.condition.toLowerCase())>-1)clean.condition=p.condition.toLowerCase();
-      if(p.stage){var sn=parseInt(String(p.stage).replace(/[^0-9]/g,''));if([1,2,3].indexOf(sn)>-1)clean.stage=sn}
-      if(p.fitment_text)clean.fitment_text=p.fitment_text;
-      else if(p.fitment)clean.fitment_text=p.fitment;
-      if(p.description)clean.description=p.description;
-      if(p.image_url)clean.image_url=p.image_url;
-      if(p.weight_lbs)clean.weight_lbs=parseFloat(p.weight_lbs)||null;
-      else if(p.weight)clean.weight_lbs=parseFloat(p.weight)||null;
-      clean.source='csv';
-      clean.status='active';
-      return clean;
-    });
-    console.log('Inserting',rows.length,'products into Supabase:',JSON.stringify(rows[0]));
-    sb.from('products').insert(rows).then(function(res){
-      if(res.error){
-        console.error('Supabase insert error:',res.error);
-        showImportedProducts(products);
-        alert('Import issue: '+res.error.message+'\n\nProducts shown locally but NOT saved to database. Check console for details.');
-      }else{
-        showImportedProducts(products);
-        document.getElementById('productCount').textContent=products.length;
-        alert(products.length+' products imported and saved to database!');
-      }
-      cancelCSV();btn.textContent='Import Products';btn.disabled=false;
-    });
-  }else{
-    // No vendor session
-    showImportedProducts(products);
-    alert(products.length+' products parsed locally.\n\nNot saved — you must be logged in as an approved vendor to save to database.');
-    cancelCSV();btn.textContent='Import Products';btn.disabled=false;
-  }
-}
-
-function showImportedProducts(products){
-  var html='<div class="product-grid">';
-  products.forEach(function(p){
-    html+='<div class="product-card">';
-    html+='<h4>'+p.product_name+'</h4>';
-    html+='<div class="price">$'+(p.price||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+'</div>';
-    html+='<div class="meta">';
-    if(p.brand)html+=p.brand+' · ';
-    if(p.sku)html+=p.sku+' · ';
-    if(p.category)html+=p.category+' · ';
-    if(p.stock_qty)html+=p.stock_qty+' in stock';
-    else html+='Stock N/A';
-    html+='</div>';
-    if(p.fitment)html+='<div class="meta" style="margin-top:4px;color:var(--blue)">Fits: '+p.fitment+'</div>';
-    html+='</div>';
+  var html='<div class="cd-items">';
+  cart.forEach(function(c){
+    html+='<div class="ci"><div class="ci-img">'+c.emoji+'</div><div class="ci-info"><h4>'+c.name+'</h4><p>'+c.brand+(c.qty>1?' × '+c.qty:'')+'</p></div><div class="ci-right"><div class="ci-price">$'+((c.price*c.qty).toLocaleString())+'</div><div class="ci-rm" onclick="removeFromCart(\''+c.id+'\')"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div></div>';
   });
   html+='</div>';
-  document.getElementById('productList').innerHTML=html;
-  document.getElementById('productCount').textContent=products.length;
+  el.innerHTML=html;
+  totalEl.textContent='$'+(total.toLocaleString());
 }
-
-// ===== API PANEL =====
-async function showApiPanel(){
-  document.getElementById('apiPanel').style.display='block';
-  document.getElementById('apiPanel').scrollIntoView({behavior:'smooth'});
-  if(!vendorData){document.getElementById('apiKeyField').value='Login first';return}
-
-  // Load real API key from vendor_api_keys table
-  document.getElementById('apiKeyField').value='Loading...';
+async function doCheckout(){
+  if(cart.length===0)return;
+  var btn=document.getElementById('checkoutBtn');
+  btn.textContent='Redirecting to Stripe...';btn.style.opacity='.6';btn.style.pointerEvents='none';
   try{
-    var res=await sb.from('vendor_api_keys').select('api_key').eq('vendor_id',vendorData.id).eq('is_active',true).limit(1);
-    if(res.error)throw res.error;
-    if(res.data&&res.data.length>0){
-      document.getElementById('apiKeyField').value=res.data[0].api_key;
+    var user=null;try{var s=await sb.auth.getSession();user=s.data.session?.user}catch(e){}
+    var vehicle=V.year?V.year+' '+V.make+' '+V.model+' — '+V.engine:'';
+    var res=await fetch('/api/create-checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        items:cart.map(function(c){return{id:c.id,name:c.name,brand:c.brand,price:c.price,qty:c.qty}}),
+        customer_email:user?user.email:null,
+        vehicle:vehicle
+      })
+    });
+    var data=await res.json();
+    if(data.url){
+      window.location.href=data.url;
     }else{
-      // No key exists yet — generate one via the DB function
-      var gen=await sb.rpc('generate_vendor_api_key',{p_vendor_id:vendorData.id});
-      if(gen.error)throw gen.error;
-      document.getElementById('apiKeyField').value=gen.data;
+      throw new Error(data.error||'Could not create checkout session');
     }
-  }catch(e){
-    console.error('API key load error:',e);
-    document.getElementById('apiKeyField').value='Error loading key — try refreshing';
-  }
-
-  // Show the real Supabase REST endpoint in the panel
-  var endpoint=SUPA_URL+'/rest/v1/products';
-  var endpointEl=document.getElementById('apiEndpointDisplay');
-  if(endpointEl)endpointEl.textContent='POST '+endpoint;
-}
-function hideApiPanel(){document.getElementById('apiPanel').style.display='none'}
-function copyApiKey(){
-  var el=document.getElementById('apiKeyField');
-  el.select();el.setSelectionRange(0,99999);
-  navigator.clipboard.writeText(el.value).then(function(){alert('API key copied!')});
-}
-async function regenerateApiKey(){
-  if(!vendorData)return;
-  if(!confirm('This will deactivate your current key and generate a new one. Continue?'))return;
-  try{
-    // Deactivate existing keys
-    await sb.from('vendor_api_keys').update({is_active:false}).eq('vendor_id',vendorData.id);
-    // Generate new one
-    var gen=await sb.rpc('generate_vendor_api_key',{p_vendor_id:vendorData.id});
-    if(gen.error)throw gen.error;
-    document.getElementById('apiKeyField').value=gen.data;
-    alert('New API key generated! Your old key is now deactivated.');
-  }catch(e){
-    console.error('Regenerate error:',e);
-    alert('Error generating new key. Please try again.');
+  }catch(err){
+    alert('Checkout error: '+err.message+'\n\nPlease try again.');
+    btn.textContent='Checkout';btn.style.opacity='1';btn.style.pointerEvents='auto';
   }
 }
+// === Category emoji map ===
+var catEmoji={injectors:'💉',turbos:'🌀','head studs':'🔩',egr:'🔧','fuel system':'⛽',engine:'🔧',exhaust:'💨',tuning:'📟',intake:'🌬️',gauges:'📊',cooling:'❄️'};
+function getCatEmoji(cat){return catEmoji[(cat||'').toLowerCase()]||'🔧'}
 
-// ===== DISTRIBUTOR PANEL =====
-function showDistPanel(){document.getElementById('distPanel').style.display='block';document.getElementById('distPanel').scrollIntoView({behavior:'smooth'})}
-function hideDistPanel(){document.getElementById('distPanel').style.display='none'}
-function connectDist(id){
-  var el=document.getElementById('dist-'+id);
-  if(el){el.style.display=el.style.display==='none'?'block':'none'}
-}
-function saveDist(id){
-  if(id==='apg'){
-    var acct=document.getElementById('apgAcct').value.trim();
-    var key=document.getElementById('apgKey').value.trim();
-    if(!acct||!key){alert('Please enter your APG account number and API key.');return}
-    alert('APG connection saved! Sync will begin once the product database is ready.');
-  }else if(id==='custom'){
-    var url=document.getElementById('customFeedUrl').value.trim();
-    if(!url){alert('Please enter your feed URL.');return}
-    alert('Custom feed saved! Auto-sync will begin once the product database is ready.');
+// === Load products from Supabase ===
+async function loadProducts(){
+  var grid=document.getElementById('pgrid');
+  var res=await sb.from('products').select('*').eq('status','active').order('created_at',{ascending:false}).limit(4000);
+  if(res.error||!res.data||res.data.length===0){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--t3);font-size:14px">No products available yet</div>';
+    return;
   }
+  var products=res.data.map(function(p){
+    var img=(p.image_url||'').replace(/^"+|"+$/g,'').trim();
+    if(!img||img.toUpperCase()==='NA')img='';
+    var fits=false;
+    if(V.engine&&p.fitment_text){
+      var ft=(p.fitment_text||'').toLowerCase();
+      var ue=(V.engine||'').toLowerCase();
+      var um=(V.make||'').toLowerCase();
+      var uModel=(V.model||'').toLowerCase();
+      var uYear=String(V.year||'');
+      fits=ft.indexOf(ue)>-1||ft.indexOf(um)>-1||ft.indexOf(uModel)>-1||ft.indexOf(uYear)>-1;
+    }
+    p._cleanImage=img;
+    p._fits=fits;
+    return p;
+  });
+
+  var cats=new Set();var brands=new Set();
+  products.forEach(function(p){if(p.category)cats.add(p.category);if(p.brand)brands.add(p.brand)});
+  var currentCat=document.querySelector('.ct.on')?document.querySelector('.ct.on').textContent:'All';
+  var currentBrand=document.getElementById('brandDd')?document.getElementById('brandDd').value:'Brand: All';
+
+  var tabHtml='<div class="ct '+(currentCat==='All'?'on':'')+'">All</div>';
+  Array.from(cats).sort().forEach(function(c){tabHtml+='<div class="ct '+(currentCat===c?'on':'')+'">'+c+'</div>'});
+  document.getElementById('catTabs').innerHTML=tabHtml;
+  document.querySelectorAll('.ct').forEach(function(c){c.onclick=function(){document.querySelectorAll('.ct').forEach(function(x){x.classList.remove('on')});c.classList.add('on');filterProducts()}});
+
+  var brandHtml='<option'+(currentBrand==='Brand: All'?' selected':'')+'>Brand: All</option>';
+  Array.from(brands).sort().forEach(function(b){brandHtml+='<option'+(currentBrand===b?' selected':'')+'>'+b+'</option>'});
+  document.getElementById('brandDd').innerHTML=brandHtml;
+
+  products.sort(function(a,b){
+    var ai=a._cleanImage?1:0, bi=b._cleanImage?1:0;
+    if(bi!==ai)return bi-ai;
+    var af=a._fits?1:0, bf=b._fits?1:0;
+    if(bf!==af)return bf-af;
+    return new Date(b.created_at||0)-new Date(a.created_at||0);
+  });
+
+  var html='';
+  products.forEach(function(p){
+    var cat=(p.category||'').toLowerCase();
+    var stg=p.stage||'';
+    var brand=(p.brand||'').toLowerCase();
+    var price=parseFloat(p.price)||0;
+    var emoji=getCatEmoji(p.category);
+    var stgClass=stg?'s'+stg:'';
+    var stgLabel=stg?'STG '+stg:'';
+    var img=p._cleanImage;
+    var fits=p._fits;
+
+    html+='<div class="pc g" data-cat="'+cat+'" data-stage="'+stg+'" data-brand="'+brand+'" data-price="'+Math.round(price)+'" data-fit="'+(fits?'1':'0')+'">';
+    html+='<div class="pc-img">';
+    if(img){
+      html+='<img src="'+img+'" alt="'+(p.product_name||'').replace(/"/g,'&quot;')+'" loading="lazy" onerror="this.onerror=null;this.style.display=\'none\';if(!this.parentNode.querySelector(\'.pc-emoji\')){this.parentNode.insertAdjacentHTML(\'afterbegin\',\'<span class=\\\'pc-emoji\\\'>'+emoji+'</span>\');}">';
+    }else{
+      html+='<span class="pc-emoji">'+emoji+'</span>';
+    }
+    if(V.engine&&fits){html+='<div class="pc-fit">✓ Fits Your Rig</div>';}
+    if(stg)html+='<div class="pc-stg '+stgClass+'">'+stgLabel+'</div>';
+    html+='</div>';
+    html+='<div class="pc-bd">';
+    if(p.brand)html+='<div class="pc-br">'+(p.brand||'').replace(/&/g,'&amp;')+'</div>';
+    html+='<h4>'+p.product_name+'</h4>';
+    html+='<div class="pc-bt"><div class="pc-pr mono">$'+price.toLocaleString()+'</div>';
+    html+='<button class="ab" onclick="addToCart(\''+p.id+'\',\''+p.product_name.replace(/'/g,"\\'")+'\',\''+(p.brand||'').replace(/'/g,"\\'")+'\','+price+',\''+emoji+'\')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
+    html+='</div></div></div>';
+  });
+  html+='<div class="pc g noresult" style="display:none;grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--t3);font-size:14px" id="noResults">No parts match your filters</div>';
+  grid.innerHTML=html;
+
+  document.querySelectorAll('.stg').forEach(function(b){b.onclick=function(){b.classList.toggle('on');filterProducts()}});
+  document.querySelectorAll('.dd').forEach(function(d){d.onchange=function(){filterProducts()}});
+  document.querySelector('.sbox input').addEventListener('input',function(){filterProducts()});
+  filterProducts();
 }
 
-// ===== PRODUCT SEARCH =====
+renderCart();
+uProg(1);initYrs();checkSession();loadProducts();
+// Handle return from Stripe checkout
+if(window.location.search.indexOf('checkout=success')>-1){
+  cart=[];saveCart();renderCart();
+  setTimeout(function(){alert('Payment successful! Your order is confirmed. You\'ll receive a confirmation email shortly.')},500);
+  history.replaceState(null,'','/app/');
+}else if(window.location.search.indexOf('checkout=cancelled')>-1){
+  setTimeout(function(){alert('Checkout was cancelled. Your cart is still saved.')},500);
+  history.replaceState(null,'','/app/');
+}
+document.getElementById('authPass').addEventListener('keydown',function(e){if(e.key==='Enter')handleAuth()});
+
 function filterProducts(){
-  // Will wire to Supabase query once products table exists
-  var q=document.getElementById('prodSearch').value.trim().toLowerCase();
-  console.log('Search:',q);
+var activeCat=document.querySelector('.ct.on');
+var catFilter=activeCat?activeCat.textContent.trim().toLowerCase():'all';
+var activeStages=[];
+document.querySelectorAll('.stg.on').forEach(function(s){activeStages.push(s.textContent.trim().replace('Stage ',''))});
+var dds=document.querySelectorAll('.dd');
+var priceFilter=dds[0].value;
+var brandFilter=dds[1].value.toLowerCase();
+var sortFilter=dds[2].value;
+var searchQ=document.querySelector('.sbox input').value.trim().toLowerCase();
+var cards=document.querySelectorAll('#pgrid .pc:not(.noresult)');
+var visible=0;
+cards.forEach(function(card){
+var show=true;
+var cardCat=card.dataset.cat;
+var cardStage=card.dataset.stage;
+var cardBrand=card.dataset.brand;
+var cardPrice=parseInt(card.dataset.price);
+var cardName=card.querySelector('h4').textContent.toLowerCase();
+if(catFilter!=='all'&&cardCat!==catFilter)show=false;
+if(activeStages.length>0&&activeStages.indexOf(cardStage)===-1)show=false;
+if(brandFilter&&brandFilter!=='brand: all'&&cardBrand!==brandFilter.replace('brand: ',''))show=false;
+if(priceFilter==='Under $100'&&cardPrice>=100)show=false;
+if(priceFilter==='$100–$500'&&(cardPrice<100||cardPrice>500))show=false;
+if(priceFilter==='$500–$1K'&&(cardPrice<500||cardPrice>1000))show=false;
+if(priceFilter==='$1K+'&&cardPrice<1000)show=false;
+if(searchQ&&cardName.indexOf(searchQ)===-1&&cardBrand.indexOf(searchQ)===-1&&cardCat.indexOf(searchQ)===-1)show=false;
+card.style.display=show?'':'none';
+if(show)visible++;
+});
+document.getElementById('noResults').style.display=visible===0?'block':'none';
+if(sortFilter==='Low → High'||sortFilter==='High → Low'){
+var grid=document.getElementById('pgrid');
+var arr=Array.from(cards);
+arr.sort(function(a,b){var pa=parseInt(a.dataset.price),pb=parseInt(b.dataset.price);return sortFilter==='Low → High'?pa-pb:pb-pa});
+arr.forEach(function(c){grid.appendChild(c)});
+grid.appendChild(document.getElementById('noResults'));
 }
-
-// ===== SETTINGS =====
-async function saveSettings(){
-  if(!vendorData)return;
-  var phone=document.getElementById('setPhone').value.trim();
-  var web=document.getElementById('setWeb').value.trim();
-  var r=await sb.from('vendors').update({phone:phone||null,website:web||null}).eq('id',vendorData.id);
-  if(r.error){alert('Error saving: '+r.error.message);return}
-  alert('Settings saved!');
 }
-
-async function changePassword(){
-  var pw=document.getElementById('setNewPw').value;
-  var conf=document.getElementById('setConfPw').value;
-  if(!pw||pw.length<8){alert('Password must be at least 8 characters.');return}
-  if(pw!==conf){alert('Passwords do not match.');return}
-  var r=await sb.auth.updateUser({password:pw});
-  if(r.error){alert('Error: '+r.error.message);return}
-  alert('Password updated successfully!');
-  document.getElementById('setNewPw').value='';
-  document.getElementById('setConfPw').value='';
-}
-
-// ===== APPLICATION FORM =====
-async function handleApply(){
-  var biz=document.getElementById('appBiz').value.trim();
-  var name=document.getElementById('appName').value.trim();
-  var email=document.getElementById('appEmail').value.trim();
-  var phone=document.getElementById('appPhone').value.trim();
-  var web=document.getElementById('appWeb').value.trim();
-  var type=document.getElementById('appType').value;
-  var skus=document.getElementById('appSkus').value;
-  var msg=document.getElementById('appMsg').value.trim();
-  var cats=[];document.querySelectorAll('.checkbox-grid input:checked').forEach(function(c){cats.push(c.value)});
-  var errEl=document.getElementById('applyErr');
-  if(!biz||!name||!email||!type){errEl.textContent='Please fill in all required fields.';errEl.style.display='block';return}
-  errEl.style.display='none';
-  var btn=document.getElementById('applyBtn');btn.textContent='Submitting...';btn.disabled=true;
-  try{
-    var res=await fetch(SUPA_URL+'/rest/v1/vendor_applications',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_ANON,'Prefer':'return=minimal'},body:JSON.stringify({business_name:biz,contact_name:name,email:email,phone:phone||null,website:web||null,business_type:type,product_categories:cats,estimated_skus:skus||null,message:msg||null})});
-    if(res.ok){document.getElementById('applyForm').style.display='none';document.getElementById('applySuccess').style.display='block'}
-    else if(res.status===409){errEl.textContent='This email has already submitted an application.';errEl.style.display='block';btn.textContent='Submit Application';btn.disabled=false}
-    else{throw new Error('fail')}
-  }catch(e){errEl.textContent='Something went wrong. Please try again.';errEl.style.display='block';btn.textContent='Submit Application';btn.disabled=false}
-}
-
-// Smooth scroll for pitch page links
-document.querySelectorAll('#pitchPage a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'})})});
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/app/sw.js').catch(function(){})}
 </script>
 </body>
 </html>

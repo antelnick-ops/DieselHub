@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset Password | Black Stack Diesel</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      background:#0b0d11;
+      color:#f3f4f6;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+    .box{
+      width:100%;
+      max-width:420px;
+      background:#1b1f27;
+      border:1px solid #2b313d;
+      border-radius:16px;
+      padding:24px;
+    }
+    h1{font-size:24px;margin-bottom:10px}
+    p{color:#9ca3af;margin-bottom:16px;line-height:1.5}
+    label{display:block;margin:12px 0 6px}
+    input{
+      width:100%;
+      padding:12px;
+      border-radius:10px;
+      border:1px solid #2b313d;
+      background:#151820;
+      color:#fff;
+    }
+    button{
+      width:100%;
+      margin-top:16px;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#ff6b2c;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .msg{margin-top:14px;font-size:14px;color:#fca5a5}
+    .ok{color:#86efac}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Reset Password</h1>
+    <p>Enter a new password for your Black Stack Diesel account.</p>
+
+    <label for="pw">New Password</label>
+    <input id="pw" type="password" placeholder="New password" />
+
+    <label for="pw2">Confirm Password</label>
+    <input id="pw2" type="password" placeholder="Confirm password" />
+
+    <button id="btn">Update Password</button>
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <script>
+    const SUPA_URL = 'https://jfjbilfsiebifzddveof.supabase.co';
+    const SUPA_KEY = 'PASTE_YOUR_REAL_SUPABASE_ANON_KEY_HERE';
+    const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+    const msg = document.getElementById('msg');
+    const btn = document.getElementById('btn');
+
+    function setMsg(text, good){
+      msg.textContent = text || '';
+      msg.className = good ? 'msg ok' : 'msg';
+    }
+
+    btn.addEventListener('click', async () => {
+      const pw = document.getElementById('pw').value;
+      const pw2 = document.getElementById('pw2').value;
+
+      if (!pw || !pw2) {
+        setMsg('Enter and confirm your new password.', false);
+        return;
+      }
+      if (pw !== pw2) {
+        setMsg('Passwords do not match.', false);
+        return;
+      }
+      if (pw.length < 8) {
+        setMsg('Use at least 8 characters.', false);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Updating...';
+      setMsg('');
+
+      const { error } = await sb.auth.updateUser({ password: pw });
+
+      if (error) {
+        setMsg(error.message || 'Could not update password.', false);
+        btn.disabled = false;
+        btn.textContent = 'Update Password';
+        return;
+      }
+
+      setMsg('Password updated. You can sign in now.', true);
+      btn.textContent = 'Password Updated';
+    });
+  </script>
+</body>
+</html>
