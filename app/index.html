@@ -391,6 +391,7 @@ function mkPill(txt,fn){
 function initYrs(){
   ym='r';
   var e=document.getElementById('yearP');
+  if(!e) return;
   e.innerHTML='';
   ['2025-2026','2020-2024','2015-2019','2010-2014','2005-2009','2000-2004','1994-1999'].forEach(function(r){
     e.appendChild(mkPill(r,function(){expYrs(r);}));
@@ -406,6 +407,7 @@ function expYrs(rng){
     });
   });
   var el=document.getElementById('yearP');
+  if(!el) return;
   el.innerHTML='';
   var bk=document.createElement('div');
   bk.className='pill';
@@ -426,6 +428,7 @@ function expYrs(rng){
 }
 function ldMakes(){
   var el=document.getElementById('makeP');
+  if(!el) return;
   el.innerHTML='';
   var ms=new Set();
   Object.entries(DB).forEach(function(e){
@@ -443,6 +446,7 @@ function ldMakes(){
 }
 function ldModels(){
   var el=document.getElementById('modelP');
+  if(!el) return;
   el.innerHTML='';
   Object.keys(DB[V.make]).filter(function(m){return DB[V.make][m].y.includes(V.year);}).forEach(function(m){
     el.appendChild(mkPill(m,function(t){
@@ -452,6 +456,7 @@ function ldModels(){
 }
 function ldEngs(){
   var el=document.getElementById('engineP');
+  if(!el) return;
   el.innerHTML='';
   var md=DB[V.make][V.model];
   var engs=[];
