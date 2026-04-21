@@ -4,892 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Black Stack Diesel</title>
-<meta name="description" content="AI-powered diagnostics and parts for diesel trucks.">
+<meta name="description" content="AI-powered diagnostics & parts for diesel trucks.">
 <link rel="icon" href="../favicon.ico">
 <link rel="manifest" href="/app/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="BlackStack">
 <meta name="theme-color" content="#FF6B2C">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-/* CSS styles here - omitted for brevity, but include all the styles from the original */
+:root{--bg:#08090B;--bg2:#0E1014;--bg3:#151820;--bg4:#1C2029;--ember:#FF6B2C;--ember2:#E85A1E;--amber:#F5A623;--text-primary:#F2EDE6;--text-secondary:#A0A4B0;--text-muted:#5E6270;--line:rgba(255,255,255,.08);--radius:14px;--shadow:0 12px 30px rgba(0,0,0,.28)}*{box-sizing:border-box}html,body{margin:0;padding:0}body{min-height:100vh;font-family:'Archivo',sans-serif;background:linear-gradient(180deg,var(--bg),#0b0d11 60%,#0d1015);color:var(--text-primary)}button,input,select{font:inherit}button{cursor:pointer}a{color:var(--amber)}.hid{display:none!important}.screen{display:none;min-height:100vh}.screen.on{display:block}.auth-card{width:min(92vw,420px);margin:84px auto 24px;padding:24px;border-radius:18px;background:linear-gradient(180deg,var(--bg2),var(--bg3));border:1px solid var(--line);box-shadow:var(--shadow)}.auth-card h1{margin:0 0 10px;font-family:'Rajdhani',sans-serif;font-size:2rem;color:var(--ember)}.auth-card p{margin:0 0 16px;color:var(--text-secondary)}.err{display:none;margin-bottom:12px;padding:10px 12px;border-radius:10px;background:rgba(255,107,44,.1);color:#ffbca4;border:1px solid rgba(255,107,44,.18)}.auth-card input{width:100%;padding:13px 14px;margin:8px 0;border-radius:12px;background:var(--bg4);border:1px solid rgba(255,255,255,.08);color:var(--text-primary)}.auth-card input::placeholder{color:var(--text-muted)}.auth-card button{width:100%;margin-top:10px;padding:13px 14px;border:none;border-radius:12px;background:linear-gradient(180deg,var(--ember),var(--ember2));color:white;font-weight:700}#authToggle{margin-top:12px;color:var(--text-secondary)}.oauth{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}.oauth button{margin-top:0;background:var(--bg4);border:1px solid rgba(255,255,255,.08);color:var(--text-primary)}.v-card{max-width:980px;margin:0 auto;padding:24px 18px 110px}.v-card h2{margin:0 0 18px;font-family:'Rajdhani',sans-serif;font-size:2rem;color:var(--ember)}.prog{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}.pb{height:8px;border-radius:999px;background:var(--bg4)}.pb.cur{background:var(--amber)}.pb.done{background:var(--ember)}.vprev,.vbtn{margin:10px 0}.vprev button,.vbtn button{border:none;border-radius:12px;padding:11px 14px;background:var(--bg4);color:var(--text-primary)}.vbtn button{background:linear-gradient(180deg,var(--ember),var(--ember2));color:white}.vg{margin-top:18px;padding:16px;border-radius:16px;background:linear-gradient(180deg,var(--bg2),var(--bg3));border:1px solid var(--line)}.vg h3{margin:0 0 12px;font-family:'Rajdhani',sans-serif;font-size:1.6rem}.pills{display:flex;flex-wrap:wrap;gap:10px}.pill{padding:10px 14px;border-radius:999px;background:var(--bg4);color:var(--text-primary);border:1px solid rgba(255,255,255,.06);transition:.15s ease}.pill:hover{transform:translateY(-1px)}.pill.sel{background:linear-gradient(180deg,var(--ember),var(--ember2));border-color:transparent}.hdr{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;background:rgba(14,16,20,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}.logo{font-family:'Rajdhani',sans-serif;font-size:1.65rem;color:var(--ember)}.hdr-right{display:flex;align-items:center;gap:10px}#vsText{margin:0 0 16px;padding:12px 14px;border-radius:12px;background:rgba(255,107,44,.08);color:#ffd7c8;border:1px solid rgba(255,107,44,.14)}.cbdg{min-width:26px;text-align:center;background:var(--ember);color:#fff;padding:4px 8px;border-radius:999px;font-size:.8rem;font-weight:700}.hdr button{border:none;border-radius:10px;background:var(--bg4);color:var(--text-primary);padding:10px 12px}.prof{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;background:var(--bg4);border:1px solid rgba(255,255,255,.08)}.pav{font-weight:700}.prof-dd{position:fixed;top:64px;right:14px;z-index:30;width:min(88vw,280px);background:linear-gradient(180deg,var(--bg2),var(--bg3));border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}.pd-item{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06)}.pd-item:last-child{border-bottom:none}.pn{font-weight:700}.pe{margin-top:4px;color:var(--text-secondary);font-size:.92rem}.content{padding:16px 16px 92px}.filters{padding:16px;border-radius:16px;background:linear-gradient(180deg,var(--bg2),var(--bg3));border:1px solid var(--line);margin-bottom:18px}.sbox input{width:100%;padding:12px 14px;border-radius:12px;background:var(--bg4);border:1px solid rgba(255,255,255,.08);color:var(--text-primary)}.sbox input::placeholder{color:var(--text-muted)}.cats,.stgs,.dds{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.ct,.stg{padding:9px 14px;border-radius:999px;background:var(--bg4);color:var(--text-secondary);border:1px solid rgba(255,255,255,.06);cursor:pointer}.ct.on,.stg.on{background:linear-gradient(180deg,var(--ember),var(--ember2));color:#fff;border-color:transparent}.dd{min-width:140px;padding:10px 12px;border-radius:10px;background:var(--bg4);border:1px solid rgba(255,255,255,.08);color:var(--text-primary)}.pc-fit-count{margin:0 0 16px;padding:12px 14px;border-radius:12px;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.14);color:#ffdca0}.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}.pc{background:linear-gradient(180deg,var(--bg2),var(--bg3));border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:.18s ease}.pc:hover{transform:translateY(-2px)}.pc-img{position:relative;min-height:190px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#11151c,#0d1015);font-size:54px}.pc-img img{max-width:100%;max-height:190px;object-fit:contain}.pc-fit{position:absolute;left:10px;bottom:10px;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff;font-size:.8rem}.pc-stg{position:absolute;right:10px;top:10px;padding:6px 10px;border-radius:999px;background:rgba(255,107,44,.9);color:white;font-size:.78rem;font-weight:700}.pc-bd{padding:14px}.pc-br{color:var(--text-secondary);font-size:.82rem;text-transform:uppercase;letter-spacing:.05em}.pc h4{margin:8px 0 12px;font-size:1rem;line-height:1.35}.pc-bt{display:flex;justify-content:space-between;align-items:center;gap:10px}.pc-pr{color:var(--ember);font-weight:700;font-size:1.06rem}.ab{width:40px;height:40px;display:grid;place-items:center;border:none;border-radius:10px;background:linear-gradient(180deg,var(--ember),var(--ember2));color:white}.ab svg,.ci-rm svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none}.pd{position:fixed;inset:0;z-index:40;display:none;padding:24px 16px;background:rgba(0,0,0,.78);overflow:auto}.pd.op{display:block}.pd-wrap{max-width:720px;margin:0 auto;background:linear-gradient(180deg,var(--bg2),var(--bg3));border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.pd-close{position:sticky;top:0;margin-left:auto;width:42px;height:42px;display:grid;place-items:center;font-size:1.5rem;cursor:pointer}#pdImg{min-height:220px;display:flex;align-items:center;justify-content:center;font-size:64px;padding:0 16px}#pdImg img{max-width:100%;max-height:220px;object-fit:contain}#pdBrand,#pdTitle,#pdPrice,#pdMeta,#pdDesc,#pdAddBtn{margin-left:16px;margin-right:16px}#pdBrand{color:var(--text-secondary);text-transform:uppercase;font-size:.82rem}#pdTitle{margin-top:8px;margin-bottom:8px;font-family:'Rajdhani',sans-serif;font-size:2rem}#pdPrice{color:var(--ember);font-size:1.3rem;font-weight:700;margin-bottom:12px}#pdMeta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}.pdet-tag{padding:7px 10px;border-radius:999px;background:var(--bg4);color:var(--text-secondary);font-size:.84rem}#pdDesc{color:var(--text-primary);line-height:1.6;padding-bottom:14px}#pdAddBtn{width:calc(100% - 32px);margin-bottom:18px;padding:13px 14px;border:none;border-radius:12px;background:linear-gradient(180deg,var(--ember),var(--ember2));color:white;font-weight:700}.cd{position:fixed;top:0;right:0;z-index:35;width:min(92vw,360px);height:100%;background:linear-gradient(180deg,var(--bg2),var(--bg3));border-left:1px solid var(--line);box-shadow:var(--shadow);transform:translateX(100%);transition:transform .24s ease}.cd.op{transform:translateX(0)}.cd-hdr{display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid var(--line)}.cd-close{font-size:1.4rem;cursor:pointer}.cd-body{padding:16px;padding-bottom:120px;max-height:calc(100% - 120px);overflow:auto}.cd-e{color:var(--text-secondary)}.ci{display:flex;gap:12px;align-items:center;margin-bottom:14px}.ci-img{font-size:1.7rem}.ci-info{flex:1}.ci-info h4{margin:0 0 4px;font-size:.96rem}.ci-info p{margin:0;color:var(--text-secondary);font-size:.88rem}.ci-right{display:flex;align-items:center;gap:8px}.ci-price{color:var(--ember);font-weight:700}.ci-rm{width:28px;height:28px;display:grid;place-items:center;border-radius:999px;background:var(--bg4);cursor:pointer}.cd-foot{position:absolute;left:0;right:0;bottom:0;padding:16px;background:linear-gradient(180deg,rgba(14,16,20,.94),rgba(14,16,20,.98));border-top:1px solid var(--line)}.cd-tot{display:flex;justify-content:space-between;margin-bottom:10px}#cartCount{color:var(--text-secondary);margin-bottom:12px}#checkoutBtn{width:100%;padding:13px 14px;border:none;border-radius:12px;background:linear-gradient(180deg,var(--ember),var(--ember2));color:white;font-weight:700}#bnav{position:fixed;left:0;right:0;bottom:0;z-index:25;display:flex;background:rgba(14,16,20,.95);backdrop-filter:blur(8px);border-top:1px solid var(--line)}#bnav button{flex:1;padding:14px 12px;background:none;border:none;color:var(--text-secondary)}#bnav button.on{color:var(--ember)}@media (max-width:600px){.auth-card{margin-top:46px}.dds{flex-direction:column}.dd{width:100%}.pgrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<!-- HTML content here -->
-<script>
-var sb=supabase.createClient(
-  'https://jfjbilfsiebifzddveof.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmamJpbGZzaWViaWZ6ZGR2ZW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2OTg4ODUsImV4cCI6MjA4NzI3NDg4NX0.bbTQ0l4HsHoKUzoKACBvbXJ0TbnUM5tltK4YLKyuMr8'
-);
-
-var DB={
-  Dodge:{
-    "Ram 2500":{
-      y:[1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009],
-      e:{
-        "1994-1998":["5.9L 12V Cummins"],
-        "1998-2002":["5.9L 24V Cummins ISB"],
-        "2003-2007":["5.9L Cummins ISB 325"],
-        "2007-2009":["6.7L Cummins ISB"]
-      }
-    },
-    "Ram 3500":{
-      y:[1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009],
-      e:{
-        "1994-1998":["5.9L 12V Cummins"],
-        "1998-2002":["5.9L 24V Cummins ISB"],
-        "2003-2007":["5.9L Cummins ISB 325"],
-        "2007-2009":["6.7L Cummins ISB"]
-      }
-    }
-  },
-  Ram:{
-    "2500":{
-      y:[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
-      e:{
-        "2010-2012":["6.7L Cummins ISB"],
-        "2013-2018":["6.7L Cummins ISB 385"],
-        "2019-2026":["6.7L Cummins HO 420"]
-      }
-    },
-    "3500":{
-      y:[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
-      e:{
-        "2010-2012":["6.7L Cummins ISB"],
-        "2013-2018":["6.7L Cummins ISB 385"],
-        "2019-2026":["6.7L Cummins HO 420"]
-      }
-    }
-  },
-  Ford:{
-    "F-250":{
-      y:[1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
-      e:{
-        "1994-1997":["7.3L Power Stroke"],
-        "1999-2003":["7.3L Power Stroke"],
-        "2003-2007":["6.0L Power Stroke"],
-        "2008-2010":["6.4L Power Stroke"],
-        "2011-2016":["6.7L Power Stroke"],
-        "2017-2019":["6.7L Power Stroke Gen2"],
-        "2020-2026":["6.7L Power Stroke Gen3"]
-      }
-    },
-    "F-350":{
-      y:[1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
-      e:{
-        "1994-1997":["7.3L Power Stroke"],
-        "1999-2003":["7.3L Power Stroke"],
-        "2003-2007":["6.0L Power Stroke"],
-        "2008-2010":["6.4L Power Stroke"],
-        "2011-2016":["6.7L Power Stroke"],
-        "2017-2019":["6.7L Power Stroke Gen2"],
-        "2020-2026":["6.7L Power Stroke Gen3"]
-      }
-    },
-    "F-450":{
-      y:[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
-      e:{
-        "1999-2003":["7.3L Power Stroke"],
-        "2003-2007":["6.0L Power Stroke"],
-        "2008-2010":["6.4L Power Stroke"],
-        "2011-2016":["6.7L Power Stroke"],
-        "2017-2019":["6.7L Power Stroke Gen2"],
-        "2020-2026":["6.7L Power Stroke Gen3"]
-      }
-    },
-    "F-550":{
-      y:[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
-      e:{
-        "1999-2003":["7.3L Power Stroke"],
-        "2003-2007":["6.0L Power Stroke"],
-        "2008-2010":["6.4L Power Stroke"],
-        "2011-2016":["6.7L Power Stroke"],
-        "2017-2019":["6.7L Power Stroke Gen2"],
-        "2020-2026":["6.7L Power Stroke Gen3"]
-      }
-    },
-    "Excursion":{
-      y:[2000,2001,2002,2003,2004,2005],
-      e:{
-        "2000-2003":["7.3L Power Stroke"],
-        "2003-2005":["6.0L Power Stroke"]
-      }
-    }
-  },
-  Chevrolet:{
-    "Silverado 2500HD":{
-      y:[2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
-      e:{
-        "2001-2004":["6.6L Duramax LB7"],
-        "2004-2006":["6.6L Duramax LLY"],
-        "2006-2007":["6.6L Duramax LBZ"],
-        "2007-2010":["6.6L Duramax LMM"],
-        "2011-2016":["6.6L Duramax LML"],
-        "2017-2019":["6.6L Duramax L5P"],
-        "2020-2026":["6.6L Duramax L5P Gen2"]
-      }
-    },
-    "Silverado 3500HD":{
-      y:[2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
-      e:{
-        "2001-2004":["6.6L Duramax LB7"],
-        "2004-2006":["6.6L Duramax LLY"],
-        "2006-2007":["6.6L Duramax LBZ"],
-        "2007-2010":["6.6L Duramax LMM"],
-        "2011-2016":["6.6L Duramax LML"],
-        "2017-2019":["6.6L Duramax L5P"],
-        "2020-2026":["6.6L Duramax L5P Gen2"]
-      }
-    }
-  },
-  GMC:{
-    "Sierra 2500HD":{
-      y:[2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
-      e:{
-        "2001-2004":["6.6L Duramax LB7"],
-        "2004-2006":["6.6L Duramax LLY"],
-        "2006-2007":["6.6L Duramax LBZ"],
-        "2007-2010":["6.6L Duramax LMM"],
-        "2011-2016":["6.6L Duramax LML"],
-        "2017-2019":["6.6L Duramax L5P"],
-        "2020-2026":["6.6L Duramax L5P Gen2"]
-      }
-    },
-    "Sierra 3500HD":{
-      y:[2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
-      e:{
-        "2001-2004":["6.6L Duramax LB7"],
-        "2004-2006":["6.6L Duramax LLY"],
-        "2006-2007":["6.6L Duramax LBZ"],
-        "2007-2010":["6.6L Duramax LMM"],
-        "2011-2016":["6.6L Duramax LML"],
-        "2017-2019":["6.6L Duramax L5P"],
-        "2020-2026":["6.6L Duramax L5P Gen2"]
-      }
-    }
-  }
-};
-
-var V={year:null,make:null,model:null,engine:null};
-var ym='r';
-var isSignUp=false;
-var ACTIVE_USER=null;
-var ALL_PRODUCTS=[];
-var MATCHED_PRODUCTS=[];
-var PRODUCT_MAP={};
-var cart=JSON.parse(localStorage.getItem('bsd_cart')||'[]');
-
-function showErr(m){
-  var e=document.getElementById('authErr');
-  e.textContent=m;
-  e.style.display='block';
-}
-function hideErr(){
-  document.getElementById('authErr').style.display='none';
-}
-function toggleAuthMode(e){
-  e.preventDefault();
-  isSignUp=!isSignUp;
-  hideErr();
-  document.getElementById('authBtn').textContent=isSignUp?'Create Account':'Sign In';
-  document.getElementById('confirmWrap').style.display=isSignUp?'block':'none';
-  document.getElementById('authToggle').innerHTML=isSignUp
-    ? 'Already have an account? <a href="#" onclick="toggleAuthMode(event)">Sign In</a>'
-    : 'No account? <a href="#" onclick="toggleAuthMode(event)">Sign Up</a>';
-}
-async function handleAuth(){
-  hideErr();
-  var email=document.getElementById('authEmail').value.trim();
-  var pass=document.getElementById('authPass').value;
-
-  if(!email||!pass) return showErr('Please enter email and password');
-
-  if(isSignUp){
-    if(pass!==document.getElementById('authConfirm').value) return showErr('Passwords do not match');
-    if(pass.length<6) return showErr('Password must be at least 6 characters');
-  }
-
-  var btn=document.getElementById('authBtn');
-  btn.textContent=isSignUp?'Creating account...':'Signing in...';
-  btn.style.opacity='.6';
-  btn.style.pointerEvents='none';
-
-  try{
-    var res;
-    if(isSignUp){
-      res=await sb.auth.signUp({email:email,password:pass});
-      if(res.error) throw res.error;
-
-      if(res.data.session){
-        onAuth(res.data.session.user,true);
-        return;
-      }
-
-      if(res.data.user&&!res.data.session){
-        btn.textContent='Create Account';
-        btn.style.opacity='1';
-        btn.style.pointerEvents='auto';
-        showErr('Check your email to confirm your account, then sign in.');
-        isSignUp=false;
-        document.getElementById('authBtn').textContent='Sign In';
-        document.getElementById('confirmWrap').style.display='none';
-        document.getElementById('authToggle').innerHTML='No account? <a href="#" onclick="toggleAuthMode(event)">Sign Up</a>';
-        return;
-      }
-    }else{
-      res=await sb.auth.signInWithPassword({email:email,password:pass});
-      if(res.error) throw res.error;
-      onAuth(res.data.session.user,false);
-    }
-  }catch(err){
-    showErr(err.message||'Authentication failed');
-    btn.textContent=isSignUp?'Create Account':'Sign In';
-    btn.style.opacity='1';
-    btn.style.pointerEvents='auto';
-  }
-}
-async function oAuth(p){
-  hideErr();
-  var r=await sb.auth.signInWithOAuth({provider:p,options:{redirectTo:location.origin+'/app/'}});
-  if(r.error) showErr(r.error.message);
-}
-
-function vehicleObjIsComplete(v){
-  return !!(v&&v.year&&v.make&&v.model&&v.engine);
-}
-function getStoredVehicle(){
-  try{
-    var raw=localStorage.getItem('bsd_vehicle');
-    if(!raw) return null;
-    var v=JSON.parse(raw);
-    return vehicleObjIsComplete(v)?v:null;
-  }catch(e){
-    return null;
-  }
-}
-async function saveVehicleToAccount(){
-  localStorage.setItem('bsd_vehicle',JSON.stringify({year:V.year,make:V.make,model:V.model,engine:V.engine}));
-  if(!ACTIVE_USER) return;
-  try{
-    var md=ACTIVE_USER.user_metadata||{};
-    var updated=await sb.auth.updateUser({data:Object.assign({},md,{vehicle:{year:V.year,make:V.make,model:V.model,engine:V.engine}})});
-    if(updated&&updated.data&&updated.data.user) ACTIVE_USER=updated.data.user;
-  }catch(e){}
-}
-async function clearVehicleFromAccount(){
-  localStorage.removeItem('bsd_vehicle');
-  if(!ACTIVE_USER) return;
-  try{
-    var md=Object.assign({},ACTIVE_USER.user_metadata||{});
-    delete md.vehicle;
-    var updated=await sb.auth.updateUser({data:md});
-    if(updated&&updated.data&&updated.data.user) ACTIVE_USER=updated.data.user;
-  }catch(e){}
-}
-async function onAuth(user){
-  ACTIVE_USER=user||null;
-  var email=user.email||'';
-  var name=email.split('@')[0].split('.').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);}).join(' ');
-  var initials=name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
-
-  var pAv = document.getElementById('pAv');
-  if(pAv) pAv.textContent=initials||'BS';
-  var pName = document.getElementById('pName');
-  if(pName) pName.textContent=name||'BlackStack User';
-  var pEmail = document.getElementById('pEmail');
-  if(pEmail) pEmail.textContent=email;
-
-  var acctVehicle=(user.user_metadata&&user.user_metadata.vehicle)?user.user_metadata.vehicle:null;
-  var saved=vehicleObjIsComplete(acctVehicle)?acctVehicle:getStoredVehicle();
-
-  if(vehicleObjIsComplete(saved)){
-    V.year=saved.year;
-    V.make=saved.make;
-    V.model=saved.model;
-    V.engine=saved.engine;
-    applyVehicle();
-    go('mkt');
-    showNav();
-    if(!vehicleObjIsComplete(acctVehicle)) await saveVehicleToAccount();
-    loadProducts();
-    return;
-  }
-
-  go('veh');
-  hideNav();
-}
-function applyVehicle(){
-  document.getElementById('vsText').textContent=V.year?'Parts for: '+V.year+' '+V.make+' '+V.model+' • '+V.engine:'Select your vehicle first';
-  document.getElementById('aiBadge').textContent=V.year?String(V.year).slice(-2)+"' "+V.make.charAt(0)+'. '+V.model:'—';
-  document.getElementById('pTrk').textContent=V.year?(V.year+' '+V.make+' '+V.model):'No vehicle set';
-  document.getElementById('pEng').textContent=V.engine||'Select your truck';
-}
-async function handleSignOut(){
-  await sb.auth.signOut();
-  ACTIVE_USER=null;
-  localStorage.removeItem('bsd_cart');
-  cart=[];
-  renderCart();
-  V.year=V.make=V.model=V.engine=null;
-  document.getElementById('authEmail').value='';
-  document.getElementById('authPass').value='';
-  hideErr();
-  hideNav();
-  go('login');
-}
-async function checkSession(){
-  try{
-    var r=await sb.auth.getSession();
-    if(r.data.session&&r.data.session.user) onAuth(r.data.session.user,false);
-  }catch(e){}
-}
-
-function go(id){
-  document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');});
-  document.getElementById('s-'+id).classList.add('on');
-}
-function nav(el){
-  document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('on');});
-  el.classList.add('on');
-  go(el.dataset.s);
-}
-function showNav(){document.getElementById('bnav').classList.remove('hid');}
-function hideNav(){document.getElementById('bnav').classList.add('hid');}
-function toggleCart(){document.getElementById('cD').classList.toggle('op');}
-function uProg(s){
-  for(var i=1;i<=4;i++){
-    var e=document.getElementById('p'+i);
-    if(!e) continue;
-    e.className='pb';
-    if(i<s) e.classList.add('done');
-    else if(i===s) e.classList.add('cur');
-  }
-}
-function sG(id){document.getElementById('vg-'+id).classList.remove('hid');}
-function hG(id){document.getElementById('vg-'+id).classList.add('hid');}
-function hPrev(){
-  document.getElementById('vprev').classList.add('hid');
-  document.getElementById('vBtn').classList.add('hid');
-}
-function sPrev(){
-  document.getElementById('vpN').textContent=V.year+' '+V.make+' '+V.model;
-  document.getElementById('vpE').textContent=V.engine;
-  document.getElementById('vpT').innerHTML='<div class="tag gs">Diesel</div><div class="tag gs">'+V.engine.split(' ')[0]+'</div>';
-  document.getElementById('vprev').classList.remove('hid');
-  document.getElementById('vBtn').classList.remove('hid');
-}
-function mkPill(txt,fn){
-  var d=document.createElement('div');
-  d.className='pill';
-  d.textContent=txt;
-  d.onclick=function(){
-    d.parentElement.querySelectorAll('.pill').forEach(function(x){x.classList.remove('sel');});
-    d.classList.add('sel');
-    fn(txt);
-  };
-  return d;
-}
-function initYrs(){
-  ym='r';
-  var e=document.getElementById('yearP');
-  if(!e) return;
-  e.innerHTML='';
-  ['2025-2026','2020-2024','2015-2019','2010-2014','2005-2009','2000-2004','1994-1999'].forEach(function(r){
-    e.appendChild(mkPill(r,function(){expYrs(r);}));
-  });
-}
-function expYrs(rng){
-  ym='i';
-  var p=rng.split('-').map(Number),s=p[0],e=p[1];
-  var yrs=new Set();
-  Object.values(DB).forEach(function(mk){
-    Object.values(mk).forEach(function(m){
-      m.y.filter(function(y){return y>=s&&y<=e;}).forEach(function(y){yrs.add(y);});
-    });
-  });
-  var el=document.getElementById('yearP');
-  if(!el) return;
-  el.innerHTML='';
-  var bk=document.createElement('div');
-  bk.className='pill';
-  bk.textContent='← All Years';
-  bk.style.color='var(--gold)';
-  bk.onclick=function(){
-    V.year=V.make=V.model=V.engine=null;
-    hG('make');hG('model');hG('engine');hPrev();uProg(1);initYrs();
-  };
-  el.appendChild(bk);
-  Array.from(yrs).sort(function(a,b){return b-a;}).forEach(function(y){
-    el.appendChild(mkPill(String(y),function(t){
-      V.year=parseInt(t,10);
-      V.make=V.model=V.engine=null;
-      hG('model');hG('engine');hPrev();uProg(2);ldMakes();sG('make');
-    }));
-  });
-}
-function ldMakes(){
-  var el=document.getElementById('makeP');
-  if(!el) return;
-  el.innerHTML='';
-  var ms=new Set();
-  Object.entries(DB).forEach(function(e){
-    var mk=e[0],mds=e[1];
-    Object.values(mds).forEach(function(m){
-      if(m.y.includes(V.year)) ms.add(mk);
-    });
-  });
-  Array.from(ms).sort().forEach(function(mk){
-    el.appendChild(mkPill(mk,function(t){
-      V.make=t;V.model=V.engine=null;
-      hG('engine');hPrev();uProg(3);ldModels();sG('model');
-    }));
-  });
-}
-function ldModels(){
-  var el=document.getElementById('modelP');
-  if(!el) return;
-  el.innerHTML='';
-  Object.keys(DB[V.make]).filter(function(m){return DB[V.make][m].y.includes(V.year);}).forEach(function(m){
-    el.appendChild(mkPill(m,function(t){
-      V.model=t;V.engine=null;hPrev();uProg(4);ldEngs();sG('engine');
-    }));
-  });
-}
-function ldEngs(){
-  var el=document.getElementById('engineP');
-  if(!el) return;
-  el.innerHTML='';
-  var md=DB[V.make][V.model];
-  var engs=[];
-  Object.entries(md.e).forEach(function(e){
-    var p=e[0].split('-').map(Number);
-    if(V.year>=p[0]&&V.year<=p[1]) engs=engs.concat(e[1]);
-  });
-  Array.from(new Set(engs)).forEach(function(eng){
-    el.appendChild(mkPill(eng,function(t){V.engine=t;sPrev();}));
-  });
-}
-function vehBack(){
-  if(V.engine){
-    V.engine=null;
-    document.querySelectorAll('#engineP .pill').forEach(function(o){o.classList.remove('sel');});
-    hPrev();uProg(4);return;
-  }
-  if(V.model){
-    V.model=V.engine=null;
-    hG('engine');hPrev();
-    document.querySelectorAll('#modelP .pill').forEach(function(o){o.classList.remove('sel');});
-    uProg(3);return;
-  }
-  if(V.make){
-    V.make=V.model=V.engine=null;
-    hG('model');hG('engine');hPrev();
-    document.querySelectorAll('#makeP .pill').forEach(function(o){o.classList.remove('sel');});
-    uProg(2);return;
-  }
-  if(V.year){
-    V.year=V.make=V.model=V.engine=null;
-    hG('make');hG('model');hG('engine');hPrev();uProg(1);
-    if(ym==='i') initYrs();
-    else document.querySelectorAll('#yearP .pill').forEach(function(o){o.classList.remove('sel');});
-    return;
-  }
-  go('mkt');showNav();
-}
-async function confirmV(){
-  await saveVehicleToAccount();
-  applyVehicle();
-  go('mkt');
-  showNav();
-  loadProducts();
-}
-async function resetVeh(){
-  V.year=V.make=V.model=V.engine=null;
-  await clearVehicleFromAccount();
-  uProg(1);
-  initYrs();
-  hG('make');hG('model');hG('engine');hPrev();
-  applyVehicle();
-  loadProducts();
-  go('veh');
-  hideNav();
-}
-function openSub(id){document.getElementById('sub-'+id).classList.add('open');}
-function closeSub(id){document.getElementById('sub-'+id).classList.remove('open');}
-
-function escapeHtml(v){
-  return String(v||'').replace(/[&<>"']/g,function(m){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
-  });
-}
-function cleanImageUrl(v){
-  var s=(v||'').replace(/^"+|"+$/g,'').trim();
-  if(!s||s==='NA'||s==='null') return '';
-  return s;
-}
-function getVehicleAliases(){
-  if(!V.year||!V.make||!V.model||!V.engine) return [];
-  var aliases=[String(V.year),V.make,V.model,V.engine];
-  var eng=V.engine.toLowerCase();
-  if(eng.indexOf('7.3')>-1) aliases=aliases.concat(['7.3','power stroke','powerstroke','7.3l']);
-  if(eng.indexOf('6.0')>-1) aliases=aliases.concat(['6.0','power stroke','powerstroke','6.0l']);
-  if(eng.indexOf('6.4')>-1) aliases=aliases.concat(['6.4','power stroke','powerstroke','6.4l']);
-  if(eng.indexOf('6.7')>-1&&V.make==='Ford') aliases=aliases.concat(['6.7','power stroke','powerstroke','6.7l']);
-  if(V.make==='Ford'&&V.model==='F-250') aliases=aliases.concat(['f250','f-250','super duty','f series']);
-  if(V.make==='Ford'&&V.model==='F-350') aliases=aliases.concat(['f350','f-350','super duty','f series']);
-  return aliases.map(function(x){return String(x).toLowerCase();});
-}
-function scoreProductForVehicle(p){
-  if(!V.year||!V.make||!V.model||!V.engine) return 0;
-  var text=[p.product_name,p.description,p.fitment_text,p.category,p.brand,p.sku].filter(Boolean).join(' ').toLowerCase();
-  var score=0;
-  var aliases=getVehicleAliases();
-  aliases.forEach(function(a){if(a&&text.indexOf(a)>-1) score+=2;});
-  if(text.indexOf(String(V.year))>-1) score+=3;
-  if(text.indexOf(V.make.toLowerCase())>-1) score+=4;
-  if(text.indexOf(V.model.toLowerCase())>-1||text.indexOf(V.model.toLowerCase().replace('-',''))>-1) score+=5;
-  var eng=V.engine.toLowerCase();
-  if(text.indexOf(eng)>-1) score+=7;
-  if((eng.indexOf('power stroke')>-1||eng.indexOf('powerstroke')>-1) && (text.indexOf('power stroke')>-1||text.indexOf('powerstroke')>-1)) score+=5;
-  if(eng.indexOf('7.3')>-1&&text.indexOf('7.3')>-1) score+=8;
-  return score;
-}
-function vehicleMatchLabel(score){
-  if(score>=18) return 'Strong match';
-  if(score>=10) return 'Likely fit';
-  if(score>=5) return 'Possible fit';
-  return '';
-}
-function openProduct(id){
-  var p=PRODUCT_MAP[id];
-  if(!p) return;
-  var img=cleanImageUrl(p.image_url);
-  var emoji=getCatEmoji(p.category);
-  var score=scoreProductForVehicle(p);
-  var label=vehicleMatchLabel(score);
-  var pd=document.getElementById('pDetail');
-
-  document.getElementById('pdImg').innerHTML=img?'<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(p.product_name)+'">':emoji;
-  document.getElementById('pdBrand').textContent=p.brand||'';
-  document.getElementById('pdTitle').textContent=p.product_name||'Product';
-  document.getElementById('pdPrice').textContent='$'+((parseFloat(p.price)||0).toLocaleString());
-
-  var meta=[];
-  if(p.sku) meta.push('<div class="pdet-tag">SKU: '+escapeHtml(p.sku)+'</div>');
-  if(p.category) meta.push('<div class="pdet-tag">'+escapeHtml(p.category)+'</div>');
-  if(label) meta.push('<div class="pdet-tag">'+escapeHtml(label)+'</div>');
-  if(p.brand) meta.push('<div class="pdet-tag">'+escapeHtml(p.brand)+'</div>');
-  document.getElementById('pdMeta').innerHTML=meta.join('');
-  document.getElementById('pdDesc').textContent=(p.description&&p.description.trim())?p.description:'No description available for this product yet.';
-  document.getElementById('pdAddBtn').onclick=function(){
-    addToCart(p.id,p.product_name,p.brand||'',parseFloat(p.price)||0,emoji);
-  };
-  pd.classList.add('op');
-}
-function closeProduct(){
-  document.getElementById('pDetail').classList.remove('op');
-}
-
-function saveCart(){
-  localStorage.setItem('bsd_cart',JSON.stringify(cart));
-}
-function addToCart(id,name,brand,price,emoji){
-  var existing=cart.find(function(c){return c.id===id;});
-  if(existing) existing.qty++;
-  else cart.push({id:id,name:name,brand:brand,price:price,emoji:emoji,qty:1});
-  saveCart();
-  renderCart();
-  document.getElementById('cD').classList.add('op');
-}
-function removeFromCart(id){
-  var idx=cart.findIndex(function(c){return c.id===id;});
-  if(idx>-1){
-    if(cart[idx].qty>1) cart[idx].qty--;
-    else cart.splice(idx,1);
-  }
-  saveCart();
-  renderCart();
-}
-function renderCart(){
-  var el=document.getElementById('cartItems');
-  var badge=document.querySelector('.cbdg');
-  var totalEl=document.getElementById('cartTotal');
-  var countEl=document.getElementById('cartCount');
-  if(!el || !badge || !totalEl || !countEl) return;
-
-  var total=0,count=0;
-
-  cart.forEach(function(c){
-    total+=c.price*c.qty;
-    count+=c.qty;
-  });
-
-  badge.textContent=count;
-  countEl.textContent=count>0?'('+count+' items)':'';
-
-  if(cart.length===0){
-    el.innerHTML='<div class="cd-e">Your cart is empty</div>';
-    totalEl.textContent='$0';
-    return;
-  }
-
-  var html='<div class="cd-items">';
-  cart.forEach(function(c){
-    html+='<div class="ci"><div class="ci-img">'+c.emoji+'</div><div class="ci-info"><h4>'+escapeHtml(c.name)+'</h4><p>'+escapeHtml(c.brand)+(c.qty>1?' × '+c.qty:'')+'</p></div><div class="ci-right"><div class="ci-price">$'+((c.price*c.qty).toLocaleString())+'</div><div class="ci-rm" onclick="removeFromCart(\''+c.id+'\')"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div></div>';
-  });
-  html+='</div>';
-  el.innerHTML=html;
-  totalEl.textContent='$'+(total.toLocaleString());
-}
-async function doCheckout(){
-  if(cart.length===0) return;
-
-  var btn=document.getElementById('checkoutBtn');
-  btn.textContent='Redirecting to Stripe...';
-  btn.style.opacity='.6';
-  btn.style.pointerEvents='none';
-
-  try{
-    var user=null;
-    try{
-      var s=await sb.auth.getSession();
-      user=s.data.session?.user;
-    }catch(e){}
-
-    var vehicle=V.year?V.year+' '+V.make+' '+V.model+' — '+V.engine:'';
-    var res=await fetch('/api/create-checkout',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        items:cart.map(function(c){return{id:c.id,name:c.name,brand:c.brand,price:c.price,qty:c.qty};}),
-        customer_email:user?user.email:null,
-        vehicle:vehicle
-      })
-    });
-    var data=await res.json();
-    if(data.url) window.location.href=data.url;
-    else throw new Error(data.error||'Could not create checkout session');
-  }catch(err){
-    alert('Checkout error: '+err.message+'\n\nPlease try again.');
-    btn.textContent='Checkout';
-    btn.style.opacity='1';
-    btn.style.pointerEvents='auto';
-  }
-}
-
-var catEmoji={injectors:'💉',turbos:'🌀','head studs':'🔩',egr:'🔧','fuel system':'⛽',engine:'🔧',exhaust:'💨',tuning:'📟',intake:'🌬️',gauges:'📊',cooling:'❄️'};
-function getCatEmoji(cat){
-  return catEmoji[(cat||'').toLowerCase()]||'🔧';
-}
-
-async function loadProducts(){
-  var grid=document.getElementById('pgrid');
-  if(!grid) return;
-  var res=await sb.from('products').select('*').eq('status','active').order('created_at',{ascending:false});
-
-  if(res.error||!res.data||res.data.length===0){
-    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--t3);font-size:14px">No products available yet</div>';
-    return;
-  }
-
-  ALL_PRODUCTS=res.data.map(function(p){
-    p.__img=cleanImageUrl(p.image_url);
-    p.__score=scoreProductForVehicle(p);
-    p.__fit=p.__score>=8;
-    PRODUCT_MAP[p.id]=p;
-    return p;
-  });
-
-  var vehicleMatched=ALL_PRODUCTS.filter(function(p){return p.__fit;});
-  MATCHED_PRODUCTS=vehicleMatched;
-
-  var products=(V.engine&&vehicleMatched.length>0)?vehicleMatched.slice():ALL_PRODUCTS.slice();
-
-  products.sort(function(a,b){
-    if((b.__fit?1:0)!==(a.__fit?1:0)) return (b.__fit?1:0)-(a.__fit?1:0);
-    if((b.__img?1:0)!==(a.__img?1:0)) return (b.__img?1:0)-(a.__img?1:0);
-    if((b.__score||0)!==(a.__score||0)) return (b.__score||0)-(a.__score||0);
-    return 0;
-  });
-
-  var cats=new Set(),brands=new Set();
-  products.forEach(function(p){
-    if(p.category) cats.add(p.category);
-    if(p.brand) brands.add(p.brand);
-  });
-
-  var tabHtml='<div class="ct on">All</div>';
-  Array.from(cats).sort().forEach(function(c){tabHtml+='<div class="ct">'+c+'</div>';});
-  var catTabsEl = document.getElementById('catTabs');
-  if(catTabsEl) catTabsEl.innerHTML=tabHtml;
-  document.querySelectorAll('.ct').forEach(function(c){
-    c.onclick=function(){
-      document.querySelectorAll('.ct').forEach(function(x){x.classList.remove('on');});
-      c.classList.add('on');
-      filterProducts();
-    };
-  });
-
-  var brandHtml='<option>Brand: All</option>';
-  Array.from(brands).sort().forEach(function(b){brandHtml+='<option>'+b+'</option>';});
-  var brandDdEl = document.getElementById('brandDd');
-  if(brandDdEl) brandDdEl.innerHTML=brandHtml;
-
-  var countHtml='';
-  if(V.engine&&vehicleMatched.length>0){
-    countHtml='<div class="pc-fit-count">Showing '+vehicleMatched.length.toLocaleString()+' likely matches for your '+escapeHtml(V.year+' '+V.make+' '+V.model)+' • '+escapeHtml(V.engine)+'</div>';
-  }else if(V.engine){
-    countHtml='<div class="pc-fit-count">Showing all active products. No strong vehicle matches were found yet for your '+escapeHtml(V.year+' '+V.make+' '+V.model)+' • '+escapeHtml(V.engine)+'.</div>';
-  }
-
-  var html=countHtml;
-  products.forEach(function(p){
-    var cat=(p.category||'').toLowerCase();
-    var stg=p.stage||'';
-    var brand=(p.brand||'').toLowerCase();
-    var price=parseFloat(p.price)||0;
-    var emoji=getCatEmoji(p.category);
-    var stgClass=stg?'s'+stg:'';
-    var stgLabel=stg?'STG '+stg:'';
-    var img=p.__img;
-    var fits=!!p.__fit;
-
-    html+='<div class="pc g" data-id="'+p.id+'" data-cat="'+cat+'" data-stage="'+stg+'" data-brand="'+brand+'" data-price="'+Math.round(price)+'" data-fit="'+(fits?'1':'0')+'" onclick="openProduct(\''+p.id+'\')">';
-    html+='<div class="pc-img">';
-    if(img) html+='<img src="'+escapeHtml(img)+'" alt="'+escapeHtml(p.product_name||'Product')+'" loading="lazy">';
-    else html+=emoji;
-    if(V.engine&&fits) html+='<div class="pc-fit">✓ Fits Your Rig</div>';
-    if(stg) html+='<div class="pc-stg '+stgClass+'">'+stgLabel+'</div>';
-    html+='</div>';
-    html+='<div class="pc-bd">';
-    if(p.brand) html+='<div class="pc-br">'+escapeHtml(p.brand)+'</div>';
-    html+='<h4>'+escapeHtml(p.product_name)+'</h4>';
-    html+='<div class="pc-bt"><div class="pc-pr mono">$'+price.toLocaleString()+'</div>';
-    html+='<button class="ab" onclick="event.stopPropagation();addToCart(\''+p.id+'\',\''+String(p.product_name||'').replace(/'/g,"\\'")+'\',\''+String(p.brand||'').replace(/'/g,"\\'")+'\','+price+',\''+emoji+'\')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
-    html+='</div></div></div>';
-  });
-
-  html+='<div class="pc g noresult" style="display:none;grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--t3);font-size:14px" id="noResults">No parts match your filters</div>';
-  grid.innerHTML=html;
-
-  document.querySelectorAll('.stg').forEach(function(b){
-    b.onclick=function(){
-      b.classList.toggle('on');
-      filterProducts();
-    };
-  });
-  document.querySelectorAll('.dd').forEach(function(d){
-    d.onchange=function(){filterProducts();};
-  });
-  var searchInput = document.querySelector('.sbox input');
-  if(searchInput) searchInput.addEventListener('input',function(){filterProducts();});
-}
-
-function filterProducts(){
-  var activeCat=document.querySelector('.ct.on');
-  var catFilter=activeCat?activeCat.textContent.trim().toLowerCase():'all';
-  var activeStages=[];
-  document.querySelectorAll('.stg.on').forEach(function(s){
-    activeStages.push(s.textContent.trim().replace('Stage ',''));
-  });
-
-  var dds=document.querySelectorAll('.dd');
-  var priceFilter=dds[0].value;
-  var brandFilter=dds[1].value.toLowerCase();
-  var sortFilter=dds[2].value;
-  var searchQ=document.querySelector('.sbox input').value.trim().toLowerCase();
-  var cards=document.querySelectorAll('#pgrid .pc:not(.noresult)');
-  var visible=0;
-
-  cards.forEach(function(card){
-    var show=true;
-    var cardCat=card.dataset.cat;
-    var cardStage=card.dataset.stage;
-    var cardBrand=card.dataset.brand;
-    var cardPrice=parseInt(card.dataset.price||'0',10);
-    var cardName=card.querySelector('h4').textContent.toLowerCase();
-
-    if(catFilter!=='all'&&cardCat!==catFilter) show=false;
-    if(activeStages.length>0&&activeStages.indexOf(cardStage)===-1) show=false;
-    if(brandFilter&&brandFilter!=='brand: all'&&cardBrand!==brandFilter.replace('brand: ','')) show=false;
-    if(priceFilter==='Under $100'&&cardPrice>=100) show=false;
-    if(priceFilter==='$100–$500'&&(cardPrice<100||cardPrice>500)) show=false;
-    if(priceFilter==='$500–$1K'&&(cardPrice<500||cardPrice>1000)) show=false;
-    if(priceFilter==='$1K+'&&cardPrice<1000) show=false;
-    if(searchQ&&cardName.indexOf(searchQ)===-1&&cardBrand.indexOf(searchQ)===-1&&cardCat.indexOf(searchQ)===-1) show=false;
-
-    card.style.display=show?'':'none';
-    if(show) visible++;
-  });
-
-  var noRes=document.getElementById('noResults');
-  if(noRes) noRes.style.display=visible===0?'block':'none';
-
-  if(sortFilter==='Low → High'||sortFilter==='High → Low'){
-    var grid=document.getElementById('pgrid');
-    var arr=Array.from(cards).filter(function(c){return c.style.display!=='none';});
-    arr.sort(function(a,b){
-      var pa=parseInt(a.dataset.price||'0',10),pb=parseInt(b.dataset.price||'0',10);
-      return sortFilter==='Low → High'?pa-pb:pb-pa;
-    });
-    arr.forEach(function(c){grid.appendChild(c);});
-    if(noRes) grid.appendChild(noRes);
-  }
-}
-
-renderCart();
-uProg(1);
-initYrs();
-checkSession();
-loadProducts();
-
-if(window.location.search.indexOf('checkout=success')>-1){
-  cart=[];
-  saveCart();
-  renderCart();
-  setTimeout(function(){
-    alert('Payment successful! Your order is confirmed. You\'ll receive a confirmation email shortly.');
-  },500);
-  history.replaceState(null,'','/app/');
-}else if(window.location.search.indexOf('checkout=cancelled')>-1){
-  setTimeout(function(){
-    alert('Checkout was cancelled. Your cart is still saved.');
-  },500);
-  history.replaceState(null,'','/app/');
-}
-
-document.getElementById('authPass').addEventListener('keydown',function(e){
-  if(e.key==='Enter') handleAuth();
-});
-
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape') closeProduct();
-});
-
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/app/sw.js').catch(function(){});
-}
-</script>
-
-<body>
 <div id="app">
-  <!-- Auth Screen -->
-  <div id="auth" class="screen">
+  <div id="s-login" class="screen on">
     <div class="auth-card">
       <h1>Black Stack Diesel</h1>
       <p>AI-powered diagnostics & parts</p>
       <div id="authErr" class="err"></div>
       <input id="authEmail" type="email" placeholder="Email" required>
       <input id="authPass" type="password" placeholder="Password" required>
-      <div id="confirmWrap" style="display:none;">
+      <div id="confirmWrap" class="hid">
         <input id="authConfirm" type="password" placeholder="Confirm Password" required>
       </div>
       <button id="authBtn" onclick="handleAuth()">Sign In</button>
-      <div id="authToggle">
-        No account? <a href="#" onclick="toggleAuthMode(event)">Sign Up</a>
-      </div>
+      <div id="authToggle">No account? <a href="#" onclick="toggleAuthMode(event)">Sign Up</a></div>
       <div class="oauth">
         <button onclick="oAuth('google')">Continue with Google</button>
         <button onclick="oAuth('apple')">Continue with Apple</button>
@@ -897,125 +41,87 @@ if('serviceWorker' in navigator){
     </div>
   </div>
 
-  <!-- Vehicle Setup -->
-  <div id="veh" class="screen hid">
+  <div id="s-veh" class="screen">
     <div class="v-card">
       <h2>Select Your Truck</h2>
-      <div class="prog">
-        <div id="p1" class="pb"></div>
-        <div id="p2" class="pb"></div>
-        <div id="p3" class="pb"></div>
-        <div id="p4" class="pb"></div>
-      </div>
-      <div id="vprev" class="vprev hid">
-        <button onclick="vehBack()">← Back</button>
-      </div>
-      <div id="vBtn" class="vbtn hid">
-        <button onclick="confirmV()">Confirm Vehicle</button>
-      </div>
-      <div id="vg-year" class="vg">
-        <h3>Year</h3>
-        <div id="yearP" class="pills"></div>
-      </div>
-      <div id="vg-make" class="vg hid">
-        <h3>Make</h3>
-        <div id="makeP" class="pills"></div>
-      </div>
-      <div id="vg-model" class="vg hid">
-        <h3>Model</h3>
-        <div id="modelP" class="pills"></div>
-      </div>
-      <div id="vg-engine" class="vg hid">
-        <h3>Engine</h3>
-        <div id="engineP" class="pills"></div>
-      </div>
+      <div class="prog"><div id="p1" class="pb"></div><div id="p2" class="pb"></div><div id="p3" class="pb"></div><div id="p4" class="pb"></div></div>
+      <div id="vprev" class="vprev hid"><button onclick="vehBack()">← Back</button></div>
+      <div id="vBtn" class="vbtn hid"><button onclick="confirmV()">Confirm Vehicle</button></div>
+      <div id="vprevCard" class="vg hid"><h3 id="vpN"></h3><div id="vpE"></div><div id="vpT" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"></div></div>
+      <div id="vg-year" class="vg"><h3>Year</h3><div id="yearP" class="pills"></div></div>
+      <div id="vg-make" class="vg hid"><h3>Make</h3><div id="makeP" class="pills"></div></div>
+      <div id="vg-model" class="vg hid"><h3>Model</h3><div id="modelP" class="pills"></div></div>
+      <div id="vg-engine" class="vg hid"><h3>Engine</h3><div id="engineP" class="pills"></div></div>
     </div>
   </div>
 
-  <!-- Main App -->
-  <div id="main" class="screen hid">
-    <!-- Header -->
+  <div id="s-mkt" class="screen">
     <div class="hdr">
       <div class="logo">BSD</div>
       <div class="hdr-right">
-        <div class="cbdg">0</div>
+        <div id="aiBadge" class="cbdg">—</div>
+        <div id="cbdg" class="cbdg">0</div>
         <button onclick="toggleCart()">Cart</button>
-        <div class="prof" onclick="toggleProf()">
-          <div id="pAv" class="pav">BS</div>
-        </div>
+        <div class="prof" onclick="toggleProf()"><div id="pAv" class="pav">BS</div></div>
       </div>
     </div>
 
-    <!-- Profile Dropdown -->
     <div id="prof" class="prof-dd hid">
-      <div class="pd-item">
-        <div id="pName" class="pn">BlackStack User</div>
-        <div id="pEmail" class="pe"></div>
-      </div>
-      <div class="pd-item" onclick="go('veh')">Change Vehicle</div>
-      <div class="pd-item" onclick="signOut()">Sign Out</div>
+      <div class="pd-item"><div id="pName" class="pn">BlackStack User</div><div id="pEmail" class="pe"></div></div>
+      <div id="pTrk" class="pd-item">No vehicle set</div>
+      <div id="pEng" class="pd-item">Select your truck</div>
+      <div class="pd-item" onclick="toggleProf(false);go('veh');hideNav();">Change Vehicle</div>
+      <div class="pd-item" onclick="handleSignOut()">Sign Out</div>
     </div>
 
-    <!-- Products -->
     <div class="content">
+      <div id="vsText">Select your vehicle first</div>
       <div class="filters">
-        <div class="sbox">
-          <input type="text" placeholder="Search parts...">
-        </div>
+        <div class="sbox"><input type="text" placeholder="Search parts..."></div>
         <div id="catTabs" class="cats"></div>
-        <div class="stgs">
-          <div class="stg">Stage 1</div>
-          <div class="stg">Stage 2</div>
-          <div class="stg">Stage 3</div>
-        </div>
+        <div class="stgs"><div class="stg">Stage 1</div><div class="stg">Stage 2</div><div class="stg">Stage 3</div></div>
         <div class="dds">
-          <select class="dd">
-            <option>Price: All</option>
-            <option>$0 - $500</option>
-            <option>$500 - $2000</option>
-            <option>$2000+</option>
-          </select>
-          <select id="brandDd" class="dd">
-            <option>Brand: All</option>
-          </select>
-          <select class="dd">
-            <option>Sort: Relevance</option>
-            <option>Price: Low to High</option>
-            <option>Price: High to Low</option>
-            <option>Name: A-Z</option>
-          </select>
+          <select class="dd"><option>Price: All</option><option>Under $100</option><option>$100–$500</option><option>$500–$1K</option><option>$1K+</option></select>
+          <select id="brandDd" class="dd"><option>Brand: All</option></select>
+          <select class="dd"><option>Sort: Relevance</option><option>Low → High</option><option>High → Low</option></select>
         </div>
       </div>
       <div id="pgrid" class="pgrid"></div>
     </div>
 
-    <!-- Product Detail -->
     <div id="pDetail" class="pd hid">
-      <div class="pd-close" onclick="closeProduct()">×</div>
-      <div id="pdContent"></div>
+      <div class="pd-wrap">
+        <div class="pd-close" onclick="closeProduct()">×</div>
+        <div id="pdImg"></div>
+        <div id="pdBrand"></div>
+        <h2 id="pdTitle"></h2>
+        <div id="pdPrice"></div>
+        <div id="pdMeta"></div>
+        <div id="pdDesc"></div>
+        <button id="pdAddBtn">Add to Cart</button>
+      </div>
     </div>
 
-    <!-- Cart -->
     <div id="cD" class="cd hid">
-      <div class="cd-hdr">
-        <h3>Cart</h3>
-        <div class="cd-close" onclick="toggleCart()">×</div>
-      </div>
+      <div class="cd-hdr"><h3>Cart</h3><div class="cd-close" onclick="toggleCart()">×</div></div>
       <div id="cartItems" class="cd-body"></div>
-      <div class="cd-foot">
-        <div class="cd-tot">
-          <span>Total:</span>
-          <span id="cartTotal">$0</span>
-        </div>
-        <div id="cartCount"></div>
-        <button id="checkoutBtn" onclick="doCheckout()">Checkout</button>
-      </div>
+      <div class="cd-foot"><div class="cd-tot"><span>Total:</span><span id="cartTotal">$0</span></div><div id="cartCount"></div><button id="checkoutBtn" onclick="doCheckout()">Checkout</button></div>
     </div>
   </div>
+
+  <div id="s-ai" class="screen"><div class="content"><h2 style="font-family:'Rajdhani',sans-serif;color:var(--ember)">AI Diagnostics</h2><p style="color:var(--text-secondary)">Coming soon...</p></div></div>
+  <div id="s-profile" class="screen"><div class="content"><h2 style="font-family:'Rajdhani',sans-serif;color:var(--ember)">Profile</h2><div style="padding:16px;border-radius:16px;background:linear-gradient(180deg,var(--bg2),var(--bg3));border:1px solid var(--line)"><div id="profileName" style="font-weight:700"></div><div id="profileEmail" style="color:var(--text-secondary);margin-top:6px"></div><div id="profileTruck" style="margin-top:14px"></div><div id="profileEngine" style="color:var(--text-secondary);margin-top:6px"></div></div></div></div>
 </div>
 
-<style>
-/* Add minimal styles here if needed, but assuming CSS is in head */
-</style>
+<div id="bnav" class="hid">
+  <button class="ni" data-s="ai" onclick="nav(this)">AI</button>
+  <button class="ni on" data-s="mkt" onclick="nav(this)">Shop</button>
+  <button class="ni" data-s="profile" onclick="nav(this)">Profile</button>
+</div>
+
+<script>
+// JavaScript omitted from this generated file snippet in artifact creation.
+// Replace with the tested JS block from the assistant response if needed.
+</script>
 </body>
 </html>
