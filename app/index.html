@@ -1064,21 +1064,18 @@ async function loadProducts() {
     return;
   }
 
-  ALL_PRODUCTS = Array.isArray(data) ? data : [];
+ALL_PRODUCTS = Array.isArray(data) ? data : [];
 
-  MATCHED_PRODUCTS = [];
+MATCHED_PRODUCTS = [];
 
-  const V = CURRENT_VEHICLE || {};
+ALL_PRODUCTS.forEach(function (p) {
+  p.__score = scoreProductForVehicle(p);
+  p.__fit = p.__score >= 4;
 
-  ALL_PRODUCTS.forEach(function (p) {
-    p.__score = scoreProductForVehicle(p);
-
-    p.__fit = p.__score >= 4;
-
-    if (p.__fit) {
-      MATCHED_PRODUCTS.push(p);
-    }
-  });
+  if (p.__fit) {
+    MATCHED_PRODUCTS.push(p);
+  }
+});
 
   let products = ALL_PRODUCTS.slice();
 
