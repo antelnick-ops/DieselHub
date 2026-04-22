@@ -222,6 +222,46 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
 .pc{animation:fadeIn .5s var(--ease) both}
 .pc:nth-child(2){animation-delay:.05s}.pc:nth-child(3){animation-delay:.1s}
 .pc:nth-child(4){animation-delay:.15s}.pc:nth-child(5){animation-delay:.2s}.pc:nth-child(6){animation-delay:.25s}
+.pdm-overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:500;opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
+.pdm-overlay.on{opacity:1;pointer-events:auto}
+.pdm{position:absolute;bottom:0;left:0;right:0;max-height:90%;background:var(--c1);border-top-left-radius:28px;border-top-right-radius:28px;border-top:1px solid var(--glb);transform:translateY(100%);transition:transform .4s var(--ease);overflow-y:auto;scrollbar-width:none;box-shadow:0 -20px 60px rgba(0,0,0,.5)}
+.pdm::-webkit-scrollbar{display:none}
+.pdm-overlay.on .pdm{transform:translateY(0)}
+.pdm-handle{width:40px;height:4px;background:var(--t4);border-radius:2px;margin:12px auto 0}
+.pdm-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:var(--gl);border:1px solid var(--glb);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10}
+.pdm-close svg{width:16px;height:16px;stroke:var(--t1);fill:none;stroke-width:2}
+.pdm-img{width:100%;height:280px;background:var(--c2);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pdm-img img{width:100%;height:100%;object-fit:cover}
+.pdm-img .emoji-lg{font-size:80px;opacity:.3}
+.pdm-body{padding:24px 24px 40px}
+.pdm-brand{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.pdm-name{font-size:22px;font-weight:800;letter-spacing:-.4px;line-height:1.25;margin-bottom:6px}
+.pdm-cat{font-size:12px;color:var(--t3);font-weight:500;margin-bottom:16px}
+.pdm-price-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-top:1px solid var(--glb);border-bottom:1px solid var(--glb);margin-bottom:20px}
+.pdm-price{font-size:28px;font-weight:800;font-family:'DM Mono',monospace;color:var(--t1)}
+.pdm-compare{font-size:14px;color:var(--t3);text-decoration:line-through;margin-left:10px}
+.pdm-fit-badge{padding:6px 12px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.pdm-fit-yes{background:rgba(52,211,153,.1);color:var(--grn);border:1px solid rgba(52,211,153,.2)}
+.pdm-fit-maybe{background:var(--gl);color:var(--t2);border:1px solid var(--glb)}
+.pdm-stg-pill{display:inline-block;padding:4px 10px;border-radius:8px;margin-left:8px;font-size:10px;font-weight:700;letter-spacing:.5px;background:var(--goldgl);color:var(--gold);border:1px solid var(--goldb)}
+.pdm-section{margin-bottom:20px}
+.pdm-section h3{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.pdm-desc{font-size:14px;line-height:1.6;color:var(--t2)}
+.pdm-features{list-style:none}
+.pdm-features li{font-size:13px;color:var(--t2);padding:8px 0 8px 20px;position:relative;border-bottom:1px solid var(--glb)}
+.pdm-features li:last-child{border-bottom:none}
+.pdm-features li::before{content:'';position:absolute;left:0;top:14px;width:10px;height:10px;border-radius:50%;background:var(--goldg)}
+.pdm-specs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pdm-spec{background:var(--gl);border:1px solid var(--glb);border-radius:10px;padding:10px 12px}
+.pdm-spec-k{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:2px}
+.pdm-spec-v{font-size:13px;font-weight:700;color:var(--t1);font-family:'DM Mono',monospace}
+.pdm-fitment{background:var(--gl);border:1px solid var(--glb);border-radius:12px;padding:14px;font-size:12px;color:var(--t2);line-height:1.5}
+.pdm-cta-row{display:flex;gap:10px;margin-top:8px}
+.pdm-qty{display:flex;align-items:center;background:var(--gl);border:1px solid var(--glb);border-radius:12px;overflow:hidden}
+.pdm-qty button{width:44px;height:54px;background:none;border:none;color:var(--t1);font-size:20px;cursor:pointer;font-weight:600}
+.pdm-qty button:active{background:var(--glh)}
+.pdm-qty span{min-width:40px;text-align:center;font-weight:700;font-family:'DM Mono',monospace}
+.pdm-add{flex:1}
 </style>
 </head>
 <body>
@@ -434,6 +474,17 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
         <div class="ni" data-s="ai" onclick="nav(this)"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 017 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 01-1 1H9a1 1 0 01-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 017-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg><span>AI</span></div>
         <div class="ni on" data-s="mkt" onclick="nav(this)"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span>Shop</span></div>
         <div class="ni" data-s="pro" onclick="nav(this)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+      </div>
+    </div>
+
+    <div class="pdm-overlay" id="pdmOverlay" onclick="closeProductDetail()">
+      <div class="pdm" id="pdm" onclick="event.stopPropagation()">
+        <div class="pdm-handle"></div>
+        <div class="pdm-close" onclick="closeProductDetail()">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div class="pdm-img" id="pdmImg"></div>
+        <div class="pdm-body" id="pdmBody"></div>
       </div>
     </div>
 
@@ -1128,7 +1179,7 @@ async function queryProducts(filters, page, pageSize){
   else query = query.order('brand').order('product_name');
 
   const { data, error } = await query;
-  if(error) console.error('[BSD] Query error:', error);
+  if(error) console.error('[BSD] Query error:', error.message, '| code:', error.code, '| details:', error.details, '| hint:', error.hint);
   return { data: data || [], error };
 }
 
@@ -1163,7 +1214,7 @@ async function queryTotalCount(filters){
   }
 
   const { count, error } = await query;
-  if(error) console.error('[BSD] Count query error:', error);
+  if(error) console.error('[BSD] Count query error:', error.message, '| code:', error.code, '| details:', error.details, '| hint:', error.hint);
   return count || 0;
 }
 
@@ -1245,7 +1296,7 @@ function appendProductCards(products){
     if(String(stg) === '2') stgClass = 's2';
     if(String(stg) === '3') stgClass = 's3';
 
-    return '<div class="pc g">' +
+    return '<div class="pc g" onclick="openProductDetail(\'' + escapeHtml(String(p.id)) + '\')">' +
       '<div class="pc-img">' +
         (img ? '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(p.product_name || 'Product') + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'"><span class="pc-emoji-fallback" style="display:none">' + emoji + '</span>' : '<span class="pc-emoji-fallback">' + emoji + '</span>') +
         fit +
@@ -1265,6 +1316,141 @@ function appendProductCards(products){
   }).join('');
 
   grid.insertAdjacentHTML('beforeend', html);
+}
+
+var PDM_PRODUCT_CACHE = {};
+var PDM_QTY = 1;
+
+async function openProductDetail(productId){
+  var overlay = document.getElementById('pdmOverlay');
+  var bodyEl = document.getElementById('pdmBody');
+  var imgEl = document.getElementById('pdmImg');
+
+  PDM_QTY = 1;
+  bodyEl.innerHTML = '<div style="padding:40px;text-align:center;color:var(--t3)">Loading\u2026</div>';
+  imgEl.innerHTML = '';
+  overlay.classList.add('on');
+
+  var p = PDM_PRODUCT_CACHE[productId];
+  if(!p){
+    var result = await sb.from('products').select('*').eq('id', productId).single();
+    if(result.error){
+      console.error('[BSD] Product detail load error:', result.error.message);
+      bodyEl.innerHTML = '<div style="padding:40px;text-align:center;color:var(--red)">Could not load product.</div>';
+      return;
+    }
+    p = result.data;
+    PDM_PRODUCT_CACHE[productId] = p;
+  }
+
+  renderProductDetail(p);
+}
+
+function closeProductDetail(){
+  document.getElementById('pdmOverlay').classList.remove('on');
+}
+
+function renderProductDetail(p){
+  var imgEl = document.getElementById('pdmImg');
+  var bodyEl = document.getElementById('pdmBody');
+  var img = cleanImageUrl(p.image_url || p.image || p.images || '');
+  var emoji = getCatEmoji(p.category);
+  var price = parseFloat(p.price) || 0;
+  var compareAt = parseFloat(p.compare_at_price) || 0;
+  var score = scoreProductForVehicle(p);
+  var fits = score >= 12;
+  var hasVehicle = V.make && V.engine;
+
+  imgEl.innerHTML = img
+    ? '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(p.product_name || '') + '" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=emoji-lg>' + emoji + '</span>\'">'
+    : '<span class="emoji-lg">' + emoji + '</span>';
+
+  var fitBadge = '';
+  if(hasVehicle){
+    fitBadge = fits
+      ? '<div class="pdm-fit-badge pdm-fit-yes">\u2713 Fits your truck</div>'
+      : '<div class="pdm-fit-badge pdm-fit-maybe">Check fitment</div>';
+  }
+
+  var stgPill = p.stage ? '<span class="pdm-stg-pill">STAGE ' + escapeHtml(String(p.stage)) + '</span>' : '';
+
+  var featuresHtml = '';
+  var features = p.features;
+  if(typeof features === 'string'){
+    try { features = JSON.parse(features); } catch(e){ features = null; }
+  }
+  if(Array.isArray(features) && features.length > 0){
+    featuresHtml = '<div class="pdm-section"><h3>What\'s inside</h3><ul class="pdm-features">' +
+      features.map(function(f){ return '<li>' + escapeHtml(String(f)) + '</li>'; }).join('') +
+      '</ul></div>';
+  }
+
+  var specsHtml = '';
+  var specs = p.specs;
+  if(typeof specs === 'string'){
+    try { specs = JSON.parse(specs); } catch(e){ specs = null; }
+  }
+  if(specs && typeof specs === 'object' && !Array.isArray(specs) && Object.keys(specs).length > 0){
+    specsHtml = '<div class="pdm-section"><h3>Specs</h3><div class="pdm-specs">' +
+      Object.keys(specs).map(function(k){
+        return '<div class="pdm-spec"><div class="pdm-spec-k">' + escapeHtml(k) +
+               '</div><div class="pdm-spec-v">' + escapeHtml(String(specs[k])) + '</div></div>';
+      }).join('') +
+      '</div></div>';
+  }
+
+  var fitmentHtml = '';
+  if(p.fitment_text){
+    fitmentHtml = '<div class="pdm-section"><h3>Fitment</h3><div class="pdm-fitment">' +
+      escapeHtml(p.fitment_text) + '</div></div>';
+  }
+
+  var descHtml = '';
+  if(p.description){
+    descHtml = '<div class="pdm-section"><h3>Details</h3><div class="pdm-desc">' +
+      escapeHtml(p.description) + '</div></div>';
+  }
+
+  var priceHtml = '<div class="pdm-price">$' + price.toLocaleString() + '</div>';
+  if(compareAt > price){
+    priceHtml = '<div><span class="pdm-price">$' + price.toLocaleString() +
+      '</span><span class="pdm-compare">$' + compareAt.toLocaleString() + '</span></div>';
+  }
+
+  bodyEl.innerHTML =
+    '<div class="pdm-brand">' + escapeHtml(p.brand || 'Unbranded') + stgPill + '</div>' +
+    '<div class="pdm-name">' + escapeHtml(p.product_name || 'Product') + '</div>' +
+    (p.category ? '<div class="pdm-cat">' + escapeHtml(p.category) + '</div>' : '') +
+    '<div class="pdm-price-row">' + priceHtml + fitBadge + '</div>' +
+    (p.short_description ? '<div class="pdm-section"><div class="pdm-desc">' + escapeHtml(p.short_description) + '</div></div>' : '') +
+    featuresHtml +
+    specsHtml +
+    fitmentHtml +
+    descHtml +
+    '<div class="pdm-cta-row">' +
+      '<div class="pdm-qty">' +
+        '<button onclick="pdmQty(-1)">\u2212</button>' +
+        '<span id="pdmQtyVal">1</span>' +
+        '<button onclick="pdmQty(1)">+</button>' +
+      '</div>' +
+      '<button class="btn-g pdm-add" onclick="pdmAddToCart(\'' + escapeHtml(String(p.id)) + '\')">Add to Cart</button>' +
+    '</div>';
+}
+
+function pdmQty(delta){
+  PDM_QTY = Math.max(1, PDM_QTY + delta);
+  document.getElementById('pdmQtyVal').textContent = PDM_QTY;
+}
+
+function pdmAddToCart(productId){
+  var p = PDM_PRODUCT_CACHE[productId];
+  if(!p) return;
+  var emoji = getCatEmoji(p.category);
+  var price = parseFloat(p.price) || 0;
+  for(var i = 0; i < PDM_QTY; i++){
+    addToCart(String(p.id), p.product_name || '', p.brand || '', price, emoji);
+  }
+  closeProductDetail();
 }
 
 function clearAndRenderProducts(products, filters){
