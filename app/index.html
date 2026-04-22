@@ -377,7 +377,12 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
         <input id="searchInput" placeholder="Search parts…">
       </div>
 
+      <div id="resultsHeader" class="feed-msg" style="display:none;margin-bottom:10px"></div>
       <div class="pgrid" id="pgrid"></div>
+      <div id="loadMoreWrap" style="text-align:center;padding:16px 0;display:none">
+        <button id="loadMoreBtn" style="padding:0 32px;height:44px;border-radius:var(--r);background:var(--gl);border:1px solid var(--glb);color:var(--t2);font-family:'Manrope',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.3px" onclick="loadMoreProducts()">Load More</button>
+      </div>
+      <div id="endMsg" style="text-align:center;padding:12px 0;color:var(--t3);font-size:11px;display:none">That's all the results</div>
     </div>
 
     <div class="scr" id="s-pro">
@@ -471,9 +476,37 @@ const V = { year:null, make:null, model:null, engine:null };
 let ym = 'r';
 let isSignUp = false;
 let ACTIVE_USER = null;
-let ALL_PRODUCTS = [];
-let MATCHED_PRODUCTS = [];
-let PRODUCT_MAP = {};
+const UNIVERSAL_CATEGORIES = [
+  'Accessories and Fluids',
+  'Tools and Equipment',
+  'Chemicals',
+  'Apparel',
+  'Hardware',
+  'Shop Supplies',
+  'Electrical Lighting and Body',
+  'Tire and Wheel'
+];
+
+let PRODUCT_STATE = {
+  page: 1,
+  pageSize: 50,
+  totalCount: 0,
+  displayedProducts: [],
+  isLoading: false,
+  hasMore: true,
+  currentFilters: {
+    category: 'all',
+    stages: [],
+    brand: '',
+    priceRange: '',
+    search: '',
+    sort: 'relevance'
+  }
+};
+
+let CACHED_CATEGORIES = null;
+let CACHED_BRANDS = null;
+let searchDebounceTimer = null;
 let cart = JSON.parse(localStorage.getItem('bsd_cart') || '[]');
 
 function showErr(msg){
@@ -900,34 +933,13 @@ function getVehicleAliases(){
 
 function scoreProductForVehicle(p){
   if(!V.year || !V.make || !V.model || !V.engine) return 0;
-  const text = [p.product_name,p.description,p.fitment_text,p.sku].filter(Boolean).join(' ').toLowerCase();
-  let score = 0;
-
-  // Exact year match (strong signal)
-  if(text.includes(String(V.year))) score += 3;
-
-  // Make match — but only count if it's in fitment_text or product_name, not just description
-  const fitText = [p.fitment_text, p.product_name].filter(Boolean).join(' ').toLowerCase();
-  if(fitText.includes(V.make.toLowerCase())) score += 4;
-
-  // Model match
-  const modelLower = V.model.toLowerCase();
-  if(fitText.includes(modelLower) || fitText.includes(modelLower.replace('-',''))) score += 5;
-
-  // Engine-specific match (strongest signal)
-  const eng = V.engine.toLowerCase();
-  if(text.includes(eng)) score += 10;
-
-  // Engine displacement match — only count if specific displacement found
-  const dispMatch = eng.match(/(\d+\.\d+)/);
-  if(dispMatch && text.includes(dispMatch[1] + 'l')) score += 6;
-  else if(dispMatch && text.includes(dispMatch[1])) score += 3;
-
-  // Engine code match (LB7, LML, L5P, etc.)
-  const codeMatch = eng.match(/\b(lb7|lly|lbz|lmm|lml|l5p|isb|ho)\b/i);
-  if(codeMatch && text.includes(codeMatch[1].toLowerCase())) score += 8;
-
-  return score;
+  const engineLower = V.engine.toLowerCase();
+  if(Array.isArray(p.fitment_engines)){
+    if(p.fitment_engines.some(e => String(e).toLowerCase() === engineLower)) return 15;
+  }
+  const fitText = (p.fitment_text || '').toLowerCase();
+  if(fitText.includes(engineLower)) return 12;
+  return 0;
 }
 
 function getCatEmoji(cat){
@@ -1058,202 +1070,349 @@ async function doCheckout(){
   }
 }
 
-async function loadProducts() {
-  const grid = document.getElementById('productGrid');
-  if (grid) {
-    grid.innerHTML = '<div class="loading">Loading Products...</div>';
-  }
-
-  const { data, error } = await sb
-    .from('products')
-    .select('*')
-    .order('brand', { ascending: true })
-    .order('product_name', { ascending: true });
-
-  if (error) {
-    console.error('Product load error:', error);
-
-    if (grid) {
-      grid.innerHTML = '<div class="loading">Failed to load products.</div>';
-    }
-    return;
-  }
-
-ALL_PRODUCTS = Array.isArray(data) ? data : [];
-
-MATCHED_PRODUCTS = [];
-
-  ALL_PRODUCTS.forEach(function (p) {
-    // Clean image URL for each product
-    p.__img = cleanImageUrl(p.image_url || p.image || p.images || '');
-
-    p.__score = scoreProductForVehicle(p);
-
-    // Require a high score to mark as "fits" — the product must match
-    // engine-specific terms, not just generic words like "diesel"
-    p.__fit = p.__score >= 12;
-
-    if (p.__fit) {
-      MATCHED_PRODUCTS.push(p);
-    }
-  });
-
-  let products = ALL_PRODUCTS.slice();
-
-  products.sort(function (a, b) {
-    if ((b.__fit ? 1 : 0) !== (a.__fit ? 1 : 0)) {
-      return (b.__fit ? 1 : 0) - (a.__fit ? 1 : 0);
-    }
-
-    if ((b.__score || 0) !== (a.__score || 0)) {
-      return (b.__score || 0) - (a.__score || 0);
-    }
-
-    return String(a.product_name || '').localeCompare(String(b.product_name || ''));
-  });
-
-  renderProducts(products);
-}
-
-function renderProducts(){
-  const grid = document.getElementById('pgrid');
-  if(!grid) return;
-
-  let products = ALL_PRODUCTS.slice();
-  // Sort: fits first, then by score, then alphabetical
-  if(V.engine){
-    products.sort((a,b) => {
-      if((b.__fit?1:0) !== (a.__fit?1:0)) return (b.__fit?1:0) - (a.__fit?1:0);
-      if((b.__score||0) !== (a.__score||0)) return (b.__score||0) - (a.__score||0);
-      return String(a.product_name||'').localeCompare(String(b.product_name||''));
-    });
-  }
-
+function buildQueryFilters(){
   const activeCat = document.querySelector('.ct.on');
-  const catFilter = activeCat ? activeCat.textContent.trim().toLowerCase() : 'all';
-
+  const catText = activeCat ? activeCat.textContent.trim() : 'All';
   const activeStages = [];
   document.querySelectorAll('.stg.on').forEach(s => {
     activeStages.push(s.textContent.trim().replace('Stage ',''));
   });
+  return {
+    category: catText === 'All' ? 'all' : catText,
+    stages: activeStages,
+    brand: document.getElementById('brandDd').value,
+    priceRange: document.getElementById('priceDd').value,
+    search: document.getElementById('searchInput').value.trim(),
+    sort: document.getElementById('sortDd').value
+  };
+}
 
-  const priceFilter = document.getElementById('priceDd').value;
-  const brandFilter = document.getElementById('brandDd').value.toLowerCase();
-  const sortFilter = document.getElementById('sortDd').value;
-  const searchQ = document.getElementById('searchInput').value.trim().toLowerCase();
+async function queryProducts(filters, page, pageSize){
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
-  products = products.filter(p => {
-    const cat = (p.category || '').toLowerCase();
-    const stage = String(p.stage || '');
-    const brand = (p.brand || '').toLowerCase();
-    const price = parseFloat(p.price) || 0;
-    const hay = [p.product_name,p.description,p.brand,p.category,p.sku].filter(Boolean).join(' ').toLowerCase();
+  let query = sb.from('products')
+    .select('*')
+    .eq('is_visible', true)
+    .not('status', 'in', '("archived","discontinued","draft")')
+    .range(from, to);
 
-    if(catFilter !== 'all' && cat !== catFilter) return false;
-    if(activeStages.length > 0 && (!stage || activeStages.indexOf(stage) === -1)) return false;
-    if(brandFilter && brandFilter !== 'brand: all' && brand !== brandFilter.replace('brand: ','')) return false;
-    if(priceFilter === 'Under $100' && price >= 100) return false;
-    if(priceFilter === '$100–$500' && (price < 100 || price > 500)) return false;
-    if(priceFilter === '$500–$1K' && (price < 500 || price > 1000)) return false;
-    if(priceFilter === '$1K+' && price < 1000) return false;
-    if(searchQ && !hay.includes(searchQ)) return false;
-
-    return true;
-  });
-
-  if(sortFilter === 'Low → High'){
-    products.sort((a,b) => (parseFloat(a.price)||0) - (parseFloat(b.price)||0));
-  }else if(sortFilter === 'High → Low'){
-    products.sort((a,b) => (parseFloat(b.price)||0) - (parseFloat(a.price)||0));
-  }else{
-    products.sort((a,b) => (b.__score||0) - (a.__score||0));
+  if(V.make && V.engine){
+    const universalList = UNIVERSAL_CATEGORIES.map(c => '"' + c + '"').join(',');
+    const vehicleFilter = 'fitment_makes.cs.{' + V.make + '},fitment_engines.cs.{' + V.engine + '},category.in.(' + universalList + ')';
+    console.log('[BSD] Vehicle filter:', vehicleFilter);
+    query = query.or(vehicleFilter);
   }
 
-  const cats = new Set();
-  const brands = new Set();
-  ALL_PRODUCTS.forEach(p => {
-    if(p.category) cats.add(p.category);
-    if(p.brand) brands.add(p.brand);
-  });
+  if(filters.category && filters.category !== 'all'){
+    query = query.eq('category', filters.category);
+  }
+  if(filters.stages.length > 0){
+    query = query.in('stage', filters.stages.map(Number));
+  }
+  if(filters.brand && filters.brand !== 'Brand: All'){
+    query = query.eq('brand', filters.brand);
+  }
+  if(filters.priceRange === 'Under $100') query = query.lt('price', 100);
+  else if(filters.priceRange === '$100\u2013$500') query = query.gte('price', 100).lte('price', 500);
+  else if(filters.priceRange === '$500\u2013$1K') query = query.gte('price', 500).lte('price', 1000);
+  else if(filters.priceRange === '$1K+') query = query.gte('price', 1000);
+
+  if(filters.search && filters.search.length >= 2){
+    const q = '%' + filters.search + '%';
+    query = query.or('product_name.ilike.' + q + ',brand.ilike.' + q + ',fitment_text.ilike.' + q);
+  }
+
+  if(filters.sort === 'Low \u2192 High') query = query.order('price', { ascending: true });
+  else if(filters.sort === 'High \u2192 Low') query = query.order('price', { ascending: false });
+  else query = query.order('brand').order('product_name');
+
+  const { data, error } = await query;
+  if(error) console.error('[BSD] Query error:', error);
+  return { data: data || [], error };
+}
+
+async function queryTotalCount(filters){
+  let query = sb.from('products')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_visible', true)
+    .not('status', 'in', '("archived","discontinued","draft")');
+
+  if(V.make && V.engine){
+    const universalList = UNIVERSAL_CATEGORIES.map(c => '"' + c + '"').join(',');
+    const vehicleFilter = 'fitment_makes.cs.{' + V.make + '},fitment_engines.cs.{' + V.engine + '},category.in.(' + universalList + ')';
+    query = query.or(vehicleFilter);
+  }
+  if(filters.category && filters.category !== 'all'){
+    query = query.eq('category', filters.category);
+  }
+  if(filters.stages.length > 0){
+    query = query.in('stage', filters.stages.map(Number));
+  }
+  if(filters.brand && filters.brand !== 'Brand: All'){
+    query = query.eq('brand', filters.brand);
+  }
+  if(filters.priceRange === 'Under $100') query = query.lt('price', 100);
+  else if(filters.priceRange === '$100\u2013$500') query = query.gte('price', 100).lte('price', 500);
+  else if(filters.priceRange === '$500\u2013$1K') query = query.gte('price', 500).lte('price', 1000);
+  else if(filters.priceRange === '$1K+') query = query.gte('price', 1000);
+
+  if(filters.search && filters.search.length >= 2){
+    const q = '%' + filters.search + '%';
+    query = query.or('product_name.ilike.' + q + ',brand.ilike.' + q + ',fitment_text.ilike.' + q);
+  }
+
+  const { count, error } = await query;
+  if(error) console.error('[BSD] Count query error:', error);
+  return count || 0;
+}
+
+async function rebuildProductCategoryDropdowns(){
+  if(CACHED_CATEGORIES && CACHED_BRANDS) return;
+  try{
+    const [catRes, brandRes] = await Promise.all([
+      sb.from('products').select('category').eq('is_visible', true).not('status', 'in', '("archived","discontinued","draft")').not('category', 'is', null).limit(5000),
+      sb.from('products').select('brand').eq('is_visible', true).not('status', 'in', '("archived","discontinued","draft")').not('brand', 'is', null).limit(5000)
+    ]);
+    const cats = new Set();
+    const brands = new Set();
+    if(catRes.data) catRes.data.forEach(r => { if(r.category) cats.add(r.category); });
+    if(brandRes.data) brandRes.data.forEach(r => { if(r.brand) brands.add(r.brand); });
+    CACHED_CATEGORIES = Array.from(cats).sort();
+    CACHED_BRANDS = Array.from(brands).sort();
+  }catch(e){
+    console.error('[BSD] Failed to load categories/brands:', e);
+    CACHED_CATEGORIES = CACHED_CATEGORIES || [];
+    CACHED_BRANDS = CACHED_BRANDS || [];
+  }
 
   const catTabs = document.getElementById('catTabs');
   if(catTabs){
-    let catHtml = '<div class="ct on">All</div>';
-    Array.from(cats).sort().forEach(c => {
-      const active = activeCat && activeCat.textContent.trim() === c ? ' on' : '';
-      catHtml += `<div class="ct${active}">${escapeHtml(c)}</div>`;
-    });
-    catTabs.innerHTML = catHtml;
-    document.querySelectorAll('.ct').forEach(c => {
-      c.onclick = () => {
-        document.querySelectorAll('.ct').forEach(x => x.classList.remove('on'));
+    var html = '<div class="ct on">All</div>';
+    CACHED_CATEGORIES.forEach(function(c){ html += '<div class="ct">' + escapeHtml(c) + '</div>'; });
+    catTabs.innerHTML = html;
+    document.querySelectorAll('.ct').forEach(function(c){
+      c.onclick = function(){
+        document.querySelectorAll('.ct').forEach(function(x){ x.classList.remove('on'); });
         c.classList.add('on');
-        renderProducts();
+        onFilterChange();
       };
     });
-    if(activeCat && activeCat.textContent.trim() === 'All'){
-      const first = catTabs.querySelector('.ct');
-      if(first) first.classList.add('on');
-    }
   }
 
   const brandDd = document.getElementById('brandDd');
   if(brandDd){
-    const current = brandDd.value || 'Brand: All';
-    let brandHtml = '<option>Brand: All</option>';
-    Array.from(brands).sort().forEach(b => {
-      brandHtml += `<option>${escapeHtml(b)}</option>`;
-    });
-    brandDd.innerHTML = brandHtml;
-    brandDd.value = Array.from(brandDd.options).some(o => o.value === current) ? current : 'Brand: All';
+    var bhtml = '<option>Brand: All</option>';
+    CACHED_BRANDS.forEach(function(b){ bhtml += '<option>' + escapeHtml(b) + '</option>'; });
+    brandDd.innerHTML = bhtml;
   }
+}
 
-  let html = '';
-  if(V.engine && MATCHED_PRODUCTS.length > 0){
-    html += `<div class="feed-msg">${MATCHED_PRODUCTS.length} confirmed fit${MATCHED_PRODUCTS.length===1?'':'s'} for your ${escapeHtml(V.year + ' ' + V.make + ' ' + V.model)} • ${escapeHtml(V.engine)} — shown first</div>`;
-  }else if(V.engine && MATCHED_PRODUCTS.length === 0){
-    html += `<div class="feed-msg">Showing all products — fitment matches for your ${escapeHtml(V.engine)} will appear first when available</div>`;
+function getEmptyStateMessage(filters){
+  if(filters.search && filters.search.length >= 2){
+    return 'No results for \'' + escapeHtml(filters.search) + '\'. Try a different search term.';
   }
-
-  if(products.length === 0){
-    html += '<div class="feed-empty">No parts match your current filters.</div>';
-    grid.innerHTML = html;
-    return;
+  var hasFilters = (filters.category !== 'all') || filters.stages.length > 0 ||
+    (filters.brand && filters.brand !== 'Brand: All') ||
+    (filters.priceRange && filters.priceRange !== 'Price: All');
+  if(V.engine && hasFilters){
+    return 'No parts match your filters for this truck. Try clearing a filter or browse all parts.';
   }
+  if(V.engine){
+    return 'No products in the catalog fit this truck yet. Check back soon \u2014 we\'re adding inventory daily.';
+  }
+  return 'No products in the catalog yet.';
+}
 
-  html += products.map(p => {
-    const emoji = getCatEmoji(p.category);
-    const img = p.__img;
-    const price = parseFloat(p.price) || 0;
-    const stg = p.stage || '';
-    const fit = p.__fit ? '<div class="pc-fit">✓ Fits</div>' : '';
-    let stgClass = '';
+function appendProductCards(products){
+  var grid = document.getElementById('pgrid');
+  if(!grid) return;
+
+  products.forEach(function(p){
+    p.__img = cleanImageUrl(p.image_url || p.image || p.images || '');
+    p.__score = scoreProductForVehicle(p);
+    p.__fit = p.__score >= 12;
+  });
+
+  var html = products.map(function(p){
+    var emoji = getCatEmoji(p.category);
+    var img = p.__img;
+    var price = parseFloat(p.price) || 0;
+    var stg = p.stage || '';
+    var fit = p.__fit ? '<div class="pc-fit">\u2713 Fits</div>' : '';
+    var stgClass = '';
     if(String(stg) === '1') stgClass = 's1';
     if(String(stg) === '2') stgClass = 's2';
     if(String(stg) === '3') stgClass = 's3';
 
-    return `
-      <div class="pc g">
-        <div class="pc-img">
-          ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.product_name || 'Product')}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="pc-emoji-fallback" style="display:none">${emoji}</span>` : `<span class="pc-emoji-fallback">${emoji}</span>`}
-          ${fit}
-          ${stg ? `<div class="pc-stg ${stgClass}">STG ${escapeHtml(stg)}</div>` : ''}
-        </div>
-        <div class="pc-bd">
-          <div class="pc-br">${escapeHtml(p.brand || '')}</div>
-          <h4>${escapeHtml(p.product_name || 'Product')}</h4>
-          <div class="pc-bt">
-            <div class="pc-pr mono">$${price.toLocaleString()}</div>
-            <button class="ab" onclick="event.stopPropagation();addToCart('${escapeHtml(String(p.id))}','${String(p.product_name || '').replace(/'/g,"\\'")}','${String(p.brand || '').replace(/'/g,"\\'")}',${price},'${emoji}')">
-              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
+    return '<div class="pc g">' +
+      '<div class="pc-img">' +
+        (img ? '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(p.product_name || 'Product') + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'"><span class="pc-emoji-fallback" style="display:none">' + emoji + '</span>' : '<span class="pc-emoji-fallback">' + emoji + '</span>') +
+        fit +
+        (stg ? '<div class="pc-stg ' + stgClass + '">STG ' + escapeHtml(stg) + '</div>' : '') +
+      '</div>' +
+      '<div class="pc-bd">' +
+        '<div class="pc-br">' + escapeHtml(p.brand || '') + '</div>' +
+        '<h4>' + escapeHtml(p.product_name || 'Product') + '</h4>' +
+        '<div class="pc-bt">' +
+          '<div class="pc-pr mono">$' + price.toLocaleString() + '</div>' +
+          '<button class="ab" onclick="event.stopPropagation();addToCart(\'' + escapeHtml(String(p.id)) + '\',\'' + String(p.product_name || '').replace(/'/g,"\\'") + '\',\'' + String(p.brand || '').replace(/'/g,"\\'") + '\',' + price + ',\'' + emoji + '\')">' +
+            '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
   }).join('');
 
-  grid.innerHTML = html;
+  grid.insertAdjacentHTML('beforeend', html);
+}
+
+function clearAndRenderProducts(products, filters){
+  var grid = document.getElementById('pgrid');
+  var header = document.getElementById('resultsHeader');
+  if(!grid) return;
+  grid.innerHTML = '';
+
+  if(products.length === 0){
+    if(header) header.style.display = 'none';
+    grid.innerHTML = '<div class="feed-empty">' + getEmptyStateMessage(filters) + '</div>';
+    return;
+  }
+
+  if(header){
+    var showing = PRODUCT_STATE.displayedProducts.length;
+    var total = PRODUCT_STATE.totalCount;
+    if(V.engine){
+      header.innerHTML = 'Showing ' + showing + ' of ' + total.toLocaleString() + ' results for your ' + escapeHtml(V.year + ' ' + V.make + ' ' + V.model) + ' &bull; ' + escapeHtml(V.engine);
+    }else{
+      header.innerHTML = 'Showing ' + showing + ' of ' + total.toLocaleString() + ' products';
+    }
+    header.style.display = 'block';
+  }
+
+  appendProductCards(products);
+}
+
+function updateResultsHeader(){
+  var header = document.getElementById('resultsHeader');
+  if(!header) return;
+  var showing = PRODUCT_STATE.displayedProducts.length;
+  var total = PRODUCT_STATE.totalCount;
+  if(V.engine){
+    header.innerHTML = 'Showing ' + showing + ' of ' + total.toLocaleString() + ' results for your ' + escapeHtml(V.year + ' ' + V.make + ' ' + V.model) + ' &bull; ' + escapeHtml(V.engine);
+  }else{
+    header.innerHTML = 'Showing ' + showing + ' of ' + total.toLocaleString() + ' products';
+  }
+}
+
+function updateLoadMoreButton(){
+  var wrap = document.getElementById('loadMoreWrap');
+  var endMsg = document.getElementById('endMsg');
+  var btn = document.getElementById('loadMoreBtn');
+  if(!wrap) return;
+
+  if(PRODUCT_STATE.totalCount === 0 || PRODUCT_STATE.displayedProducts.length === 0){
+    wrap.style.display = 'none';
+    if(endMsg) endMsg.style.display = 'none';
+    return;
+  }
+  if(PRODUCT_STATE.hasMore){
+    wrap.style.display = 'block';
+    if(btn){ btn.textContent = 'Load More'; btn.disabled = false; btn.style.opacity = '1'; }
+    if(endMsg) endMsg.style.display = 'none';
+  }else{
+    wrap.style.display = 'none';
+    if(endMsg) endMsg.style.display = PRODUCT_STATE.displayedProducts.length > PRODUCT_STATE.pageSize ? 'block' : 'none';
+  }
+}
+
+async function loadProducts(){
+  if(PRODUCT_STATE.isLoading) return;
+  PRODUCT_STATE.isLoading = true;
+  PRODUCT_STATE.page = 1;
+  PRODUCT_STATE.displayedProducts = [];
+  PRODUCT_STATE.hasMore = true;
+  PRODUCT_STATE.totalCount = 0;
+
+  var grid = document.getElementById('pgrid');
+  if(grid) grid.innerHTML = '<div class="feed-empty" style="color:var(--t3)">Loading\u2026</div>';
+  var header = document.getElementById('resultsHeader');
+  if(header) header.style.display = 'none';
+  document.getElementById('loadMoreWrap').style.display = 'none';
+  document.getElementById('endMsg').style.display = 'none';
+
+  await rebuildProductCategoryDropdowns();
+
+  var filters = buildQueryFilters();
+  PRODUCT_STATE.currentFilters = filters;
+
+  var results = await Promise.all([
+    queryProducts(filters, 1, PRODUCT_STATE.pageSize),
+    queryTotalCount(filters)
+  ]);
+  var result = results[0];
+  var totalCount = results[1];
+
+  PRODUCT_STATE.totalCount = totalCount;
+  PRODUCT_STATE.displayedProducts = result.data;
+  PRODUCT_STATE.hasMore = PRODUCT_STATE.displayedProducts.length < PRODUCT_STATE.totalCount;
+  PRODUCT_STATE.isLoading = false;
+
+  clearAndRenderProducts(result.data, filters);
+  updateLoadMoreButton();
+}
+
+async function loadMoreProducts(){
+  if(PRODUCT_STATE.isLoading || !PRODUCT_STATE.hasMore) return;
+  PRODUCT_STATE.isLoading = true;
+
+  var btn = document.getElementById('loadMoreBtn');
+  if(btn){ btn.textContent = 'Loading\u2026'; btn.disabled = true; btn.style.opacity = '.5'; }
+
+  PRODUCT_STATE.page++;
+  var filters = PRODUCT_STATE.currentFilters;
+  var result = await queryProducts(filters, PRODUCT_STATE.page, PRODUCT_STATE.pageSize);
+
+  PRODUCT_STATE.displayedProducts = PRODUCT_STATE.displayedProducts.concat(result.data);
+  PRODUCT_STATE.hasMore = PRODUCT_STATE.displayedProducts.length < PRODUCT_STATE.totalCount;
+  PRODUCT_STATE.isLoading = false;
+
+  appendProductCards(result.data);
+  updateResultsHeader();
+  updateLoadMoreButton();
+}
+
+async function onFilterChange(){
+  if(PRODUCT_STATE.isLoading) return;
+  PRODUCT_STATE.isLoading = true;
+  PRODUCT_STATE.page = 1;
+  PRODUCT_STATE.displayedProducts = [];
+  PRODUCT_STATE.hasMore = true;
+
+  var grid = document.getElementById('pgrid');
+  if(grid) grid.innerHTML = '<div class="feed-empty" style="color:var(--t3)">Loading\u2026</div>';
+  var header = document.getElementById('resultsHeader');
+  if(header) header.style.display = 'none';
+  document.getElementById('loadMoreWrap').style.display = 'none';
+  document.getElementById('endMsg').style.display = 'none';
+
+  var filters = buildQueryFilters();
+  PRODUCT_STATE.currentFilters = filters;
+
+  var results = await Promise.all([
+    queryProducts(filters, 1, PRODUCT_STATE.pageSize),
+    queryTotalCount(filters)
+  ]);
+  var result = results[0];
+  var totalCount = results[1];
+
+  PRODUCT_STATE.totalCount = totalCount;
+  PRODUCT_STATE.displayedProducts = result.data;
+  PRODUCT_STATE.hasMore = PRODUCT_STATE.displayedProducts.length < PRODUCT_STATE.totalCount;
+  PRODUCT_STATE.isLoading = false;
+
+  clearAndRenderProducts(result.data, filters);
+  updateLoadMoreButton();
 }
 
 uProg(1);
@@ -1268,14 +1427,20 @@ document.getElementById('authPass').addEventListener('keydown', e => {
 document.querySelectorAll('.stg').forEach(b => {
   b.onclick = () => {
     b.classList.toggle('on');
-    renderProducts();
+    onFilterChange();
   };
 });
 
-document.getElementById('priceDd').addEventListener('change', renderProducts);
-document.getElementById('brandDd').addEventListener('change', renderProducts);
-document.getElementById('sortDd').addEventListener('change', renderProducts);
-document.getElementById('searchInput').addEventListener('input', renderProducts);
+document.getElementById('priceDd').addEventListener('change', onFilterChange);
+document.getElementById('brandDd').addEventListener('change', onFilterChange);
+document.getElementById('sortDd').addEventListener('change', onFilterChange);
+document.getElementById('searchInput').addEventListener('input', function(){
+  clearTimeout(searchDebounceTimer);
+  var val = document.getElementById('searchInput').value.trim();
+  if(val.length >= 2 || val.length === 0){
+    searchDebounceTimer = setTimeout(onFilterChange, 300);
+  }
+});
 
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/app/sw.js').catch(()=>{});
