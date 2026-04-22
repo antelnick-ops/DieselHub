@@ -12,79 +12,106 @@ const supabase = createClient(
 
 const APG_VENDOR_ID = '013cd9a7-171e-45fe-9421-0320319dce33';
 const FEED_PATH = path.join(process.cwd(), 'tmp', 'premier_data_feed_master.csv');
-const IMPORT_LIMIT = 0; // 0 = no limit
-const DRY_RUN = false;   // set false to actually write to Supabase
+const IMPORT_LIMIT = 0;   // 0 = no limit
+const DRY_RUN = true;     // set false to actually write to Supabase
 
-// ---------- DIESEL FILTER ----------
-const DIESEL_ENGINE_SIGNATURES = [
-  // Cummins
-  /\bcummins\b/i, /\b5\.?9l?\b/i, /\b6\.?7l?\b.*cummins/i, /\b12v\b/i, /\b24v\b/i,
-  // Power Stroke / Ford
-  /\bpower.?stroke\b/i, /\bpowerstroke\b/i, /\b7\.?3l?\b/i, /\b6\.?0l?\b/i, /\b6\.?4l?\b/i,
-  /\b6\.?9l?\b/i, /\b6\.?7l?\b.*ford/i, /\bIDI\b/,
-  // Duramax
-  /\bduramax\b/i, /\b6\.?6l?\b/i, /\bLB7\b/i, /\bLLY\b/i, /\bLBZ\b/i, /\bLMM\b/i, /\bLML\b/i, /\bL5P\b/i,
-  // Generic diesel
-  /\bdiesel\b/i, /\bturbo.?diesel\b/i
-];
+// =====================================================================
+// THE FILTER
+// =====================================================================
 
-const DIESEL_TRUCK_MODELS = [
-  /\bF-?250\b/i, /\bF-?350\b/i, /\bF-?450\b/i, /\bF-?550\b/i, /\bsuper.?duty\b/i, /\bexcursion\b/i,
-  /\bram\s*2500\b/i, /\bram\s*3500\b/i, /\bram\s*4500\b/i, /\bram\s*5500\b/i,
-  /\bsilverado\s*2500\b/i, /\bsilverado\s*3500\b/i,
-  /\bsierra\s*2500\b/i, /\bsierra\s*3500\b/i,
-  /\bE-?series\b/i, /\bsprinter\b/i
-];
-
-// Universal categories relevant to diesel owners (included even without engine match)
-const UNIVERSAL_CATEGORIES = new Set([
-  'Accessories and Fluids',
-  'Tools and Equipment',
-  'Chemicals',
-  'Apparel',
-  'Hardware',
-  'Shop Supplies',
-  'Electrical Lighting and Body',
-  'Tire and Wheel',
-  'Fluids, Cleaners, Chemicals',
-  'Garage Equipment',
-  'Recovery'
-]);
-
-// Hard exclusions — not relevant to diesel truck owners
-const EXCLUDE_PATTERNS = [
-  // Japanese passenger cars
+const HARD_EXCLUDE = [
+  // Powersports brands (mostly ATVs, dirt bikes, snowmobiles)
+  /\bSuzuki\b/i, /\bKawasaki\b/i, /\bYamaha\b/i, /\bHarley-?Davidson\b/i,
+  /\bDucati\b/i, /\bKTM\b/i, /\bHusqvarna\b/i, /\bPolaris\b/i,
+  /\bCan-?Am\b/i, /\bArctic\s*Cat\b/i, /\bSea-?Doo\b/i, /\bJet\s*Ski\b/i,
+  // Common powersports model patterns
+  /\bRMX\d+\b/i, /\bYZ\d+\b/i, /\bCR[FX]?\d+\b/i, /\bKX\d+\b/i,
+  /\bKLR\d+\b/i, /\bDR-?Z\d+\b/i, /\bRZR\b/i, /\bRanger\s+XP\b/i,
   /\bHonda\b/i, /\bToyota\b/i, /\bNissan\b/i, /\bSubaru\b/i, /\bHyundai\b/i, /\bKia\b/i,
   /\bMazda\b/i, /\bLexus\b/i, /\bAcura\b/i, /\bInfiniti\b/i, /\bMitsubishi\b/i,
-  // Euro passenger cars (NOT including Sprinter - handled separately below)
   /\bBMW\b/i, /\bAudi\b/i, /\bVolkswagen\b/i, /\s+VW\s+/i, /\bPorsche\b/i,
   /\bMercedes-Benz\b/i, /\bJaguar\b/i, /\bLand\s*Rover\b/i, /\bRange\s*Rover\b/i,
-  /\bMini\s*Cooper\b/i, /\bFiat\b/i, /\bVolvo\b/i, /\bSaab\b/i,
-  // Euro car models (catch by name even without make mention)
+  /\bMini\s*Cooper\b/i, /\bFiat\b/i, /\bVolvo\b/i, /\bSaab\b/i, /\bSmart\s+Car\b/i,
   /\bGolf\b/i, /\bJetta\b/i, /\bPassat\b/i, /\bTouareg\b/i, /\bAmarok\b/i, /\bBeetle\b/i,
   /\bCayenne\b/i, /\bMacan\b/i, /\bPanamera\b/i, /\bE-?Class\b/i, /\bC-?Class\b/i,
-  // Light-duty gas trucks (NOT diesel HD trucks)
   /\bRanger\b/i, /\bS-?10\b/i, /\bColorado\b/i, /\bCanyon\b/i, /\bDakota\b/i,
   /\bFrontier\b/i, /\bTacoma\b/i, /\bTundra\b/i, /\bTitan\b/i, /\bRidgeline\b/i,
-  // Power sports (not diesel trucks)
-  /\bmotorcycle\b/i, /\bATV\b/i, /\bUTV\b/i, /\bsnowmobile\b/i, /\bside-?by-?side\b/i
+  /\bF-?150\b/i,
+  /\bMustang\b/i, /\bCamaro\b/i, /\bCorvette\b/i, /\bChallenger\b/i, /\bCharger\b/i,
+  /\bExplorer\b/i, /\bEdge\b/i, /\bEscape\b/i, /\bBronco\b/i,
+  /\bLincoln\b/i, /\bMark\s+LT\b/i,
+  /\bmotorcycle\b/i, /\bATV\b/i, /\bUTV\b/i, /\bsnowmobile\b/i, /\bside-?by-?side\b/i,
+  /\bdirt\s*bike\b/i, /\bquad\b/i,
+  /\bNeon\b/i, /\bMiata\b/i, /\bLotus\b/i, /\bFerrari\b/i, /\bLamborghini\b/i
 ];
 
-// ---------- HELPERS ----------
+const HD_DIESEL_TRUCK = [
+  /\bF-?250\b/i, /\bF-?350\b/i, /\bF-?450\b/i, /\bF-?550\b/i, /\bSuper\s*Duty\b/i,
+  /\bExcursion\b/i,
+  /\b[23456]500\b/i,
+  /\bE-?series\b/i,
+  /\bDodge\s*Ram\b/i, /\bRam\s+Truck\b/i,
+  /\bSilverado\s*[23456]500\b/i, /\bSierra\s*[23456]500\b/i,
+  /\bKodiak\b/i, /\bTopkick\b/i,
+  /\bSuburban\s*[23]500\b/i
+];
+
+const DIESEL_ENGINE = [
+  /\bcummins\b/i, /\b5\.?9L?\s*(12V|24V|Cummins)/i, /\b6\.?7L?\s*Cummins\b/i,
+  /\b12V\b.*\bcummins\b/i, /\b24V\b.*\bcummins\b/i,
+  /\bPower\s*Stroke\b/i, /\bPowerstroke\b/i, /\bPSD\b/i,
+  /\b7\.?3L?\s*(Power|IDI|Diesel|PSD)/i,
+  /\b6\.?0L?\s*(Power|Diesel|PSD)/i,
+  /\b6\.?4L?\s*(Power|Diesel|PSD)/i,
+  /\b6\.?7L?\s*(Power|Diesel|PSD|Ford)/i,
+  /\bDuramax\b/i, /\b6\.?6L?\s*Duramax\b/i,
+  /\bLB7\b/i, /\bLLY\b/i, /\bLBZ\b/i, /\bLMM\b/i, /\bLML\b/i, /\bL5P\b/i,
+  /\bIDI\b/i, /\bturbo.?diesel\b/i
+];
+
+const TRULY_UNIVERSAL_SUBCATEGORIES = new Set([
+  'Functional Fluid Lubricant Grease (including Additives)',
+  'Cleaning Products',
+  'Filters',
+  'Hand Tools',
+  'Shop Equipment',
+  'Fuel System Service',
+  'Air Tools',
+  'Engine Service',
+  'Safety Products',
+  'Clothing',
+  'Fasteners',
+  'Electrical Connectors',
+  'Wire Cable and Related Components',
+  'Flasher Units Fuses and Circuit Breakers'
+]);
+
+const TRUCK_SPECIFIC_CATEGORIES = new Set([
+  'Body', 'Engine', 'Driveline and Axles', 'Air and Fuel Delivery',
+  'Exhaust', 'Suspension', 'Brake', 'Transmission', 'Belts and Cooling',
+  'Steering', 'Transfer Case', 'Emission Control', 'HVAC', 'Ignition',
+  'Wiper and Washer', 'Tire and Wheel'
+]);
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+
 function clean(value) {
   if (value === null || value === undefined) return null;
   let v = String(value).trim();
-  // Strip wrapping double quotes (APG feed artifact)
   if (v.length >= 2 && v.startsWith('"') && v.endsWith('"')) {
     v = v.slice(1, -1).trim();
   }
-  return v.length ? v : null;
+  if (!v.length) return null;
+  if (v === 'NA' || v === 'N/A' || v === 'null' || v === 'NULL') return null;
+  return v;
 }
 
 function toNumber(value) {
   if (value === null || value === undefined) return null;
-  const cleaned = String(value).trim().replace(/[$,]/g, '');
-  if (!cleaned) return null;
+  const cleaned = String(value).trim().replace(/[$,"]/g, '');
+  if (!cleaned || cleaned === 'NA') return null;
   const n = Number(cleaned);
   return Number.isFinite(n) ? n : null;
 }
@@ -114,10 +141,9 @@ function pickPrice(row) {
   return 0;
 }
 
-function productStatus(row, stockQty) {
+function productStatus(row) {
   const inventoryStatus = clean(row['Inventory Status'])?.toLowerCase() || '';
   if (inventoryStatus.includes('discontinued')) return 'archived';
-  if (stockQty <= 0) return 'out_of_stock';
   return 'active';
 }
 
@@ -126,45 +152,48 @@ function matchesAnyPattern(text, patterns) {
   return patterns.some(p => p.test(text));
 }
 
-// Sprinter is a diesel workhorse, but gas Sprinter parts exist too.
-// Only keep Sprinter parts that explicitly mention diesel or a Mercedes OM engine.
-const SPRINTER_KEYWORDS = [/\bsprinter\b/i, /\bOM642\b/i, /\bOM651\b/i, /\bOM654\b/i];
-const DIESEL_MENTION = /\bdiesel\b|\bOM6[45]\d\b|\bCDI\b|\bBlueTEC\b/i;
-
-function isSprinterWithoutDiesel(text) {
-  if (!text) return false;
-  const mentionsSprinter = SPRINTER_KEYWORDS.some(p => p.test(text));
-  if (!mentionsSprinter) return false;
-  return !DIESEL_MENTION.test(text);
+function rewriteImageUrl(url) {
+  if (!url) return null;
+  return url.replace(
+    'https://dealer.premierwd.com/ManagedResources/Images/ProductImages',
+    'https://images.black-stack-diesel.com'
+  );
 }
 
-// ---------- FITMENT PARSER ----------
+// =====================================================================
+// FITMENT PARSER
+// =====================================================================
+
 function parseFitment(productName, description) {
   const text = [productName, description].filter(Boolean).join(' ');
   const makes = new Set();
   const engines = new Set();
   const years = new Set();
 
-  // Makes
-  if (/\bford\b/i.test(text) || /\bf-?[234]50\b/i.test(text) || /\bexcursion\b/i.test(text)) makes.add('Ford');
-  if (/\bram\b/i.test(text)) makes.add('Ram');
-  if (/\bdodge\b/i.test(text)) makes.add('Dodge');
-  if (/\bchevrolet\b/i.test(text) || /\bchevy\b/i.test(text) || /\bsilverado\b/i.test(text)) makes.add('Chevrolet');
-  if (/\bgmc\b/i.test(text) || /\bsierra\b/i.test(text)) makes.add('GMC');
+  if (/\bF-?[2345]50\b|\bSuper\s*Duty\b|\bExcursion\b/i.test(text)) makes.add('Ford');
+  if (/\bRam\s*[23456]500\b|\bDodge\s*Ram\b/i.test(text)) {
+    if (/\bRam\b/i.test(text)) makes.add('Ram');
+    if (/\bDodge\b/i.test(text)) makes.add('Dodge');
+  }
+  if (/\bSilverado\s*[234]500\b/i.test(text) || (/\bChevrolet\b/i.test(text) && /[234]500|duramax|LB7|LLY|LBZ|LMM|LML|L5P/i.test(text))) {
+    makes.add('Chevrolet');
+  }
+  if (/\bSierra\s*[234]500\b/i.test(text) || (/\bGMC\b/i.test(text) && /[234]500|duramax|LB7|LLY|LBZ|LMM|LML|L5P/i.test(text))) {
+    makes.add('GMC');
+  }
 
-  // Engines
-  if (/\b7\.?3l?\b/i.test(text) && (/\bpower.?stroke\b/i.test(text) || /\bford\b/i.test(text) || /\bIDI\b/.test(text))) {
-    if (/\bIDI\b/.test(text)) engines.add('7.3L IDI Turbo Diesel');
+  if (/\b7\.?3L?\b.*\b(Power\s*Stroke|PSD|Ford|IDI)/i.test(text)) {
+    if (/\bIDI\b/i.test(text)) engines.add('7.3L IDI Turbo Diesel');
     else engines.add('7.3L Power Stroke');
   }
-  if (/\b6\.?0l?\b/i.test(text) && /\bpower.?stroke\b/i.test(text)) engines.add('6.0L Power Stroke');
-  if (/\b6\.?4l?\b/i.test(text) && /\bpower.?stroke\b/i.test(text)) engines.add('6.4L Power Stroke');
-  if (/\b6\.?7l?\b/i.test(text) && /\bpower.?stroke\b/i.test(text)) engines.add('6.7L Power Stroke');
-  if (/\b5\.?9l?\b/i.test(text) && /\bcummins\b/i.test(text)) {
-    if (/\b12v\b/i.test(text) || /\b1994\b|\b1995\b|\b1996\b|\b1997\b|\b1998\b/.test(text)) engines.add('5.9L 12V Cummins');
+  if (/\b6\.?0L?\b.*\b(Power\s*Stroke|PSD)/i.test(text)) engines.add('6.0L Power Stroke');
+  if (/\b6\.?4L?\b.*\b(Power\s*Stroke|PSD)/i.test(text)) engines.add('6.4L Power Stroke');
+  if (/\b6\.?7L?\b.*\b(Power\s*Stroke|PSD|Ford)/i.test(text)) engines.add('6.7L Power Stroke');
+  if (/\b5\.?9L?\b.*\bCummins\b/i.test(text)) {
+    if (/\b12V\b/i.test(text) || /\b94-?98|\b199[4-8]\b/.test(text)) engines.add('5.9L 12V Cummins');
     else engines.add('5.9L 24V Cummins ISB');
   }
-  if (/\b6\.?7l?\b/i.test(text) && /\bcummins\b/i.test(text)) engines.add('6.7L Cummins ISB');
+  if (/\b6\.?7L?\b.*\bCummins\b/i.test(text)) engines.add('6.7L Cummins ISB');
   if (/\bLB7\b/i.test(text)) engines.add('6.6L Duramax LB7');
   if (/\bLLY\b/i.test(text)) engines.add('6.6L Duramax LLY');
   if (/\bLBZ\b/i.test(text)) engines.add('6.6L Duramax LBZ');
@@ -172,21 +201,18 @@ function parseFitment(productName, description) {
   if (/\bLML\b/i.test(text)) engines.add('6.6L Duramax LML');
   if (/\bL5P\b/i.test(text)) engines.add('6.6L Duramax L5P');
 
-  // Four-digit years 1990-2026
   const fourDigitMatches = text.matchAll(/\b(19[89]\d|20[0-2]\d)\b/g);
   for (const m of fourDigitMatches) {
     const y = parseInt(m[1], 10);
-    if (y >= 1990 && y <= 2026) years.add(y);
+    if (y >= 1988 && y <= 2026) years.add(y);
   }
-
-  // Two-digit ranges like "99-03" or "08-10"
   const rangeMatches = text.matchAll(/\b(\d{2})-(\d{2})\b/g);
   for (const m of rangeMatches) {
     let start = parseInt(m[1], 10);
     let end = parseInt(m[2], 10);
-    start = start >= 90 ? 1900 + start : 2000 + start;
-    end = end >= 90 ? 1900 + end : 2000 + end;
-    if (start >= 1990 && end <= 2026 && end - start < 30) {
+    start = start >= 88 ? 1900 + start : 2000 + start;
+    end = end >= 88 ? 1900 + end : 2000 + end;
+    if (start >= 1988 && end <= 2026 && end - start < 30 && end >= start) {
       for (let y = start; y <= end; y++) years.add(y);
     }
   }
@@ -198,7 +224,10 @@ function parseFitment(productName, description) {
   };
 }
 
-// ---------- IMPORT FILTER ----------
+// =====================================================================
+// FILTER LOGIC
+// =====================================================================
+
 function shouldImport(row) {
   const sku = clean(row['Premier Part Number']);
   const productName = clean(row['Long Description']);
@@ -212,18 +241,15 @@ function shouldImport(row) {
 
   const fullText = [productName, category, subcategory, terminology].filter(Boolean).join(' ');
 
-  // Hard exclusions apply EVERYWHERE, including universal categories
-  if (matchesAnyPattern(fullText, EXCLUDE_PATTERNS)) return false;
+  if (matchesAnyPattern(fullText, HARD_EXCLUDE)) return false;
 
-  // Sprinter: only keep if it explicitly mentions diesel
-  if (isSprinterWithoutDiesel(fullText)) return false;
+  const hasHDTruck = matchesAnyPattern(fullText, HD_DIESEL_TRUCK);
+  const hasDieselEngine = matchesAnyPattern(fullText, DIESEL_ENGINE);
+  if (hasHDTruck || hasDieselEngine) return true;
 
-  // Universal categories - include if it survived exclusions
-  if (category && UNIVERSAL_CATEGORIES.has(category)) return true;
+  if (subcategory && TRULY_UNIVERSAL_SUBCATEGORIES.has(subcategory)) return true;
 
-  // Otherwise must mention a diesel engine or HD diesel truck model
-  if (matchesAnyPattern(fullText, DIESEL_ENGINE_SIGNATURES)) return true;
-  if (matchesAnyPattern(fullText, DIESEL_TRUCK_MODELS)) return true;
+  if (category && TRUCK_SPECIFIC_CATEGORIES.has(category)) return false;
 
   return false;
 }
@@ -258,7 +284,7 @@ function mapRow(row) {
   const weight = toNumber(row['Weight']);
   const shippingCost = roundMoney((toNumber(row['Freight Cost']) || 0) + (toNumber(row['Drop Ship Fee']) || 0));
   const price = pickPrice(row);
-  const status = productStatus(row, stockQty);
+  const status = productStatus(row);
   const description = buildDescription(row);
 
   const fitment = parseFitment(productName, description);
@@ -284,7 +310,7 @@ function mapRow(row) {
     fitment_engines: fitment.engines,
     fitment_years: fitment.years,
     description,
-    image_url: clean(row['ImageURL']),
+    image_url: rewriteImageUrl(clean(row['ImageURL'])),
     weight_lbs: weight,
     source: 'distributor',
     source_ref: sku,
@@ -292,7 +318,10 @@ function mapRow(row) {
   };
 }
 
-// ---------- MAIN ----------
+// =====================================================================
+// MAIN
+// =====================================================================
+
 async function main() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_KEY in .env.local');
@@ -321,7 +350,6 @@ async function main() {
   const limited = IMPORT_LIMIT > 0 ? filtered.slice(0, IMPORT_LIMIT) : filtered;
   const mapped = limited.map(mapRow);
 
-  // Fitment parse stats
   const withMakes = mapped.filter(m => m.fitment_makes.length > 0).length;
   const withEngines = mapped.filter(m => m.fitment_engines.length > 0).length;
   const withYears = mapped.filter(m => m.fitment_years.length > 0).length;
@@ -329,9 +357,15 @@ async function main() {
 
   if (DRY_RUN) {
     console.log('\nDRY RUN — no writes to Supabase.');
-    console.log('First 3 mapped rows:');
-    console.log(JSON.stringify(mapped.slice(0, 3), null, 2));
-    console.log(`\nWould import ${mapped.length} products. Set DRY_RUN=false at top of file to actually write.`);
+    console.log('\n=== 10 random samples ===');
+    const shuffled = [...mapped].sort(() => Math.random() - 0.5);
+    for (let i = 0; i < Math.min(10, shuffled.length); i++) {
+      const p = shuffled[i];
+      console.log(`\n${i + 1}. ${p.product_name.substring(0, 90)}`);
+      console.log(`   Brand: ${p.brand} | Category: ${p.category} | $${p.price}`);
+      console.log(`   Makes: [${p.fitment_makes.join(', ')}] | Engines: [${p.fitment_engines.join(', ')}]`);
+    }
+    console.log(`\nWould import ${mapped.length} products. Set DRY_RUN=false to actually write.`);
     return;
   }
 
@@ -352,7 +386,7 @@ async function main() {
     console.log(`Upserted ${Math.min(i + chunk.length, mapped.length)} / ${mapped.length}`);
   }
 
-  console.log('✅ APG import complete');
+  console.log('\n✅ APG import complete');
 }
 
 main().catch((err) => {
