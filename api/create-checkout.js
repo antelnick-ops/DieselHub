@@ -44,7 +44,6 @@ module.exports = async (req, res) => {
       .select(`
         id,
         vendor_id,
-        vendor_distributor_id,
         product_name,
         sku,
         brand,
@@ -84,7 +83,6 @@ module.exports = async (req, res) => {
       return {
         id: db.id,
         vendor_id: db.vendor_id,
-        vendor_distributor_id: db.vendor_distributor_id || null,
         name: db.product_name,
         sku: db.sku || '',
         brand: db.brand || '',
@@ -112,7 +110,6 @@ module.exports = async (req, res) => {
             metadata: {
               product_id: item.id,
               vendor_id: item.vendor_id,
-              vendor_distributor_id: item.vendor_distributor_id || '',
               sku: item.sku,
               brand: item.brand,
               line_type: 'product'
@@ -133,8 +130,7 @@ module.exports = async (req, res) => {
               metadata: {
                 product_id: item.id,
                 vendor_id: item.vendor_id,
-                vendor_distributor_id: item.vendor_distributor_id || '',
-                sku: item.sku,
+                  sku: item.sku,
                 brand: item.brand,
                 line_type: 'core_deposit',
                 parent_product_id: item.id
