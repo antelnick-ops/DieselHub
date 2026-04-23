@@ -1,4 +1,4 @@
-const CACHE='bsd-v20';
+const CACHE='bsd-v21';
 const ASSETS=['/app/','/app/index.html','/app/manifest.json'];
 
 self.addEventListener('install',e=>{

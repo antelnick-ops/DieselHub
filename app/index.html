@@ -263,6 +263,11 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
 .modal-panel{background:var(--c2);border:1px solid var(--glb);border-radius:14px;padding:22px 20px;position:relative;max-height:80vh;overflow-y:auto;width:100%}
 .modal-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--t2);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px}
 .modal-close:hover{color:var(--t1)}
+.btn-gh{height:54px;background:var(--gl);border:1px solid var(--glb);border-radius:var(--r);font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;transition:.2s}
+.btn-gh:hover{background:var(--glh);color:var(--t1)}
+.fb-prio{flex:1;padding:8px 6px;border-radius:8px;background:var(--gl);border:1px solid var(--glb);color:var(--t2);font-size:9px;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:0.3px;transition:all 0.15s}
+.fb-prio:hover{background:rgba(245,158,11,.04);border-color:rgba(245,158,11,.3)}
+.fb-prio.on{background:var(--goldgl);border-color:var(--goldb);color:var(--gold)}
 .pdm-overlay.on{opacity:1;pointer-events:auto}
 .pdm{position:absolute;bottom:0;left:0;right:0;max-height:90%;background:var(--c1);border-top-left-radius:28px;border-top-right-radius:28px;border-top:1px solid var(--glb);transform:translateY(100%);transition:transform .4s var(--ease);overflow-y:auto;scrollbar-width:none;box-shadow:0 -20px 60px rgba(0,0,0,.5)}
 .pdm::-webkit-scrollbar{display:none}
@@ -503,6 +508,12 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
         <div class="p-row"><div class="p-ri"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><span>Help & Support</span><span class="ch">›</span></div>
       </div>
 
+      <div class="profile-section" style="margin-top:20px;padding:14px;background:var(--gl);border:1px solid var(--glb);border-radius:10px">
+        <div style="font-size:12px;font-weight:600;margin-bottom:6px">Send Feedback</div>
+        <div style="font-size:10px;color:var(--t3);margin-bottom:10px">Report bugs, request features, or flag bad product data.</div>
+        <button onclick="openFeedbackModal('general')" class="btn-g" style="width:100%;padding:10px">Send Feedback</button>
+      </div>
+
       <button class="so-btn" onclick="handleSignOut()">Sign Out</button>
     </div>
 
@@ -558,6 +569,47 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
           <p style="margin:0;color:var(--t3);font-size:10px">Have questions? Contact us before ordering if you’re unsure about core requirements.</p>
         </div>
         <button onclick="closeCoreInfoModal()" class="btn-g" style="width:100%;margin-top:12px">Got it</button>
+      </div>
+    </div>
+
+    <div id="fbOverlay" class="modal-overlay" onclick="if(event.target===this)closeFeedbackModal()">
+      <div class="modal-panel" style="max-width:500px">
+        <button class="modal-close" onclick="closeFeedbackModal()">×</button>
+        <h2 style="margin:0 0 4px;font-size:16px">Send Feedback</h2>
+        <div style="color:var(--t3);font-size:10px;margin-bottom:14px" id="fbContext"></div>
+
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:10px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Type</label>
+          <select id="fbType" class="fi" style="width:100%;padding:10px">
+            <option value="bug">Bug / Something’s broken</option>
+            <option value="feature">Feature request</option>
+            <option value="wrong_fitment">Wrong fitment (part shown but doesn’t fit)</option>
+            <option value="image_issue">Wrong or missing product image</option>
+            <option value="wrong_description">Incorrect description</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:10px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">How important?</label>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="fb-prio" data-prio="nice_to_have" onclick="selectPriority('nice_to_have')">Nice to have</button>
+            <button type="button" class="fb-prio on" data-prio="useful" onclick="selectPriority('useful')">Useful</button>
+            <button type="button" class="fb-prio" data-prio="critical" onclick="selectPriority('critical')">Critical</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:10px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">What’s going on?</label>
+          <textarea id="fbMessage" class="fi" placeholder="Describe what you’re seeing..." rows="5" style="width:100%;resize:vertical;padding:10px;height:auto;min-height:110px"></textarea>
+        </div>
+
+        <div id="fbStatus" style="margin-bottom:12px;font-size:10px;min-height:14px"></div>
+
+        <div style="display:flex;gap:8px">
+          <button onclick="closeFeedbackModal()" class="btn-gh" style="flex:1">Cancel</button>
+          <button onclick="submitFeedback()" class="btn-g" style="flex:2" id="fbSubmit">Submit</button>
+        </div>
       </div>
     </div>
 
@@ -1776,7 +1828,8 @@ function renderProductDetail(p){
         '<button onclick="pdmQty(1)">+</button>' +
       '</div>' +
       '<button class="btn-g pdm-add" onclick="pdmAddToCart(\'' + escapeHtml(String(p.id)) + '\')">Add to Cart</button>' +
-    '</div>';
+    '</div>' +
+    '<div style="text-align:center;margin-top:16px"><button type="button" onclick="openFeedbackModal(\'' + escapeHtml(String(p.sku || p.id)) + '\')" style="background:none;border:none;color:var(--t3);font-size:10px;text-decoration:underline;cursor:pointer;padding:4px 8px">Report issue with this product</button></div>';
 }
 
 function pdmQty(delta){
@@ -1789,6 +1842,103 @@ function openCoreInfoModal(){
 }
 function closeCoreInfoModal(){
   document.getElementById('coreInfoOverlay').classList.remove('on');
+}
+
+let FB_CURRENT_PRIORITY = 'useful';
+let FB_CURRENT_CONTEXT = 'general';
+
+function openFeedbackModal(context){
+  FB_CURRENT_CONTEXT = context || 'general';
+  FB_CURRENT_PRIORITY = 'useful';
+
+  document.getElementById('fbMessage').value = '';
+  document.getElementById('fbType').value = 'bug';
+  document.getElementById('fbStatus').textContent = '';
+  document.getElementById('fbStatus').style.color = '';
+  document.getElementById('fbSubmit').disabled = false;
+  document.getElementById('fbSubmit').textContent = 'Submit';
+
+  document.querySelectorAll('.fb-prio').forEach(b => b.classList.remove('on'));
+  const usefulBtn = document.querySelector('[data-prio="useful"]');
+  if(usefulBtn) usefulBtn.classList.add('on');
+
+  const ctxEl = document.getElementById('fbContext');
+  if(context && context !== 'general'){
+    ctxEl.textContent = 'About product SKU: ' + context;
+  } else if(V.make){
+    ctxEl.textContent = 'Your truck: ' + V.year + ' ' + V.make + ' ' + V.model + (V.engine ? ' · ' + V.engine : '');
+  } else {
+    ctxEl.textContent = 'General feedback';
+  }
+
+  document.getElementById('fbOverlay').classList.add('on');
+}
+
+function closeFeedbackModal(){
+  document.getElementById('fbOverlay').classList.remove('on');
+}
+
+function selectPriority(prio){
+  FB_CURRENT_PRIORITY = prio;
+  document.querySelectorAll('.fb-prio').forEach(b => b.classList.remove('on'));
+  const selected = document.querySelector('[data-prio="' + prio + '"]');
+  if(selected) selected.classList.add('on');
+}
+
+async function submitFeedback(){
+  const type = document.getElementById('fbType').value;
+  const message = document.getElementById('fbMessage').value.trim();
+  const statusEl = document.getElementById('fbStatus');
+  const submitBtn = document.getElementById('fbSubmit');
+
+  if(!message || message.length < 5){
+    statusEl.textContent = 'Please describe what you’re seeing (at least a few words).';
+    statusEl.style.color = 'var(--red)';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
+  statusEl.textContent = '';
+
+  const payload = {
+    type: type,
+    priority: FB_CURRENT_PRIORITY,
+    message: message,
+    product_sku: FB_CURRENT_CONTEXT !== 'general' ? FB_CURRENT_CONTEXT : null,
+    vehicle_year: V.year || null,
+    vehicle_make: V.make || null,
+    vehicle_model: V.model || null,
+    vehicle_engine: V.engine || null,
+    screen_url: window.location.href,
+    user_agent: navigator.userAgent,
+    status: 'new'
+  };
+
+  try {
+    const { data: { user } } = await sb.auth.getUser();
+    if(user){
+      payload.user_id = user.id;
+      payload.user_email = user.email;
+    }
+  } catch(e) { /* anonymous ok */ }
+
+  const { error } = await sb.from('feedback').insert(payload);
+
+  if(error){
+    console.error('[BSD] Feedback submit error:', error);
+    statusEl.textContent = 'Could not submit: ' + error.message;
+    statusEl.style.color = 'var(--red)';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit';
+    return;
+  }
+
+  statusEl.textContent = '✓ Thanks! We got your feedback.';
+  statusEl.style.color = 'var(--grn, #10b981)';
+  submitBtn.textContent = 'Sent';
+
+  setTimeout(closeFeedbackModal, 1500);
 }
 
 function pdmAddToCart(productId){
