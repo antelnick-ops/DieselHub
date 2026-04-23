@@ -93,7 +93,7 @@ async function main() {
   console.log(`Prepared ${updates.size} SKU updates`);
 
   // Fetch all existing APG SKUs in batches to get their IDs
-  console.log('Fetching existing APG product IDs...');
+  console.log('Fetching existing APG product IDs (only those without wholesale_price)...');
   const skuToId = new Map();
   const FETCH_BATCH = 1000;
   let from = 0;
@@ -102,6 +102,7 @@ async function main() {
       .from('products')
       .select('id, sku')
       .eq('vendor_id', APG_VENDOR_ID)
+      .is('wholesale_price', null)
       .range(from, from + FETCH_BATCH - 1)
       .order('id');
     if (error) throw error;
