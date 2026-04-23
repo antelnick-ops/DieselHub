@@ -67,6 +67,8 @@ async function main() {
     skip_empty_lines: true,
     bom: true,
     relax_column_count: true,
+    relax_quotes: true,
+    quote: false,
     trim: true
   });
   console.log(`Parsed ${rows.length} rows`);
