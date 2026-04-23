@@ -1410,29 +1410,87 @@ function appendProductCards(products){
   var grid = document.getElementById('pgrid');
   if(!grid) return;
 
-  if(V.engine){
-    var userDispMatch = V.engine.match(/(\d+\.\d+)L?/);
-    var userDisp = userDispMatch ? userDispMatch[1] : null;
-    var ENGINE_SPECIFIC = ['Engine', 'Air and Fuel Delivery', 'Emission Control', 'Ignition', 'Exhaust'];
-    var allDisps = {
+  if(V.engine && V.make){
+    const userDispMatch = V.engine.match(/(\d+\.\d+)L?/);
+    const userDisp = userDispMatch ? userDispMatch[1] : null;
+
+    const ENGINE_SPECIFIC = [
+      'Engine', 'Air and Fuel Delivery', 'Emission Control',
+      'Ignition', 'Exhaust'
+    ];
+    const sameMakeDisps = {
       'Ford': ['6.0L', '6.4L', '6.7L', '7.3L'],
       'Dodge': ['5.9L', '6.7L'],
       'Ram': ['5.9L', '6.7L'],
       'Chevrolet': ['6.6L'],
       'GMC': ['6.6L']
     };
-    var mineList = allDisps[V.make] || [];
-    var otherDisps = userDisp ? mineList.filter(function(d){ return !d.startsWith(userDisp); }) : [];
-    if(otherDisps.length){
-      products = products.filter(function(p){
-        if(!ENGINE_SPECIFIC.includes(p.category)) return true;
-        var name = (p.product_name || '').toLowerCase();
-        for(var i = 0; i < otherDisps.length; i++){
-          if(name.includes(otherDisps[i].toLowerCase())) return false;
+    const mineList = sameMakeDisps[V.make] || [];
+    const otherDisps = userDisp
+      ? mineList.filter(d => !d.startsWith(userDisp))
+      : [];
+
+    const WRONG_MAKE_KEYWORDS = {
+      'Ford': [
+        'cummins', 'duramax', 'dodge ram', 'silverado', 'sierra',
+        '5.9l', '6.6l'
+      ],
+      'Dodge': [
+        'power stroke', 'powerstroke', 'duramax',
+        'f-250', 'f-350', 'f-450', 'f-550', 'silverado', 'sierra',
+        '7.3l', '6.0l power', '6.4l power',
+        '6.6l'
+      ],
+      'Ram': [
+        'power stroke', 'powerstroke', 'duramax',
+        'f-250', 'f-350', 'f-450', 'f-550', 'silverado', 'sierra',
+        '7.3l', '6.0l power', '6.4l power',
+        '6.6l'
+      ],
+      'Chevrolet': [
+        'cummins', 'power stroke', 'powerstroke',
+        'dodge ram', 'f-250', 'f-350', 'f-450', 'f-550',
+        '5.9l', '7.3l', '6.0l power', '6.4l power', '6.7l power'
+      ],
+      'GMC': [
+        'cummins', 'power stroke', 'powerstroke',
+        'dodge ram', 'f-250', 'f-350', 'f-450', 'f-550',
+        '5.9l', '7.3l', '6.0l power', '6.4l power', '6.7l power'
+      ]
+    };
+    const wrongMakePatterns = WRONG_MAKE_KEYWORDS[V.make] || [];
+
+    products = products.filter(p => {
+      const name = (p.product_name || '').toLowerCase();
+      const desc = (p.description || '').toLowerCase();
+      const combined = name + ' ' + desc;
+
+      for(const pattern of wrongMakePatterns){
+        if(combined.includes(pattern)){
+          const userMakeLower = V.make.toLowerCase();
+          const dispLower = userDisp ? (userDisp + 'l').toLowerCase() : null;
+          const hasUserMake = combined.includes(userMakeLower);
+          const hasUserDisp = dispLower && combined.includes(dispLower);
+          if(!hasUserMake && !hasUserDisp){
+            return false;
+          }
         }
-        return true;
-      });
-    }
+      }
+
+      if(ENGINE_SPECIFIC.includes(p.category) && otherDisps.length > 0){
+        for(const otherDisp of otherDisps){
+          const otherLower = otherDisp.toLowerCase();
+          if(name.includes(otherLower)){
+            const dispLower = userDisp ? (userDisp + 'l').toLowerCase() : null;
+            if(!dispLower || !name.includes(dispLower)){
+              return false;
+            }
+          }
+        }
+      }
+
+      return true;
+    });
   }
 
   products.forEach(function(p){
@@ -1633,6 +1691,18 @@ function clearAndRenderProducts(products, filters){
   }
 
   appendProductCards(products);
+
+  const renderedCount = document.querySelectorAll('#pgrid .pc').length;
+  if(header && renderedCount !== products.length){
+    const serverTotal = PRODUCT_STATE.totalCount;
+    const filteredOut = products.length - renderedCount;
+    if(V.engine){
+      header.innerHTML = 'Showing ' + renderedCount + ' of ~' + serverTotal.toLocaleString() +
+        ' results for your ' + escapeHtml(V.year + ' ' + V.make + ' ' + V.model) +
+        ' &bull; ' + escapeHtml(V.engine) +
+        ' <span style="color:var(--t3);font-size:9px">(' + filteredOut + ' cross-make filtered)</span>';
+    }
+  }
 }
 
 function updateResultsHeader(){
