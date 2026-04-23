@@ -121,6 +121,16 @@ const TRULY_UNIVERSAL_SUBCATEGORIES = new Set([
   'Flasher Units Fuses and Circuit Breakers'
 ]);
 
+const DIESEL_AGNOSTIC_CATEGORIES = new Set([
+  'Electrical Charging and Starting',
+  'Heating and Air Conditioning',
+  'Interior Accessories',
+  'Exterior Accessories',
+  'Safety and Security',
+  'Heat and Sound Management',
+  'Lighting and Electrical Body',
+]);
+
 const TRUCK_SPECIFIC_CATEGORIES = new Set([
   'Body', 'Engine', 'Driveline and Axles', 'Air and Fuel Delivery',
   'Exhaust', 'Suspension', 'Brake', 'Transmission', 'Belts and Cooling',
@@ -284,6 +294,8 @@ function shouldImport(row) {
   if (hasHDTruck || hasDieselEngine) return true;
 
   if (subcategory && TRULY_UNIVERSAL_SUBCATEGORIES.has(subcategory)) return true;
+
+  if (category && DIESEL_AGNOSTIC_CATEGORIES.has(category)) return true;
 
   if (category && TRUCK_SPECIFIC_CATEGORIES.has(category)) return false;
 
