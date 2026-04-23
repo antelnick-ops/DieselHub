@@ -113,40 +113,42 @@ async function main() {
   }
   console.log(`\nFound ${skuToId.size} APG products in DB`);
 
-  // Apply updates in batches (URL length safe)
-  console.log('\nApplying updates...');
-  const UPDATE_BATCH = 200;
-  const skuList = [...updates.keys()];
-  let updated = 0;
+  console.log('\nApplying updates in batches of 500...');
+  const BATCH = 500;
+  let batch = [];
+  let processed = 0;
   let skipped = 0;
 
-  for (let i = 0; i < skuList.length; i += UPDATE_BATCH) {
-    const chunk = skuList.slice(i, i + UPDATE_BATCH);
+  for (const [sku, payload] of updates) {
+    const id = skuToId.get(sku);
+    if (!id) { skipped++; continue; }
 
-    // Group updates by identical payload to batch them
-    // For simplicity: update each SKU individually using .update().eq()
-    // More efficient: use upsert with id, but we'd need to fetch full rows
+    batch.push({ id, ...payload });
 
-    for (const sku of chunk) {
-      const id = skuToId.get(sku);
-      if (!id) { skipped++; continue; }
-
-      const payload = updates.get(sku);
+    if (batch.length >= BATCH) {
       const { error } = await supabase
         .from('products')
-        .update(payload)
-        .eq('id', id);
-
+        .upsert(batch, { onConflict: 'id', ignoreDuplicates: false });
       if (error) {
-        console.error(`Failed on SKU ${sku}:`, error.message);
-        continue;
+        console.error('\nBatch failed:', error.message);
+        throw error;
       }
-      updated++;
+      processed += batch.length;
+      process.stdout.write(`\r  Batched ${processed} updates (${skipped} skipped)`);
+      batch = [];
     }
-
-    process.stdout.write(`\r  Updated ${updated} / ${skuList.length} (${skipped} skipped)`);
   }
-  console.log(`\n\nDone. Updated ${updated}, skipped ${skipped} (no matching SKU in products table).`);
+
+  // Flush final partial batch
+  if (batch.length > 0) {
+    const { error } = await supabase
+      .from('products')
+      .upsert(batch, { onConflict: 'id', ignoreDuplicates: false });
+    if (error) throw error;
+    processed += batch.length;
+  }
+
+  console.log(`\n\nDone. Processed ${processed} batched updates, ${skipped} skipped.`);
 
   // Stocking summary
   const stockingCount = [...updates.values()].filter(u => u.is_stocking_item).length;
