@@ -75,7 +75,10 @@ const HARD_EXCLUDE = [
   /\bSorento\b/i, /\bSportage\b/i, /\bOptima\b/i, /\bRio\b/i, /\bSoul\b/i,
   // More powersports / non-car brands
   /\bAprilia\b/i, /\bVespa\b/i, /\bMoto\s*Guzzi\b/i, /\bPiaggio\b/i,
-  /\bTriumph\b/i, /\bBSA\b/i, /\bVictory\b/i, /\bIndian\s*Motorcycle\b/i
+  /\bTriumph\b/i, /\bBSA\b/i, /\bVictory\b/i, /\bIndian\s*Motorcycle\b/i,
+  /\bHellcat\b/i,
+  /\bHemi\b/i,
+  /\bPart\s*Alliance\b/i,
 ];
 
 const HD_DIESEL_TRUCK = [
