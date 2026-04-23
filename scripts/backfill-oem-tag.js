@@ -10,17 +10,28 @@ const supabase = createClient(
 const APG_VENDOR_ID = '013cd9a7-171e-45fe-9421-0320319dce33';
 const DRY_RUN = true;
 
+// OEM-exclusive brand names (strong signal)
 const OEM_BRANDS = [
-  'motorcraft', 'mopar', 'acdelco', 'ac delco',
-  'genuine ford', 'genuine dodge', 'genuine gm', 'genuine mopar',
-  'ford motor company', 'gm parts', 'chrysler'
+  'motorcraft',
+  'mopar oe',
+  'acdelco',
+  'ac delco',
+  'genuine ford',
+  'genuine mopar',
+  'genuine gm',
+  'genuine chrysler',
+  'genuine motorcraft'
 ];
 
+// Specific phrases that mean the product IS OEM (not just references OEM)
 const OEM_KEYWORDS = [
-  'oem ', 'oe replacement', 'oe spec', 'oem-style', 'oem style',
-  'factory replacement', 'stock replacement',
-  'bosch genuine', 'delphi oem', 'oem-quality', 'oem quality',
-  '(oem)', '(oe)'
+  '(oem)',
+  'oe replacement',
+  'oe-replacement',
+  'oe-spec',
+  'factory replacement',
+  'original equipment',
+  'genuine oem'
 ];
 
 function inferOem(product) {
