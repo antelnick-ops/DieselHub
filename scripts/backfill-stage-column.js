@@ -8,7 +8,7 @@ const supabase = createClient(
 );
 
 const APG_VENDOR_ID = '013cd9a7-171e-45fe-9421-0320319dce33';
-const DRY_RUN = true;
+const DRY_RUN = false;
 
 // Heaviest stage wins when multiple keyword groups match — check 3 first.
 const STAGE_KEYWORDS = {
