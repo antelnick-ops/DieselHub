@@ -14,7 +14,7 @@
 }
 body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--txt)}
 button,input{font:inherit}
-.hidden{display:none}
+.hidden{display:none!important}
 .wrap{min-height:100vh}
 .login{
 display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px
@@ -340,18 +340,26 @@ location.reload();
 }
 
 function showDash(user){
-document.getElementById('loginScreen').classList.add('hidden');
-document.getElementById('dash').classList.remove('hidden');
-document.getElementById('userBox').textContent=user.email;
-document.documentElement.scrollTop = 0;
-document.body.scrollTop = 0;
-window.scrollTo(0, 0);
-requestAnimationFrame(() => {
+  const loginEl = document.getElementById('loginScreen');
+  const dashEl = document.getElementById('dash');
+  loginEl.classList.add('hidden');
+  dashEl.classList.remove('hidden');
+  document.getElementById('userBox').textContent = user.email;
+
   document.documentElement.scrollTop = 0;
   document.body.scrollTop = 0;
   window.scrollTo(0, 0);
-});
-refreshAll();
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      window.scrollTo(0, 0);
+      dashEl.scrollTop = 0;
+    });
+  });
+
+  refreshAll();
 }
 
 function tab(id,btn,callback){
