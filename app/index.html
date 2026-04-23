@@ -136,7 +136,9 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
 .cbdg{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;background:var(--goldg);border-radius:100px;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);padding:0 4px;color:#0a0a0a}
 .vstrip{padding:10px 14px;border-radius:12px;display:flex;align-items:center;gap:9px;margin-bottom:14px;font-size:11px;font-weight:600;color:var(--gold)}
 .vstrip svg{width:15px;height:15px;stroke:var(--gold);fill:none;stroke-width:2;flex-shrink:0}
-.cats{display:flex;gap:5px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none;padding-bottom:2px}.cats::-webkit-scrollbar{display:none}
+.cats-wrap{position:relative;margin-bottom:12px}
+.cats-wrap::after{content:'';position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(to right,transparent,var(--bg) 90%);pointer-events:none;z-index:2;border-radius:0 var(--r) var(--r) 0}
+.cats{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;padding-right:20px}.cats::-webkit-scrollbar{display:none}
 .ct{padding:8px 16px;border-radius:100px;font-size:10px;font-weight:700;color:var(--t3);cursor:pointer;white-space:nowrap;transition:.25s var(--ease);background:var(--gl);border:1px solid var(--glb)}
 .ct.on{color:var(--gold);background:var(--goldgl);border-color:rgba(237,174,10,.15)}
 .stg-row{display:flex;gap:6px;margin-bottom:10px}
@@ -406,8 +408,10 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
         <span id="vsText">Select your vehicle first</span>
       </div>
 
-      <div class="cats" id="catTabs">
-        <div class="ct on">All</div>
+      <div class="cats-wrap">
+        <div class="cats" id="catTabs">
+          <div class="ct on">All</div>
+        </div>
       </div>
 
       <div class="stg-row">
