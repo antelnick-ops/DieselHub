@@ -1190,19 +1190,21 @@ async function queryProducts(filters, page, pageSize){
     vehicleClauses.push('fitment_engines.cs.{"' + V.engine + '"}');
   }
 
-  if(filters.category && filters.category !== 'all'){
-    query = query.eq('category', filters.category);
+  if(!filters.search || filters.search.length < 2){
+    if(filters.category && filters.category !== 'all'){
+      query = query.eq('category', filters.category);
+    }
+    if(filters.stages.length > 0){
+      query = query.in('stage', filters.stages.map(Number));
+    }
+    if(filters.brand && filters.brand !== 'Brand: All'){
+      query = query.eq('brand', filters.brand);
+    }
+    if(filters.priceRange === 'Under $100') query = query.lt('price', 100);
+    else if(filters.priceRange === '$100\u2013$500') query = query.gte('price', 100).lte('price', 500);
+    else if(filters.priceRange === '$500\u2013$1K') query = query.gte('price', 500).lte('price', 1000);
+    else if(filters.priceRange === '$1K+') query = query.gte('price', 1000);
   }
-  if(filters.stages.length > 0){
-    query = query.in('stage', filters.stages.map(Number));
-  }
-  if(filters.brand && filters.brand !== 'Brand: All'){
-    query = query.eq('brand', filters.brand);
-  }
-  if(filters.priceRange === 'Under $100') query = query.lt('price', 100);
-  else if(filters.priceRange === '$100\u2013$500') query = query.gte('price', 100).lte('price', 500);
-  else if(filters.priceRange === '$500\u2013$1K') query = query.gte('price', 500).lte('price', 1000);
-  else if(filters.priceRange === '$1K+') query = query.gte('price', 1000);
 
   let searchClauses = null;
   if(filters.search && filters.search.length >= 2){
@@ -1262,19 +1264,21 @@ async function queryTotalCount(filters){
     vehicleClauses.push('fitment_years.cs.{' + yearStr + '}');
     vehicleClauses.push('fitment_engines.cs.{"' + V.engine + '"}');
   }
-  if(filters.category && filters.category !== 'all'){
-    query = query.eq('category', filters.category);
+  if(!filters.search || filters.search.length < 2){
+    if(filters.category && filters.category !== 'all'){
+      query = query.eq('category', filters.category);
+    }
+    if(filters.stages.length > 0){
+      query = query.in('stage', filters.stages.map(Number));
+    }
+    if(filters.brand && filters.brand !== 'Brand: All'){
+      query = query.eq('brand', filters.brand);
+    }
+    if(filters.priceRange === 'Under $100') query = query.lt('price', 100);
+    else if(filters.priceRange === '$100\u2013$500') query = query.gte('price', 100).lte('price', 500);
+    else if(filters.priceRange === '$500\u2013$1K') query = query.gte('price', 500).lte('price', 1000);
+    else if(filters.priceRange === '$1K+') query = query.gte('price', 1000);
   }
-  if(filters.stages.length > 0){
-    query = query.in('stage', filters.stages.map(Number));
-  }
-  if(filters.brand && filters.brand !== 'Brand: All'){
-    query = query.eq('brand', filters.brand);
-  }
-  if(filters.priceRange === 'Under $100') query = query.lt('price', 100);
-  else if(filters.priceRange === '$100\u2013$500') query = query.gte('price', 100).lte('price', 500);
-  else if(filters.priceRange === '$500\u2013$1K') query = query.gte('price', 500).lte('price', 1000);
-  else if(filters.priceRange === '$1K+') query = query.gte('price', 1000);
 
   let searchClauses = null;
   if(filters.search && filters.search.length >= 2){
