@@ -1317,15 +1317,11 @@ async function rebuildProductCategoryDropdowns(){
   if(CACHED_CATEGORIES && CACHED_BRANDS) return;
   try{
     const [catRes, brandRes] = await Promise.all([
-      sb.from('products').select('category').eq('is_visible', true).not('status', 'in', '("archived","discontinued","draft")').not('category', 'is', null).limit(5000),
-      sb.from('products').select('brand').eq('is_visible', true).not('status', 'in', '("archived","discontinued","draft")').not('brand', 'is', null).limit(5000)
+      sb.rpc('get_distinct_product_categories'),
+      sb.rpc('get_distinct_product_brands')
     ]);
-    const cats = new Set();
-    const brands = new Set();
-    if(catRes.data) catRes.data.forEach(r => { if(r.category) cats.add(r.category); });
-    if(brandRes.data) brandRes.data.forEach(r => { if(r.brand) brands.add(r.brand); });
-    CACHED_CATEGORIES = Array.from(cats).sort();
-    CACHED_BRANDS = Array.from(brands).sort();
+    CACHED_CATEGORIES = (catRes.data || []).filter(Boolean);
+    CACHED_BRANDS = (brandRes.data || []).filter(Boolean);
   }catch(e){
     console.error('[BSD] Failed to load categories/brands:', e);
     CACHED_CATEGORIES = CACHED_CATEGORIES || [];
