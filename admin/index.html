@@ -131,6 +131,7 @@ onkeydown="if(event.key==='Enter')login()">
 <div class="nav">
 <button class="active" onclick="tab('apps',this)">Applications</button>
 <button onclick="tab('vendors',this)">Vendors</button>
+<button onclick="tab('products',this,loadProducts)">Products</button>
 <button onclick="tab('sales',this)">Sales</button>
 <button onclick="tab('traffic',this)">Traffic</button>
 </div>
@@ -199,6 +200,78 @@ onkeydown="if(event.key==='Enter')login()">
 <div class="val">$0</div>
 <div class="lab">Stripe metrics can be connected later</div>
 </div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="products" class="panel">
+
+  <div class="cards" style="grid-template-columns:repeat(4,1fr)">
+    <div class="card">
+      <div class="val" id="prodTotal">—</div>
+      <div class="lab">Active Products</div>
+    </div>
+    <div class="card">
+      <div class="val" id="prodStocking">—</div>
+      <div class="lab">Stocking Items</div>
+    </div>
+    <div class="card">
+      <div class="val" id="prodCatalogValue">—</div>
+      <div class="lab">Catalog Value</div>
+    </div>
+    <div class="card">
+      <div class="val" id="prodAvgMargin">—</div>
+      <div class="lab">Avg Margin %</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+    <input id="prodSearch" placeholder="Search SKU or product name..."
+      style="flex:1;min-width:220px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:#fff">
+    <select id="prodSort" onchange="renderProducts()"
+      style="padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:#fff">
+      <option value="margin_pct_desc">Highest margin %</option>
+      <option value="margin_dollars_desc">Highest margin $</option>
+      <option value="price_desc">Highest price</option>
+      <option value="price_asc">Lowest price</option>
+      <option value="brand_asc">Brand A-Z</option>
+      <option value="sku_asc">SKU A-Z</option>
+    </select>
+    <select id="prodFilter" onchange="renderProducts()"
+      style="padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:#fff">
+      <option value="all">All products</option>
+      <option value="stocking">Stocking only</option>
+      <option value="nonstocking">Non-stocking only</option>
+      <option value="has_margin">Has margin data</option>
+    </select>
+  </div>
+
+  <div class="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>Product</th>
+          <th>Brand</th>
+          <th style="text-align:right">Retail</th>
+          <th style="text-align:right">Wholesale</th>
+          <th style="text-align:right">Margin $</th>
+          <th style="text-align:right">Margin %</th>
+          <th style="text-align:right">Stock</th>
+          <th>Stocking?</th>
+        </tr>
+      </thead>
+      <tbody id="prodRows"></tbody>
+    </table>
+    <div id="prodEmpty" class="empty hidden">No products found.</div>
+  </div>
+
+  <div style="margin-top:14px;text-align:center;color:var(--muted);font-size:12px">
+    <span id="prodShowing">—</span>
+    <button onclick="prodPage=Math.max(0,prodPage-1);renderProducts()"
+      style="margin:0 10px;padding:6px 12px;background:var(--bg2);color:#fff;border:1px solid var(--line);border-radius:6px;cursor:pointer">Prev</button>
+    <button onclick="prodPage++;renderProducts()"
+      style="padding:6px 12px;background:var(--bg2);color:#fff;border:1px solid var(--line);border-radius:6px;cursor:pointer">Next</button>
+  </div>
 </div>
 
 <!-- TRAFFIC -->
@@ -272,12 +345,13 @@ document.getElementById('userBox').textContent=user.email;
 refreshAll();
 }
 
-function tab(id,btn){
+function tab(id,btn,callback){
 document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
 document.getElementById(id).classList.add('active');
 
 document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
 btn.classList.add('active');
+if(typeof callback === 'function') callback();
 }
 
 async function refreshAll(){
@@ -364,6 +438,124 @@ const r=await sb.from('waitlist').select('*');
 const ct=(r.data&&r.data.length)?r.data.length:0;
 document.getElementById('waitCt').textContent=ct;
 document.getElementById('waitCt2').textContent=ct;
+}
+
+let allProducts = [];
+let prodPage = 0;
+const PROD_PER_PAGE = 50;
+
+async function loadProducts(){
+  document.getElementById('prodRows').innerHTML = '<tr><td colspan="9" class="empty">Loading products...</td></tr>';
+
+  const r = await sb.from('products_admin').select('*').limit(5000);
+
+  if(r.error){
+    console.error('Products query error:', r.error);
+    document.getElementById('prodRows').innerHTML =
+      '<tr><td colspan="9" style="color:#fca5a5">Error: ' + r.error.message + '</td></tr>';
+    return;
+  }
+
+  allProducts = r.data || [];
+
+  const active = allProducts.filter(p => p.status === 'active');
+  const stocking = active.filter(p => p.is_stocking_item === true);
+
+  document.getElementById('prodTotal').textContent = active.length.toLocaleString();
+  document.getElementById('prodStocking').textContent = stocking.length.toLocaleString();
+
+  const catalogValue = active.reduce((sum, p) =>
+    sum + (Number(p.wholesale_price) || 0) * (Number(p.stock_qty) || 0), 0);
+  document.getElementById('prodCatalogValue').textContent =
+    '$' + Math.round(catalogValue).toLocaleString();
+
+  const withMargin = active.filter(p => p.margin_percent !== null && p.margin_percent !== undefined);
+  const avgMargin = withMargin.length
+    ? withMargin.reduce((s, p) => s + Number(p.margin_percent), 0) / withMargin.length
+    : 0;
+  document.getElementById('prodAvgMargin').textContent = avgMargin.toFixed(1) + '%';
+
+  document.getElementById('prodSearch').oninput = () => { prodPage = 0; renderProducts(); };
+
+  prodPage = 0;
+  renderProducts();
+}
+
+function renderProducts(){
+  const search = document.getElementById('prodSearch').value.toLowerCase().trim();
+  const sort = document.getElementById('prodSort').value;
+  const filter = document.getElementById('prodFilter').value;
+
+  let filtered = allProducts.filter(p => p.status === 'active');
+
+  if(search){
+    filtered = filtered.filter(p =>
+      (p.sku || '').toLowerCase().includes(search) ||
+      (p.product_name || '').toLowerCase().includes(search) ||
+      (p.brand || '').toLowerCase().includes(search)
+    );
+  }
+
+  if(filter === 'stocking') filtered = filtered.filter(p => p.is_stocking_item === true);
+  else if(filter === 'nonstocking') filtered = filtered.filter(p => p.is_stocking_item !== true);
+  else if(filter === 'has_margin') filtered = filtered.filter(p => p.margin_dollars > 0);
+
+  const sortFns = {
+    margin_pct_desc: (a,b) => (Number(b.margin_percent)||0) - (Number(a.margin_percent)||0),
+    margin_dollars_desc: (a,b) => (Number(b.margin_dollars)||0) - (Number(a.margin_dollars)||0),
+    price_desc: (a,b) => (Number(b.price)||0) - (Number(a.price)||0),
+    price_asc: (a,b) => (Number(a.price)||0) - (Number(b.price)||0),
+    brand_asc: (a,b) => (a.brand||'').localeCompare(b.brand||''),
+    sku_asc: (a,b) => (a.sku||'').localeCompare(b.sku||'')
+  };
+  filtered.sort(sortFns[sort] || sortFns.margin_pct_desc);
+
+  const start = prodPage * PROD_PER_PAGE;
+  const pageData = filtered.slice(start, start + PROD_PER_PAGE);
+
+  const rows = document.getElementById('prodRows');
+  const empty = document.getElementById('prodEmpty');
+
+  if(!pageData.length){
+    rows.innerHTML = '';
+    empty.classList.remove('hidden');
+  } else {
+    empty.classList.add('hidden');
+    rows.innerHTML = pageData.map(p => {
+      const retail = p.price != null ? '$' + Number(p.price).toFixed(2) : '—';
+      const wholesale = p.wholesale_price != null ? '$' + Number(p.wholesale_price).toFixed(2) : '—';
+      const marginD = p.margin_dollars != null ? '$' + Number(p.margin_dollars).toFixed(2) : '—';
+      const marginP = p.margin_percent != null ? Number(p.margin_percent).toFixed(1) + '%' : '—';
+      const marginColor = p.margin_percent > 30 ? '#86efac' : p.margin_percent > 10 ? '#fbbf24' : '#fca5a5';
+      const totalStock = (p.stock_qty || 0) + (p.shock_surplus_stock || 0);
+      const stockingBadge = p.is_stocking_item
+        ? '<span class="badge approved">Stocking</span>'
+        : '<span class="badge pending">Non-stock</span>';
+
+      return '<tr>' +
+        '<td style="font-family:monospace;font-size:12px">' + escapeHtml(p.sku || '') + '</td>' +
+        '<td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(p.product_name || '') + '">' + escapeHtml(p.product_name || '—') + '</td>' +
+        '<td>' + escapeHtml(p.brand || '—') + '</td>' +
+        '<td style="text-align:right">' + retail + '</td>' +
+        '<td style="text-align:right">' + wholesale + '</td>' +
+        '<td style="text-align:right;color:' + marginColor + '">' + marginD + '</td>' +
+        '<td style="text-align:right;color:' + marginColor + ';font-weight:700">' + marginP + '</td>' +
+        '<td style="text-align:right">' + totalStock + '</td>' +
+        '<td>' + stockingBadge + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  const totalPages = Math.ceil(filtered.length / PROD_PER_PAGE);
+  document.getElementById('prodShowing').textContent =
+    'Showing ' + (start + 1) + '-' + Math.min(start + PROD_PER_PAGE, filtered.length) +
+    ' of ' + filtered.length.toLocaleString() + ' (Page ' + (prodPage + 1) + ' of ' + Math.max(1, totalPages) + ')';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){ return {
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]; });
 }
 
 (async ()=>{
