@@ -193,6 +193,11 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
 .cart-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .cart-price{font-size:12px;font-weight:800;color:var(--gold);font-family:'DM Mono',monospace}
 .cart-remove{background:transparent;border:none;color:var(--red);font-size:10px;font-weight:700;cursor:pointer}
+.cart-core-note{font-size:9px;color:var(--gold);margin-top:2px}
+.cart-subtotals{margin-top:14px;padding-top:12px;border-top:1px solid var(--glb)}
+.cart-subtotal-row{display:flex;justify-content:space-between;padding:6px 0;font-size:11px;color:var(--t2)}
+.cart-subtotal-row.cart-subtotal-grand{padding-top:8px;margin-top:4px;border-top:1px solid var(--glb);font-size:13px;font-weight:600;color:var(--t1)}
+.cart-core-disclosure{margin-top:10px;padding:8px 10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);border-radius:6px;font-size:9px;line-height:1.4;color:var(--gold)}
 .cd-tot{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid var(--glb);margin:14px 0}
 .cd-tot span{font-size:12px;color:var(--t2);font-weight:500}
 .cd-tot strong{font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--gold)}
@@ -1117,10 +1122,14 @@ function getCatEmoji(cat){
 function saveCart(){
   localStorage.setItem('bsd_cart', JSON.stringify(cart));
 }
-function addToCart(id,name,brand,price,emoji){
+function addToCart(id,name,brand,price,emoji,core_charge,has_core){
   const existing = cart.find(c => c.id === id);
   if(existing) existing.qty++;
-  else cart.push({ id, name, brand, price, emoji, qty:1 });
+  else cart.push({
+    id, name, brand, price, emoji, qty:1,
+    core_charge: Number(core_charge || 0),
+    has_core: Boolean(has_core && Number(core_charge || 0) > 0)
+  });
   saveCart();
   renderCart();
   if(!document.getElementById('cD').classList.contains('op')) toggleCart();
@@ -1141,17 +1150,25 @@ function renderCart(){
   const totalEl = document.getElementById('cartTotal');
   const statItems = document.getElementById('statItems');
 
-  let total = 0;
+  let itemsTotal = 0;
+  let coresTotal = 0;
   let count = 0;
 
   cart.forEach(c => {
-    total += (Number(c.price) || 0) * c.qty;
+    const price = Number(c.price) || 0;
+    const coreCharge = Number(c.core_charge) || 0;
+    itemsTotal += price * c.qty;
+    if(c.has_core && coreCharge > 0){
+      coresTotal += coreCharge * c.qty;
+    }
     count += c.qty;
   });
 
+  const grandTotal = itemsTotal + coresTotal;
+
   if(badge) badge.textContent = count;
   if(statItems) statItems.textContent = count;
-  if(totalEl) totalEl.textContent = '$' + total.toLocaleString();
+  if(totalEl) totalEl.textContent = '$' + grandTotal.toLocaleString();
 
   if(!itemsEl) return;
 
@@ -1160,19 +1177,38 @@ function renderCart(){
     return;
   }
 
-  itemsEl.innerHTML = cart.map(c => `
-    <div class="cart-item">
-      <div class="cart-emoji">${c.emoji}</div>
-      <div class="cart-copy">
-        <h4>${escapeHtml(c.name)}</h4>
-        <p>${escapeHtml(c.brand || '')}${c.qty > 1 ? ' × ' + c.qty : ''}</p>
-      </div>
-      <div class="cart-right">
-        <div class="cart-price">$${((Number(c.price)||0) * c.qty).toLocaleString()}</div>
-        <button class="cart-remove" onclick="removeFromCart('${c.id}')">Remove</button>
-      </div>
-    </div>
-  `).join('');
+  const itemsHtml = cart.map(c => {
+    const price = Number(c.price) || 0;
+    const coreCharge = Number(c.core_charge) || 0;
+    const hasCore = c.has_core && coreCharge > 0;
+    const lineBase = price * c.qty;
+    const lineCore = hasCore ? coreCharge * c.qty : 0;
+    const lineTotal = lineBase + lineCore;
+
+    return '<div class="cart-item">' +
+      '<div class="cart-emoji">' + c.emoji + '</div>' +
+      '<div class="cart-copy">' +
+        '<h4>' + escapeHtml(c.name) + '</h4>' +
+        '<p>' + escapeHtml(c.brand || '') + (c.qty > 1 ? ' × ' + c.qty : '') + '</p>' +
+        (hasCore ? '<p class="cart-core-note">+ $' + (coreCharge * c.qty).toLocaleString() + ' refundable core</p>' : '') +
+      '</div>' +
+      '<div class="cart-right">' +
+        '<div class="cart-price">$' + lineTotal.toLocaleString() + '</div>' +
+        '<button class="cart-remove" onclick="removeFromCart(\'' + c.id + '\')">Remove</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  let subtotalsHtml = '<div class="cart-subtotals">';
+  if(coresTotal > 0){
+    subtotalsHtml += '<div class="cart-subtotal-row"><span>Items subtotal</span><span>$' + itemsTotal.toLocaleString() + '</span></div>';
+    subtotalsHtml += '<div class="cart-subtotal-row"><span>Core deposits (refundable)</span><span>$' + coresTotal.toLocaleString() + '</span></div>';
+    subtotalsHtml += '<div class="cart-subtotal-row cart-subtotal-grand"><span>Total</span><span>$' + grandTotal.toLocaleString() + '</span></div>';
+    subtotalsHtml += '<div class="cart-core-disclosure">ⓘ Core deposits are refunded when you return the old part within 30 days</div>';
+  }
+  subtotalsHtml += '</div>';
+
+  itemsEl.innerHTML = itemsHtml + subtotalsHtml;
 }
 
 function escapeHtml(v){
@@ -1203,7 +1239,9 @@ async function doCheckout(){
           name:c.name,
           brand:c.brand,
           price:c.price,
-          qty:c.qty
+          qty:c.qty,
+          core_charge: c.core_charge || 0,
+          has_core: Boolean(c.has_core)
         })),
         customer_email: email,
         vehicle
@@ -1597,7 +1635,7 @@ function appendProductCards(products){
         '<h4>' + escapeHtml(p.product_name || 'Product') + '</h4>' +
         '<div class="pc-bt">' +
           '<div class="pc-pr mono">$' + price.toLocaleString() + '</div>' +
-          '<button class="ab" onclick="event.stopPropagation();addToCart(\'' + escapeHtml(String(p.id)) + '\',\'' + String(p.product_name || '').replace(/'/g,"\\'") + '\',\'' + String(p.brand || '').replace(/'/g,"\\'") + '\',' + price + ',\'' + emoji + '\')">' +
+          '<button class="ab" onclick="event.stopPropagation();addToCart(\'' + escapeHtml(String(p.id)) + '\',\'' + String(p.product_name || '').replace(/'/g,"\\'") + '\',\'' + String(p.brand || '').replace(/'/g,"\\'") + '\',' + price + ',\'' + emoji + '\',' + (Number(p.core_charge) || 0) + ',' + (p.has_core ? 'true' : 'false') + ')">' +
             '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
           '</button>' +
         '</div>' +
@@ -1758,8 +1796,10 @@ function pdmAddToCart(productId){
   if(!p) return;
   var emoji = getCatEmoji(p.category);
   var price = parseFloat(p.price) || 0;
+  var coreCharge = parseFloat(p.core_charge) || 0;
+  var hasCore = Boolean(p.has_core && coreCharge > 0);
   for(var i = 0; i < PDM_QTY; i++){
-    addToCart(String(p.id), p.product_name || '', p.brand || '', price, emoji);
+    addToCart(String(p.id), p.product_name || '', p.brand || '', price, emoji, coreCharge, hasCore);
   }
   closeProductDetail();
 }

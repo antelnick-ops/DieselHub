@@ -54,7 +54,9 @@ module.exports = async (req, res) => {
         image_url,
         shipping_cost,
         status,
-        stock_qty
+        stock_qty,
+        core_charge,
+        has_core
       `)
       .in('id', productIds);
 
@@ -91,31 +93,65 @@ module.exports = async (req, res) => {
         map_price: db.map_price != null ? Number(db.map_price) : null,
         image_url: db.image_url || null,
         shipping_cost: Number(db.shipping_cost || 0),
+        core_charge: Number(db.core_charge || 0),
+        has_core: Boolean(db.has_core),
         qty
       };
     });
 
-    const line_items = normalizedItems.map((item) => ({
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: item.name,
-          description: [item.brand, vehicle ? `Fits: ${vehicle}` : '']
-            .filter(Boolean)
-            .join(' | '),
-          images: item.image_url ? [item.image_url] : undefined,
-          metadata: {
-            product_id: item.id,
-            vendor_id: item.vendor_id,
-            vendor_distributor_id: item.vendor_distributor_id || '',
-            sku: item.sku,
-            brand: item.brand
-          }
+    const line_items = normalizedItems.flatMap((item) => {
+      const lines = [{
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.name,
+            description: [item.brand, vehicle ? `Fits: ${vehicle}` : '']
+              .filter(Boolean)
+              .join(' | '),
+            images: item.image_url ? [item.image_url] : undefined,
+            metadata: {
+              product_id: item.id,
+              vendor_id: item.vendor_id,
+              vendor_distributor_id: item.vendor_distributor_id || '',
+              sku: item.sku,
+              brand: item.brand,
+              line_type: 'product'
+            }
+          },
+          unit_amount: Math.round(item.price * 100)
         },
-        unit_amount: Math.round(item.price * 100)
-      },
-      quantity: item.qty
-    }));
+        quantity: item.qty
+      }];
+
+      if (item.has_core && item.core_charge > 0) {
+        lines.push({
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `Core Deposit: ${item.name}`,
+              description: 'Refundable when old part is returned within 30 days.',
+              metadata: {
+                product_id: item.id,
+                vendor_id: item.vendor_id,
+                vendor_distributor_id: item.vendor_distributor_id || '',
+                sku: item.sku,
+                brand: item.brand,
+                line_type: 'core_deposit',
+                parent_product_id: item.id
+              }
+            },
+            unit_amount: Math.round(item.core_charge * 100)
+          },
+          quantity: item.qty
+        });
+      }
+
+      return lines;
+    });
+
+    const coreTotal = normalizedItems.reduce((sum, item) => {
+      return sum + (item.has_core && item.core_charge > 0 ? item.core_charge * item.qty : 0);
+    }, 0);
 
     const shippingOptions = [
       {
@@ -162,7 +198,9 @@ module.exports = async (req, res) => {
         customer_email: customer_email || '',
         vehicle: vehicle || '',
         source: 'bsd_app',
-        shipping_method: shipping_method || ''
+        shipping_method: shipping_method || '',
+        core_total: coreTotal.toFixed(2),
+        has_cores: coreTotal > 0 ? 'true' : 'false'
       },
       success_url: `${origin}/app/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/app/?checkout=cancelled`
