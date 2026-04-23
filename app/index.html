@@ -742,6 +742,28 @@ function applyVehicle(){
   if(pEng){
     pEng.textContent = V.engine || 'Select your truck';
   }
+
+  updateSplitYearNotice();
+}
+
+function updateSplitYearNotice(){
+  const existing = document.getElementById('splitYearNotice');
+  if(existing) existing.remove();
+
+  const isSplit99 = V.year === 1999 && V.make === 'Ford' &&
+    V.engine && V.engine.includes('7.3L Power Stroke');
+
+  if(isSplit99){
+    const notice = document.createElement('div');
+    notice.id = 'splitYearNotice';
+    notice.style.cssText = 'padding:10px 14px;border-radius:10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);font-size:10px;font-weight:500;color:var(--gold);margin-bottom:10px;line-height:1.4';
+    notice.innerHTML = '⚠️ <strong>1999 is a split year.</strong> Early 99 (built before Oct 1999) and Late 99 (Oct 1999+) differ on injectors, HPOP, and turbo components. Check fitment before ordering engine-specific parts.';
+
+    const vstrip = document.querySelector('.vstrip');
+    if(vstrip && vstrip.parentNode){
+      vstrip.parentNode.insertBefore(notice, vstrip.nextSibling);
+    }
+  }
 }
 
 function updateProfileBasics(user){
@@ -1179,18 +1201,24 @@ async function queryProducts(filters, page, pageSize){
 
   let vehicleClauses = null;
   if(V.make && V.engine){
-    const engineWords = V.engine.match(/\d+\.\d+L?|[A-Z][a-z]+(?:\s[A-Z][a-z]+)*/g) || [];
     vehicleClauses = [];
-    engineWords.forEach(w => {
-      const safe = w.replace(/[%_]/g, '\\$&');
-      vehicleClauses.push('fitment_text.ilike.%' + safe + '%');
-      vehicleClauses.push('product_name.ilike.%' + safe + '%');
-      vehicleClauses.push('description.ilike.%' + safe + '%');
-    });
+
+    const userDispMatch = V.engine.match(/(\d+\.\d+)L?/);
+    const userDisp = userDispMatch ? userDispMatch[1] : null;
+
+    if(userDisp){
+      const dispL = userDisp + 'L';
+      const dispSafe = dispL.replace(/[%_.]/g, '\\$&');
+      vehicleClauses.push('product_name.ilike.%' + dispSafe + '%');
+      vehicleClauses.push('fitment_text.ilike.%' + dispSafe + '%');
+      vehicleClauses.push('description.ilike.%' + dispSafe + '%');
+    }
+
     const modelSafe = String(V.model).replace(/[%_]/g, '\\$&');
-    const yearStr = String(V.year);
     vehicleClauses.push('fitment_text.ilike.%' + modelSafe + '%');
     vehicleClauses.push('product_name.ilike.%' + modelSafe + '%');
+
+    const yearStr = String(V.year);
     vehicleClauses.push('fitment_years.cs.{' + yearStr + '}');
     vehicleClauses.push('fitment_engines.cs.{"' + V.engine + '"}');
   }
@@ -1254,18 +1282,24 @@ async function queryTotalCount(filters){
 
   let vehicleClauses = null;
   if(V.make && V.engine){
-    const engineWords = V.engine.match(/\d+\.\d+L?|[A-Z][a-z]+(?:\s[A-Z][a-z]+)*/g) || [];
     vehicleClauses = [];
-    engineWords.forEach(w => {
-      const safe = w.replace(/[%_]/g, '\\$&');
-      vehicleClauses.push('fitment_text.ilike.%' + safe + '%');
-      vehicleClauses.push('product_name.ilike.%' + safe + '%');
-      vehicleClauses.push('description.ilike.%' + safe + '%');
-    });
+
+    const userDispMatch = V.engine.match(/(\d+\.\d+)L?/);
+    const userDisp = userDispMatch ? userDispMatch[1] : null;
+
+    if(userDisp){
+      const dispL = userDisp + 'L';
+      const dispSafe = dispL.replace(/[%_.]/g, '\\$&');
+      vehicleClauses.push('product_name.ilike.%' + dispSafe + '%');
+      vehicleClauses.push('fitment_text.ilike.%' + dispSafe + '%');
+      vehicleClauses.push('description.ilike.%' + dispSafe + '%');
+    }
+
     const modelSafe = String(V.model).replace(/[%_]/g, '\\$&');
-    const yearStr = String(V.year);
     vehicleClauses.push('fitment_text.ilike.%' + modelSafe + '%');
     vehicleClauses.push('product_name.ilike.%' + modelSafe + '%');
+
+    const yearStr = String(V.year);
     vehicleClauses.push('fitment_years.cs.{' + yearStr + '}');
     vehicleClauses.push('fitment_engines.cs.{"' + V.engine + '"}');
   }
@@ -1375,6 +1409,31 @@ function getEmptyStateMessage(filters){
 function appendProductCards(products){
   var grid = document.getElementById('pgrid');
   if(!grid) return;
+
+  if(V.engine){
+    var userDispMatch = V.engine.match(/(\d+\.\d+)L?/);
+    var userDisp = userDispMatch ? userDispMatch[1] : null;
+    var ENGINE_SPECIFIC = ['Engine', 'Air and Fuel Delivery', 'Emission Control', 'Ignition', 'Exhaust'];
+    var allDisps = {
+      'Ford': ['6.0L', '6.4L', '6.7L', '7.3L'],
+      'Dodge': ['5.9L', '6.7L'],
+      'Ram': ['5.9L', '6.7L'],
+      'Chevrolet': ['6.6L'],
+      'GMC': ['6.6L']
+    };
+    var mineList = allDisps[V.make] || [];
+    var otherDisps = userDisp ? mineList.filter(function(d){ return !d.startsWith(userDisp); }) : [];
+    if(otherDisps.length){
+      products = products.filter(function(p){
+        if(!ENGINE_SPECIFIC.includes(p.category)) return true;
+        var name = (p.product_name || '').toLowerCase();
+        for(var i = 0; i < otherDisps.length; i++){
+          if(name.includes(otherDisps[i].toLowerCase())) return false;
+        }
+        return true;
+      });
+    }
+  }
 
   products.forEach(function(p){
     p.__img = cleanImageUrl(p.image_url || p.image || p.images || '');
