@@ -13,7 +13,7 @@ const supabase = createClient(
 const APG_VENDOR_ID = '013cd9a7-171e-45fe-9421-0320319dce33';
 const FEED_PATH = path.join(process.cwd(), 'tmp', 'premier_data_feed_master.csv');
 const IMPORT_LIMIT = 0;   // 0 = no limit
-const DRY_RUN = true;     // set false to actually write to Supabase
+const DRY_RUN = false;     // set false to actually write to Supabase
 
 // SKUs with known-bad images in Premier's feed (force null).
 // When you find more, add the SKU here.
@@ -188,6 +188,15 @@ function toInt(value) {
   return n === null ? 0 : Math.max(0, Math.floor(n));
 }
 
+function parseCoreCharge(value) {
+  const n = toNumber(value);
+  if (n === null || n <= 0) return 0;
+  // Cores over $5000 are almost always CSV parse errors (UPCs read as prices).
+  // Real cores max out around $2500 (Allison transmissions).
+  if (n > 5000) return 0;
+  return roundMoney(n);
+}
+
 function roundMoney(n) {
   return Number(Number(n).toFixed(2));
 }
@@ -357,6 +366,8 @@ function mapRow(row) {
   const stockQty = totalStock(row);
   const weight = toNumber(row['Weight']);
   const shippingCost = roundMoney((toNumber(row['Freight Cost']) || 0) + (toNumber(row['Drop Ship Fee']) || 0));
+  const coreCharge = parseCoreCharge(row['Core Charge']);
+  const hasCore = coreCharge > 0 || clean(row['ItemWithCores'])?.toLowerCase() === 'yes';
   const price = pickPrice(row);
   const status = productStatus(row);
   const description = buildDescription(row);
@@ -375,6 +386,8 @@ function mapRow(row) {
     sku,
     brand,
     price,
+    core_charge: coreCharge,
+    has_core: hasCore,
     shipping_cost: shippingCost,
     stock_qty: stockQty,
     category: clean(row['Part Category']),
@@ -437,9 +450,13 @@ async function main() {
     for (let i = 0; i < Math.min(15, shuffled.length); i++) {
       const p = shuffled[i];
       console.log(`\n${i + 1}. ${p.product_name.substring(0, 90)}`);
-      console.log(`   Brand: ${p.brand} | Category: ${p.category} | $${p.price}`);
+      const coreDisplay = p.has_core ? ` | Core: $${p.core_charge}` : '';
+      console.log(`   Brand: ${p.brand} | Category: ${p.category} | $${p.price}${coreDisplay}`);
       console.log(`   Makes: [${p.fitment_makes.join(', ')}] | Engines: [${p.fitment_engines.join(', ')}]`);
     }
+    const withCoreData = mapped.filter(m => m.has_core).length;
+    const coreChargeTotal = mapped.reduce((sum, m) => sum + (m.core_charge || 0), 0);
+    console.log(`Core charge products: ${withCoreData} (avg $${(coreChargeTotal / Math.max(withCoreData, 1)).toFixed(2)})`);
     console.log(`\nWould import ${mapped.length} products. Set DRY_RUN=false to actually write.`);
     return;
   }
