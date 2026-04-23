@@ -1437,6 +1437,9 @@ function appendProductCards(products){
     const WRONG_MAKE_KEYWORDS = {
       'Ford': [
         'cummins', 'duramax', 'dodge ram', 'silverado', 'sierra',
+        'chevy', 'chevrolet', 'gmc',
+        'wrangler jk', 'wrangler jl', 'jeep jk', 'jeep jl',
+        'jeep cj', 'jeep tj', 'jeep lj',
         '5.9l', '6.6l'
       ],
       'Dodge': [
@@ -1478,6 +1481,14 @@ function appendProductCards(products){
           if(!hasUserMake && !hasUserDisp){
             return false;
           }
+        }
+      }
+
+      if(V.engine.includes('Power Stroke')){
+        if(name.includes('7.3l idi') || name.includes('7.3 idi') ||
+           desc.includes('7.3l idi') || desc.includes('7.3 idi') ||
+           name.match(/\b(?:idi)\s*(?:stroke|diesel)\b/i)){
+          return false;
         }
       }
 
