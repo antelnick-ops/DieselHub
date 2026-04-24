@@ -263,6 +263,12 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
 .modal-panel{background:var(--c2);border:1px solid var(--glb);border-radius:14px;padding:22px 20px;position:relative;max-height:80vh;overflow-y:auto;width:100%}
 .modal-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--t2);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px}
 .modal-close:hover{color:var(--t1)}
+.toggle{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .slider{position:absolute;inset:0;background:var(--c4);border-radius:24px;cursor:pointer;transition:.2s var(--ease)}
+.toggle .slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;top:3px;background:#F1F5F9;border-radius:50%;transition:.2s var(--ease)}
+.toggle input:checked + .slider{background:#FF6B2C}
+.toggle input:checked + .slider::before{transform:translateX(20px)}
 .btn-gh{height:54px;background:var(--gl);border:1px solid var(--glb);border-radius:var(--r);font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;transition:.2s}
 .btn-gh:hover{background:var(--glh);color:var(--t1)}
 .fb-prio{flex:1;padding:8px 6px;border-radius:8px;background:var(--gl);border:1px solid var(--glb);color:var(--t2);font-size:9px;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:0.3px;transition:all 0.15s}
@@ -502,11 +508,11 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
       </div>
 
       <div class="p-list">
-        <div class="p-row"><div class="p-ri"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span>Order History</span><span class="ch">›</span></div>
-        <div class="p-row"><div class="p-ri"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><span>Payment Methods</span><span class="ch">›</span></div>
-        <div class="p-row"><div class="p-ri"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><span>Saved Addresses</span><span class="ch">›</span></div>
-        <div class="p-row"><div class="p-ri"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div><span>Notifications</span><span class="ch">›</span></div>
-        <div class="p-row"><div class="p-ri"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><span>Help & Support</span><span class="ch">›</span></div>
+        <div class="p-row" onclick="showOrderHistory()"><div class="p-ri"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span>Order History</span><span class="ch">›</span></div>
+        <div class="p-row" onclick="showPaymentMethods()"><div class="p-ri"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><span>Payment Methods</span><span class="ch">›</span></div>
+        <div class="p-row" onclick="showSavedAddresses()"><div class="p-ri"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><span>Saved Addresses</span><span class="ch">›</span></div>
+        <div class="p-row" onclick="showNotifications()"><div class="p-ri"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div><span>Notifications</span><span class="ch">›</span></div>
+        <div class="p-row" onclick="showHelpSupport()"><div class="p-ri"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><span>Help & Support</span><span class="ch">›</span></div>
       </div>
 
       <div class="profile-section" style="margin-top:20px;padding:14px;background:var(--gl);border:1px solid var(--glb);border-radius:10px">
@@ -611,6 +617,14 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
           <button onclick="closeFeedbackModal()" class="btn-gh" style="flex:1">Cancel</button>
           <button onclick="submitFeedback()" class="btn-g" style="flex:2" id="fbSubmit">Submit</button>
         </div>
+      </div>
+    </div>
+
+    <div id="appModalOverlay" class="modal-overlay" onclick="if(event.target===this)closeAppModal()">
+      <div class="modal-panel" style="max-width:460px">
+        <button class="modal-close" onclick="closeAppModal()">×</button>
+        <h2 id="appModalTitle" style="margin:0 0 12px;font-size:16px;padding-right:24px"></h2>
+        <div id="appModalBody" style="font-size:13px;color:var(--t2)"></div>
       </div>
     </div>
 
@@ -2180,6 +2194,133 @@ document.getElementById('searchInput').addEventListener('input', function(){
     searchDebounceTimer = setTimeout(onFilterChange, 300);
   }
 });
+
+function showModal(title, html){
+  document.getElementById('appModalTitle').textContent = title;
+  document.getElementById('appModalBody').innerHTML = html;
+  document.getElementById('appModalOverlay').classList.add('on');
+}
+function closeAppModal(){
+  document.getElementById('appModalOverlay').classList.remove('on');
+}
+
+async function showOrderHistory(){
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user){ alert('Please sign in'); return; }
+
+  const { data: orders, error } = await sb.from('orders')
+    .select('id, order_number, created_at, total, status')
+    .eq('customer_email', user.email)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if(error){ console.error(error); alert('Could not load orders'); return; }
+
+  if(!orders || orders.length === 0){
+    showModal('Order History', '<div style="text-align:center;padding:40px 20px;"><div style="font-size:48px;margin-bottom:16px;">📦</div><div style="color:#999;">No orders yet.</div><div style="color:#666;font-size:14px;margin-top:8px;">When you make a purchase, it will appear here.</div></div>');
+    return;
+  }
+
+  const html = orders.map(o => {
+    const label = o.order_number ? ('#' + o.order_number) : ('#' + String(o.id || '').substring(0,8));
+    const date = o.created_at ? new Date(o.created_at).toLocaleDateString() : '';
+    const total = (parseFloat(o.total) || 0).toFixed(2);
+    const status = (o.status || 'pending').toString();
+    return '<div style="padding:16px;border-bottom:1px solid #222;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+      + '<div><div style="font-weight:600;">Order ' + escapeHtml(label) + '</div>'
+      + '<div style="color:#999;font-size:13px;">' + escapeHtml(date) + '</div></div>'
+      + '<div style="text-align:right;"><div style="font-weight:600;color:#FF6B2C;">$' + total + '</div>'
+      + '<div style="color:#999;font-size:12px;text-transform:uppercase;">' + escapeHtml(status) + '</div></div>'
+      + '</div></div>';
+  }).join('');
+
+  showModal('Order History', html);
+}
+
+function showPaymentMethods(){
+  showModal('Payment Methods', ''
+    + '<div style="padding:20px 0;">'
+    + '<div style="font-size:32px;margin-bottom:16px;text-align:center;">💳</div>'
+    + '<p style="color:#ccc;line-height:1.6;margin-bottom:16px;">Black Stack Diesel uses Stripe for secure checkout. Your payment details are never stored on our servers — Stripe handles all card processing with bank-grade encryption.</p>'
+    + '<p style="color:#ccc;line-height:1.6;margin-bottom:16px;">At checkout, you can save your card to Stripe for faster future purchases. Look for the "Save payment method" option on the Stripe Checkout page.</p>'
+    + '<p style="color:#999;font-size:13px;">Saved card management will be available here in a future update.</p>'
+    + '</div>');
+}
+
+function showSavedAddresses(){
+  showModal('Saved Addresses', ''
+    + '<div style="padding:20px 0;">'
+    + '<div style="font-size:32px;margin-bottom:16px;text-align:center;">📍</div>'
+    + '<p style="color:#ccc;line-height:1.6;margin-bottom:16px;">Shipping addresses are collected at checkout via Stripe and sent directly to our distributor for fulfillment.</p>'
+    + '<p style="color:#ccc;line-height:1.6;margin-bottom:16px;">Your address is securely stored with your order and can be updated at any time before shipment by contacting support.</p>'
+    + '<p style="color:#999;font-size:13px;">Saved address management will be available here in a future update.</p>'
+    + '</div>');
+}
+
+function showNotifications(){
+  const prefs = JSON.parse(localStorage.getItem('bsd_notif_prefs') || '{}');
+  const emailOrders = prefs.emailOrders !== false;
+  const emailDeals = prefs.emailDeals !== false;
+
+  showModal('Notifications', ''
+    + '<div style="padding:12px 0;">'
+    + '<div style="font-size:32px;margin-bottom:20px;text-align:center;">🔔</div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid #222;">'
+    + '<div><div style="font-weight:600;color:var(--t1);">Order Updates</div>'
+    + '<div style="color:#999;font-size:13px;">Shipping, tracking, delivery</div></div>'
+    + '<label class="toggle"><input type="checkbox" id="notif-orders" ' + (emailOrders ? 'checked' : '') + ' onchange="saveNotifPrefs()"><span class="slider"></span></label>'
+    + '</div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid #222;">'
+    + '<div><div style="font-weight:600;color:var(--t1);">Deals & New Products</div>'
+    + '<div style="color:#999;font-size:13px;">Occasional updates on new parts</div></div>'
+    + '<label class="toggle"><input type="checkbox" id="notif-deals" ' + (emailDeals ? 'checked' : '') + ' onchange="saveNotifPrefs()"><span class="slider"></span></label>'
+    + '</div>'
+    + '<p style="color:#999;font-size:13px;margin-top:20px;">Notifications are sent to your account email.</p>'
+    + '</div>');
+}
+
+function saveNotifPrefs(){
+  const prefs = {
+    emailOrders: document.getElementById('notif-orders').checked,
+    emailDeals: document.getElementById('notif-deals').checked
+  };
+  localStorage.setItem('bsd_notif_prefs', JSON.stringify(prefs));
+}
+
+function showHelpSupport(){
+  showModal('Help & Support', ''
+    + '<div style="padding:12px 0;">'
+    + '<div style="font-size:32px;margin-bottom:20px;text-align:center;">🛠️</div>'
+    + '<div style="margin-bottom:24px;">'
+    + '<div style="font-weight:600;margin-bottom:8px;color:#FF6B2C;">Contact Us</div>'
+    + '<div style="color:#ccc;line-height:1.8;">Email: <a href="mailto:help@black-stack-diesel.com" style="color:#FF6B2C;">help@black-stack-diesel.com</a></div>'
+    + '</div>'
+    + '<div style="margin-bottom:20px;">'
+    + '<div style="font-weight:600;margin-bottom:12px;color:var(--t1);">Frequently Asked Questions</div>'
+    + '<details style="margin-bottom:12px;padding:12px;background:#111;border-radius:8px;">'
+    + '<summary style="cursor:pointer;font-weight:600;color:var(--t1);">How does shipping work?</summary>'
+    + '<p style="color:#ccc;margin-top:8px;line-height:1.6;">Orders ship directly from our distributor APG Wholesale (Premier Performance) via UPS Ground. Most orders arrive within 3-7 business days depending on your location.</p>'
+    + '</details>'
+    + '<details style="margin-bottom:12px;padding:12px;background:#111;border-radius:8px;">'
+    + '<summary style="cursor:pointer;font-weight:600;color:var(--t1);">What is a core charge?</summary>'
+    + '<p style="color:#ccc;margin-top:8px;line-height:1.6;">A core charge is a refundable deposit on reman parts. When you return the old part within 30 days, you get the core charge back. Core instructions are included with every applicable order.</p>'
+    + '</details>'
+    + '<details style="margin-bottom:12px;padding:12px;background:#111;border-radius:8px;">'
+    + '<summary style="cursor:pointer;font-weight:600;color:var(--t1);">Fitment guarantee?</summary>'
+    + '<p style="color:#ccc;margin-top:8px;line-height:1.6;">We do our best to ensure parts fit your vehicle, but always verify the part number matches your application before installing. If a part doesn\'t fit, contact us within 14 days for return authorization.</p>'
+    + '</details>'
+    + '<details style="margin-bottom:12px;padding:12px;background:#111;border-radius:8px;">'
+    + '<summary style="cursor:pointer;font-weight:600;color:var(--t1);">Returns and refunds?</summary>'
+    + '<p style="color:#ccc;margin-top:8px;line-height:1.6;">Unused parts in original packaging can be returned within 30 days. Some items are non-returnable (electronics, special orders). Contact help@black-stack-diesel.com to start a return.</p>'
+    + '</details>'
+    + '<details style="padding:12px;background:#111;border-radius:8px;">'
+    + '<summary style="cursor:pointer;font-weight:600;color:var(--t1);">How do I report a bug or bad product data?</summary>'
+    + '<p style="color:#ccc;margin-top:8px;line-height:1.6;">Use the Send Feedback button on the Profile page, or the "Report issue with this product" link on any product page. We read every one.</p>'
+    + '</details>'
+    + '</div>'
+    + '</div>');
+}
 
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/app/sw.js').catch(()=>{});
