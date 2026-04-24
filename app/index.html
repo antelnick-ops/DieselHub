@@ -2270,13 +2270,30 @@ function showPaymentMethods(){
 }
 
 function showSavedAddresses(){
-  showModal('Saved Addresses', ''
-    + '<div style="padding:20px 0;">'
-    + '<div style="font-size:32px;margin-bottom:16px;text-align:center;">📍</div>'
-    + '<p style="color:#ccc;line-height:1.6;margin-bottom:16px;">Shipping addresses are collected at checkout via Stripe and sent directly to our distributor for fulfillment.</p>'
-    + '<p style="color:#ccc;line-height:1.6;margin-bottom:16px;">Your address is securely stored with your order and can be updated at any time before shipment by contacting support.</p>'
-    + '<p style="color:#999;font-size:13px;">Saved address management will be available here in a future update.</p>'
-    + '</div>');
+  showModal('Saved Addresses', `
+    <div style="padding:20px;">
+      <div style="font-size:32px;margin-bottom:16px;text-align:center;">📍</div>
+      <p style="color:#ccc;line-height:1.6;margin-bottom:16px;">
+        Black Stack Diesel uses Stripe for secure checkout. Your
+        shipping address is entered and securely stored with Stripe
+        at checkout — we never store it on our servers.
+      </p>
+      <p style="color:#ccc;line-height:1.6;margin-bottom:16px;">
+        At checkout, you can save your address with Stripe for
+        faster future purchases. Your saved address will auto-fill
+        the next time you check out.
+      </p>
+      <p style="color:#ccc;line-height:1.6;margin-bottom:16px;">
+        Need to change a shipping address on an order that hasn't
+        shipped yet? Contact us at help@black-stack-diesel.com and
+        we'll update it for you.
+      </p>
+      <p style="color:#999;font-size:13px;">
+        Saved address management will be available here in a future
+        update.
+      </p>
+    </div>
+  `);
 }
 
 function showNotifications(){
