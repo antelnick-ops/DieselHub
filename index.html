@@ -63,6 +63,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 40px;display:fl
 .hero-stat{text-align:center}
 .hero-stat-val{font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:var(--ember)}
 .hero-stat-lbl{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--t3);margin-top:4px}
+.hero-brands{margin-top:40px;padding-top:32px;border-top:1px solid var(--bd);text-align:center}
+.hero-brands-label{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--t3);margin-bottom:20px}
+.hero-brands-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:720px;margin:0 auto}
+.brand-chip{padding:8px 16px;background:var(--bg3);border:1px solid var(--bd);border-radius:40px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--t2)}
+.brand-chip-more{color:var(--ember);border-color:rgba(255,107,44,.25)}
 section{padding:100px 40px}
 .section-label{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:4px;color:var(--ember);margin-bottom:16px}
 .section-title{font-family:'Rajdhani',sans-serif;font-size:clamp(32px,5vw,52px);font-weight:700;text-transform:uppercase;letter-spacing:1px;line-height:1.1;margin-bottom:20px}
@@ -193,7 +198,7 @@ src="https://www.facebook.com/tr?id=2798529717175247&ev=PageView&noscript=1"
   <div class="hero-content">
     <div class="hero-badge"><span class="hero-badge-dot"></span> Now Live — Install Free Today</div>
     <h1>Your Diesel.<br><em>Diagnosed Right.</em></h1>
-    <p>AI-powered diagnostics and parts for diesel trucks. Input your rig — year, make, model, engine — and only see what fits your truck. Nothing else.</p>
+    <p>Diesel parts for Cummins, Duramax, and Power Stroke. Input your rig — year, make, model, engine — and only see what fits your truck. Nothing else. <em style="color:var(--ember);font-style:normal;">AI fitment assistant launching soon.</em></p>
     <div class="hero-ctas">
       <button id="installBtnHero" class="btn-main" style="display:none;">📲 Install App — Free</button>
       <a href="/app/" id="openAppBtn" class="btn-main">Open App</a>
@@ -202,7 +207,25 @@ src="https://www.facebook.com/tr?id=2798529717175247&ev=PageView&noscript=1"
     <div class="hero-stats">
       <div class="hero-stat"><div class="hero-stat-val">3</div><div class="hero-stat-lbl">Engine Platforms</div></div>
       <div class="hero-stat"><div class="hero-stat-val">30+</div><div class="hero-stat-lbl">Years Covered</div></div>
-      <div class="hero-stat"><div class="hero-stat-val">500+</div><div class="hero-stat-lbl">Parts Cataloged</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">50,000+</div><div class="hero-stat-lbl">Parts Cataloged</div></div>
+    </div>
+    <div class="hero-brands">
+      <div class="hero-brands-label">Featured Brands</div>
+      <div class="hero-brands-row">
+        <span class="brand-chip">BD Diesel</span>
+        <span class="brand-chip">Industrial Injection</span>
+        <span class="brand-chip">MagnaFlow</span>
+        <span class="brand-chip">AFE</span>
+        <span class="brand-chip">Diamond Eye</span>
+        <span class="brand-chip">MBRP</span>
+        <span class="brand-chip">PPE</span>
+        <span class="brand-chip">ARP</span>
+        <span class="brand-chip">Carli</span>
+        <span class="brand-chip">Fabtech</span>
+        <span class="brand-chip">K&amp;N</span>
+        <span class="brand-chip">Mishimoto</span>
+        <span class="brand-chip brand-chip-more">+400 more</span>
+      </div>
     </div>
   </div>
 </section>
