@@ -13,7 +13,7 @@ const supabase = createClient(
 const APG_VENDOR_ID = '013cd9a7-171e-45fe-9421-0320319dce33';
 const FEED_PATH = path.join(process.cwd(), 'tmp', 'premier_data_feed_master.csv');
 const IMPORT_LIMIT = 0;   // 0 = no limit
-const DRY_RUN = false;     // set false to actually write to Supabase
+const DRY_RUN = true;     // set false to actually write to Supabase
 
 // SKUs with known-bad images in Premier's feed (force null).
 // When you find more, add the SKU here.
