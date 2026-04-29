@@ -1383,6 +1383,24 @@ function renderCart(){
   const itemsEl = document.getElementById('cartItems');
   const totalEl = document.getElementById('cartTotal');
   const statItems = document.getElementById('statItems');
+  const ckBtn = document.getElementById('checkoutBtn');
+  const legacyTotalRow = document.querySelector('.cd-tot');
+
+  // Empty-cart short-circuit MUST run before any shipping math.
+  // Otherwise the small-order $4.99 fee leaks into #cartTotal display.
+  if(cart.length === 0){
+    if(badge) badge.textContent = 0;
+    if(statItems) statItems.textContent = 0;
+    if(totalEl) totalEl.textContent = '$0.00';
+    if(legacyTotalRow) legacyTotalRow.style.display = '';
+    if(ckBtn){
+      ckBtn.textContent = 'Cart is empty';
+      ckBtn.classList.add('btn-disabled');
+      ckBtn.disabled = true;
+    }
+    if(itemsEl) itemsEl.innerHTML = '<div class="cd-e">Your cart is empty</div>';
+    return;
+  }
 
   let itemsTotal = 0, coresTotal = 0, count = 0, maxWeight = 0;
 
@@ -1404,9 +1422,12 @@ function renderCart(){
   const ship = window.BSDShipping.calculateShipping({ itemsSubtotal: itemsTotal, maxWeight: maxWeight });
   const grandTotal = itemsTotal + coresTotal + ship.amount;
 
-  // Three-state checkout button: paused | quote-required | OK.
-  // CHECKOUT_ENABLED takes precedence (system-wide pause overrides cart state).
-  const ckBtn = document.getElementById('checkoutBtn');
+  // Hide legacy .cd-tot row — the new subtotals block has its own Total row.
+  // Keeps a single Total visible. Empty-cart branch above re-shows it.
+  if(legacyTotalRow) legacyTotalRow.style.display = 'none';
+
+  // Checkout button (cart has items here): paused | quote-required | OK.
+  // Empty-cart state is handled in the early return above.
   if(ckBtn){
     if(!CHECKOUT_ENABLED){
       ckBtn.textContent = 'Checkout Paused — See Cart';
@@ -1425,14 +1446,9 @@ function renderCart(){
 
   if(badge) badge.textContent = count;
   if(statItems) statItems.textContent = count;
-  if(totalEl) totalEl.textContent = '$' + grandTotal.toFixed(2);
+  if(totalEl) totalEl.textContent = '$' + grandTotal.toFixed(2); // hidden but kept in sync
 
   if(!itemsEl) return;
-
-  if(cart.length === 0){
-    itemsEl.innerHTML = '<div class="cd-e">Your cart is empty</div>';
-    return;
-  }
 
   const itemsHtml = cart.map(c => {
     const price = Number(c.price) || 0;
