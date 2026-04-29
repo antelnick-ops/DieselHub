@@ -30,12 +30,27 @@ function escapeJsonInScript(json) {
 // often appends after the free-text portion (Brand:/MFG/UPC/Category/
 // Subcategory/Type). Cuts at the first newline OR the first metadata
 // label, whichever comes earlier. Collapses whitespace.
-function cleanDescription(rawDesc) {
+//
+// Also dedupes the product name when it appears as a prefix — APG's
+// description field typically starts with the product name, which
+// would otherwise produce "Brand Name. Name. Available at..." in
+// the rendered meta description.
+function cleanDescription(rawDesc, name) {
   if (!rawDesc) return '';
   const cutoff = rawDesc.search(/\n|\bBrand:|\bMFG\b|\bUPC:|\bCategory:|\bSubcategory:|\bType:/i);
-  return (cutoff > 0 ? rawDesc.slice(0, cutoff) : rawDesc)
+  let cleaned = (cutoff > 0 ? rawDesc.slice(0, cutoff) : rawDesc)
     .replace(/\s+/g, ' ')
     .trim();
+
+  if (name && cleaned) {
+    const lowerCleaned = cleaned.toLowerCase();
+    const lowerName = String(name).toLowerCase().trim();
+    if (lowerName && lowerCleaned.startsWith(lowerName)) {
+      cleaned = cleaned.slice(lowerName.length).replace(/^[\s.,;:\-]+/, '').trim();
+    }
+  }
+
+  return cleaned;
 }
 
 // Hard char limit but cut at the previous space when one is within the
@@ -92,11 +107,14 @@ function htmlResponse(body, status) {
 }
 
 function productShell(p) {
-  const name = String(p.product_name || 'Product').slice(0, 100);
+  // fullName for dedup + meta description (truncateAtWordBoundary handles overflow);
+  // name (sliced) is for title display where char budget is tighter.
+  const fullName = String(p.product_name || 'Product');
+  const name = fullName.slice(0, 100);
   const brand = String(p.brand || '').slice(0, 60);
   const sku = String(p.sku);
   const price = parseFloat(p.price) || 0;
-  const cleanedDesc = cleanDescription(p.short_description || p.description);
+  const cleanedDesc = cleanDescription(p.short_description || p.description, fullName);
   const image = (p.image_url && /^https:\/\/images\.black-stack-diesel\.com\//.test(p.image_url))
     ? p.image_url
     : DEFAULT_OG_IMAGE;
@@ -108,7 +126,7 @@ function productShell(p) {
   titleParts.push('Black Stack Diesel');
   const title = titleParts.join(' | ').slice(0, 160);
 
-  const baseDescription = (brand ? brand + ' ' : '') + name + '.' +
+  const baseDescription = (brand ? brand + ' ' : '') + fullName + '.' +
     (cleanedDesc ? ' ' + cleanedDesc : '') +
     ' Available at Black Stack Diesel.';
   const description = truncateAtWordBoundary(baseDescription, 300);
@@ -119,7 +137,7 @@ function productShell(p) {
     name: name,
     sku: sku,
     brand: { '@type': 'Brand', name: brand || 'Black Stack Diesel' },
-    description: truncateAtWordBoundary(cleanedDesc || (brand + ' ' + name), 500),
+    description: truncateAtWordBoundary(cleanedDesc || (brand + ' ' + fullName), 500),
     image: image
   };
   if (p.mfg_sku) jsonLd.mpn = p.mfg_sku;
