@@ -342,6 +342,12 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
 .pdm-body{padding:24px 24px 40px}
 .pdm-brand{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
 .pdm-name{font-size:22px;font-weight:800;letter-spacing:-.4px;line-height:1.25;margin-bottom:6px}
+.pdm-share-row{display:flex;justify-content:flex-end;margin-bottom:10px}
+.pdm-share-btn{background:transparent;border:1px solid var(--glb);color:var(--t2);padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s ease;font-family:inherit}
+.pdm-share-btn:hover{border-color:#FF6B2C;color:#FF6B2C}
+.pdm-share-btn:active{transform:scale(.97)}
+.pdm-share-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#FF6B2C;color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .2s ease;pointer-events:none}
+.pdm-share-toast.show{opacity:1}
 .pdm-cat{font-size:12px;color:var(--t3);font-weight:500;margin-bottom:16px}
 .pdm-price-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-top:1px solid var(--glb);border-bottom:1px solid var(--glb);margin-bottom:20px}
 .pdm-core-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;margin-top:-10px;margin-bottom:14px}
@@ -2034,6 +2040,93 @@ function closeProductDetail(){
   // Remove product JSON-LD when modal closes (no longer relevant)
   var jsonLd = document.getElementById('product-jsonld');
   if(jsonLd) jsonLd.remove();
+  // Clear deep-link param while preserving any other params (fbclid, UTM, etc.)
+  var params = new URLSearchParams(location.search);
+  if(params.has('p')){
+    params.delete('p');
+    var qs = params.toString();
+    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+  }
+}
+
+async function pdmShare(sku, productName, brand){
+  if(!sku){ showShareToast('Cannot share — SKU missing'); return; }
+  var shareUrl = location.origin + '/app/?p=' + encodeURIComponent(sku);
+  var shareTitle = productName || 'Black Stack Diesel';
+  var shareText = brand
+    ? productName + ' — ' + brand + ' | Black Stack Diesel'
+    : productName + ' | Black Stack Diesel';
+
+  if(navigator.share){
+    try {
+      await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
+      return;
+    } catch(err) {
+      if(err && err.name === 'AbortError') return;
+      console.warn('[BSD] navigator.share failed:', err);
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(shareUrl);
+    showShareToast('Link copied!');
+  } catch(err) {
+    var ta = document.createElement('textarea');
+    ta.value = shareUrl;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showShareToast('Link copied!');
+    } catch(e2) {
+      showShareToast('Copy failed — long-press to copy');
+    }
+    document.body.removeChild(ta);
+  }
+}
+
+function showShareToast(message){
+  var toast = document.getElementById('pdmShareToast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'pdmShareToast';
+    toast.className = 'pdm-share-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(function(){ toast.classList.remove('show'); }, 2000);
+}
+
+// Deep-link handler — opens the matching product when ?p=<sku> is present.
+// Runs once on initial page load. Silent failure on unknown SKU (per spec).
+async function handleDeepLink(){
+  var params = new URLSearchParams(location.search);
+  var sku = params.get('p');
+  if(!sku) return;
+  try {
+    var result = await sb.from('products')
+      .select('*')
+      .eq('sku', sku)
+      .eq('has_margin', true)
+      .maybeSingle();
+    if(result.error || !result.data){
+      console.warn('[BSD] Deep link product not found:', sku);
+      return;
+    }
+    PDM_PRODUCT_CACHE[result.data.id] = result.data;
+    openProductDetail(result.data.id);
+  } catch(err) {
+    console.warn('[BSD] Deep link fetch failed:', err);
+  }
+}
+
+if(document.readyState === 'complete'){
+  handleDeepLink();
+} else {
+  window.addEventListener('load', handleDeepLink);
 }
 
 // Carousel state for product detail modal
@@ -2097,6 +2190,12 @@ function updateProductSeoTags(p, price){
     var newDesc = (brand + ' ' + name + '. ' + descBase + descFit + ' Available at Black Stack Diesel.').slice(0, 300).trim();
 
     document.title = newTitle;
+    if(p.sku){
+      // Preserve existing query params (fbclid, UTM, etc.) — never overwrite the search string.
+      var params = new URLSearchParams(location.search);
+      params.set('p', p.sku);
+      history.replaceState({ productSku: p.sku }, document.title, '?' + params.toString());
+    }
     setMetaTag('description', newDesc);
     setMetaTag('og:title', newTitle, 'property');
     setMetaTag('og:description', newDesc, 'property');
@@ -2302,6 +2401,9 @@ function renderProductDetail(p){
 
   bodyEl.innerHTML =
     '<div class="pdm-brand">' + escapeHtml(p.brand || 'Unbranded') + stgPill + '</div>' +
+    '<div class="pdm-share-row">' +
+      '<button class="pdm-share-btn" onclick="pdmShare(\'' + escapeHtml(String(p.sku || '')) + '\',\'' + String(p.product_name || '').replace(/'/g,"\\'") + '\',\'' + String(p.brand || '').replace(/'/g,"\\'") + '\')" aria-label="Share this product">🔗 Share</button>' +
+    '</div>' +
     '<div class="pdm-name">' + escapeHtml(p.product_name || 'Product') + '</div>' +
     (p.category ? '<div class="pdm-cat">' + escapeHtml(p.category) + '</div>' : '') +
     '<div class="pdm-price-row">' + priceHtml + fitBadge + '</div>' +
