@@ -5,10 +5,10 @@
   "scripts": {
     "dev": "npx serve . -l 3000",
     "start": "npx serve . -l 3000",
-    "apg:test-auth": "node scripts/apg-test-auth.js",
-    "apg:download-feed": "node scripts/apg-download-feed.js",
-    "apg:test-api": "node scripts/apg-test-api.js",
-    "apg:import-feed": "node scripts/import-apg-feed.js"
+    "apg:test-auth": "node scripts/diagnostics/apg-test-auth.js",
+    "apg:download-feed": "node scripts/importers/apg-download-feed.js",
+    "apg:test-api": "node scripts/diagnostics/apg-test-api.js",
+    "apg:import-feed": "node scripts/importers/import-apg-feed.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
