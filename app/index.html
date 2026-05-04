@@ -167,7 +167,7 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
 .vprev .vt{display:flex;gap:6px;margin-top:12px}
 .vprev .tag{padding:4px 12px;border-radius:8px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t2)}
 
-#s-ai{padding:20px 24px 100px}
+#s-ai{padding:20px 24px 100px;display:flex;flex-direction:column;height:100%}
 .sec-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
 .sec-h h2{font-size:18px;font-weight:800;letter-spacing:-.3px}
 .badge{padding:5px 14px;border-radius:100px;font-size:10px;font-weight:800;letter-spacing:.6px;color:#fff;background:linear-gradient(140deg,rgba(251,191,36,.5),rgba(217,119,6,.6));border:1.5px solid rgba(251,191,36,.85);text-shadow:0 1px 1px rgba(0,0,0,.6)}
@@ -183,6 +183,39 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
 .ai-soon .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pul 2s ease infinite}
 @keyframes pul{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.15;transform:scale(.6)}}
 .ai-soon span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:var(--t2)}
+
+/* === AI Chat (active) === */
+.ai-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1;padding-bottom:80px}
+.ai-empty .ai-d{margin-bottom:20px}
+.ai-conv{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;display:flex;flex-direction:column;gap:14px;padding-bottom:80px}
+.ai-conv::-webkit-scrollbar{display:none}
+.ai-msg{display:flex;max-width:100%}
+.ai-msg.user{justify-content:flex-end}
+.ai-msg.assist{justify-content:flex-start}
+.ai-bubble{max-width:90%;padding:11px 14px;border-radius:18px;font-size:13px;line-height:1.55;color:var(--t1);word-wrap:break-word}
+.ai-msg.user .ai-bubble{max-width:78%;background:linear-gradient(140deg,rgba(237,174,10,.18),rgba(237,174,10,.1));border:1px solid rgba(237,174,10,.2);border-radius:18px 18px 4px 18px}
+.ai-msg.assist .ai-bubble{background:var(--c1);border:1px solid var(--glb);border-radius:18px 18px 18px 4px}
+.ai-bubble a{color:var(--gold);text-decoration:underline;text-decoration-color:rgba(237,174,10,.3);text-underline-offset:2px}
+.ai-bubble strong{font-weight:700;color:var(--t1)}
+.ai-bubble em{font-style:italic;color:var(--t2)}
+.ai-bubble p{margin:0 0 10px 0}
+.ai-bubble p:last-child{margin-bottom:0}
+.ai-bubble ul,.ai-bubble ol{margin:6px 0;padding-left:20px}
+.ai-bubble li{margin-bottom:4px}
+.ai-cursor{display:inline-block;width:7px;height:13px;background:var(--gold);margin-left:2px;vertical-align:text-bottom;animation:aibl 1s steps(2) infinite}
+@keyframes aibl{0%,50%{opacity:1}50.01%,100%{opacity:0}}
+.ai-bubble.err{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.08);color:var(--red)}
+.ai-composer{position:absolute;bottom:80px;left:24px;right:24px;display:flex;align-items:flex-end;gap:8px;background:rgba(13,13,18,.92);border:1px solid var(--glb);border-radius:24px;padding:10px 12px 10px 16px;backdrop-filter:blur(20px) saturate(1.6);-webkit-backdrop-filter:blur(20px) saturate(1.6)}
+#aiInput{flex:1;background:transparent;border:none;outline:none;color:var(--t1);font-size:13px;font-family:inherit;line-height:1.5;resize:none;max-height:120px;padding:6px 0}
+#aiInput::placeholder{color:var(--t3)}
+#aiInput:disabled{opacity:.5}
+.ai-send{width:32px;height:32px;border-radius:50%;background:var(--c2);border:1px solid rgba(237,174,10,.25);color:var(--gold);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:.2s var(--ease)}
+.ai-send svg{width:14px;height:14px}
+.ai-send:hover:not(:disabled){background:var(--goldgl);border-color:rgba(237,174,10,.5)}
+.ai-send:disabled{opacity:.3;cursor:not-allowed}
+.ai-stop{width:32px;height:32px;border-radius:8px;background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);color:var(--red);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:.2s var(--ease)}
+.ai-stop:hover{background:rgba(248,113,113,.22)}
+.ai-stop-square{width:10px;height:10px;background:var(--red);border-radius:2px}
 
 #s-mkt{padding:14px 18px 120px}
 .mk-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:0 2px}
@@ -554,12 +587,17 @@ src="https://www.facebook.com/tr?id=2798529717175247&ev=PageView&noscript=1"
 
     <div class="scr" id="s-ai">
       <div class="sec-h"><h2>AI Diagnostics</h2><div class="badge" id="aiBadge">—</div></div>
-      <div class="ai-lock">
+      <div class="ai-empty" id="aiEmpty">
         <div class="orb"><span>🔧</span></div>
-        <div class="ai-t">Under The Hood</div>
-        <div class="ai-d">Our AI is getting a full rebuild — new turbo, bigger injectors, and a custom tune. She'll be rollin' coal in no time.</div>
-        <div class="ai-j">"Why did the diesel mechanic break up with the gas engine? Because she just couldn't handle the pressure."</div>
-        <div class="ai-soon"><div class="dot"></div><span>Coming Soon</span></div>
+        <div class="ai-t">Ask anything</div>
+        <div class="ai-d">I'm BSD's parts counter. Ask me anything about your truck — what fits, what's worth doing, what's overkill.</div>
+        <div class="ai-j" id="aiJoke">"Why did the diesel mechanic break up with the gas engine? Because she just couldn't handle the pressure."</div>
+      </div>
+      <div class="ai-conv" id="aiConv" hidden></div>
+      <div class="ai-composer">
+        <textarea id="aiInput" placeholder="Ask about your truck..." rows="1"></textarea>
+        <button id="aiSend" class="ai-send" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></button>
+        <button id="aiStop" class="ai-stop" aria-label="Stop" hidden><div class="ai-stop-square"></div></button>
       </div>
     </div>
 
@@ -833,10 +871,10 @@ src="https://www.facebook.com/tr?id=2798529717175247&ev=PageView&noscript=1"
 // /api/create-checkout. Pair flips with a sw.js cache bump.
 const CHECKOUT_ENABLED = false;
 
-const sb = supabase.createClient(
-  'https://jfjbilfsiebifzddveof.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmamJpbGZzaWViaWZ6ZGR2ZW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2OTg4ODUsImV4cCI6MjA4NzI3NDg4NX0.bbTQ0l4HsHoKUzoKACBvbXJ0TbnUM5tltK4YLKyuMr8'
-);
+const SUPABASE_URL = 'https://jfjbilfsiebifzddveof.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmamJpbGZzaWViaWZ6ZGR2ZW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2OTg4ODUsImV4cCI6MjA4NzI3NDg4NX0.bbTQ0l4HsHoKUzoKACBvbXJ0TbnUM5tltK4YLKyuMr8';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const DB = {
   Dodge:{
@@ -3316,6 +3354,230 @@ function clearAllFilters(){
 
   onFilterChange();
 }
+
+// === AI Chat ===
+(function(){
+  const FN_URL = `${SUPABASE_URL}/functions/v1/chat`;
+  const ANON_KEY = SUPABASE_ANON_KEY;
+  const MAX_HISTORY = 50;
+
+  const JOKES = [
+    "Why did the diesel mechanic break up with the gas engine? Because she just couldn't handle the pressure.",
+    "Asked my Cummins what its dream job was. Said it'd love to be a doctor — already great at injecting things.",
+    "What's a Power Stroke's favorite movie? Glow Plug Wonders.",
+    "My Duramax doesn't believe in resolutions. It's already running compression.",
+    "The best part of owning a diesel? Telling people you don't pay for premium.",
+    "Why was the lift pump promoted? It always rose to the occasion.",
+    "Diesel guys don't ghost. We just go into limp mode.",
+    "What's the difference between a stock truck and a built one? About 3 paychecks.",
+    "Glow plugs are like alarm clocks. Most days they work, until the day you really need them.",
+    "Asked my CP3 how it was doing. Said it was under a lot of pressure.",
+    "Why don't diesels play hide and seek? You can hear them three counties over.",
+    "The 7.3 walked into a bar. Bartender said: 'we don't get many legends in here.'"
+  ];
+  function pickJoke(){
+    const el = document.getElementById('aiJoke');
+    if(!el) return;
+    el.textContent = '"' + JOKES[Math.floor(Math.random() * JOKES.length)] + '"';
+  }
+
+  let messages = [];
+  let sessionId = crypto.randomUUID();
+  let isStreaming = false;
+  let currentAbort = null;
+  let assistantBubbleEl = null;
+
+  function renderMarkdown(text){
+    let html = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(_, t, u){
+      const safeUrl = u.startsWith('http') ? u : '#';
+      return `<a href="${safeUrl}" target="_blank" rel="noopener">${t}</a>`;
+    });
+    html = html.replace(/(^|[^"=>])(https?:\/\/[^\s<]+)/g, function(m, pre, url){
+      return pre + `<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
+    });
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/(^|[^*])\*([^*\n]+)\*([^*]|$)/g, '$1<em>$2</em>$3');
+    const paragraphs = html.split(/\n\n+/).filter(p => p.trim());
+    return paragraphs.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+  }
+
+  function showConv(){
+    document.getElementById('aiEmpty').hidden = true;
+    document.getElementById('aiConv').hidden = false;
+  }
+  function appendMessageBubble(role, content){
+    const conv = document.getElementById('aiConv');
+    const wrap = document.createElement('div');
+    wrap.className = `ai-msg ${role === 'user' ? 'user' : 'assist'}`;
+    const bubble = document.createElement('div');
+    bubble.className = 'ai-bubble';
+    if(role === 'user'){
+      bubble.textContent = content;
+    }else{
+      bubble.innerHTML = renderMarkdown(content);
+    }
+    wrap.appendChild(bubble);
+    conv.appendChild(wrap);
+    conv.scrollTop = conv.scrollHeight;
+    return bubble;
+  }
+  function setStreaming(on){
+    isStreaming = on;
+    document.getElementById('aiSend').hidden = on;
+    document.getElementById('aiStop').hidden = !on;
+    const input = document.getElementById('aiInput');
+    input.disabled = on;
+    if(!on) input.focus();
+  }
+
+  async function send(){
+    const input = document.getElementById('aiInput');
+    const text = input.value.trim();
+    if(!text || isStreaming) return;
+
+    messages.push({ role: 'user', content: text });
+    if(messages.length > MAX_HISTORY) messages = messages.slice(-MAX_HISTORY);
+    input.value = '';
+    input.style.height = 'auto';
+    showConv();
+    appendMessageBubble('user', text);
+
+    assistantBubbleEl = appendMessageBubble('assistant', '');
+    const cursor = document.createElement('span');
+    cursor.className = 'ai-cursor';
+    assistantBubbleEl.appendChild(cursor);
+
+    setStreaming(true);
+    currentAbort = new AbortController();
+
+    const payload = { messages, session_id: sessionId };
+    if(typeof V !== 'undefined' && V.year && V.make && V.model && V.engine){
+      payload.vehicle = { year: V.year, make: V.make, model: V.model, engine: V.engine };
+    }
+
+    let acc = '';
+    try{
+      const res = await fetch(FN_URL, {
+        method: 'POST',
+        headers: {
+          'apikey': ANON_KEY,
+          'Authorization': `Bearer ${ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Accept': 'text/event-stream'
+        },
+        body: JSON.stringify(payload),
+        signal: currentAbort.signal
+      });
+
+      if(!res.ok){
+        const errText = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status}: ${errText.slice(0, 200)}`);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while(true){
+        const { done, value } = await reader.read();
+        if(done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        let idx;
+        while((idx = buffer.indexOf('\n\n')) !== -1){
+          const chunk = buffer.slice(0, idx);
+          buffer = buffer.slice(idx + 2);
+          if(chunk.startsWith(':')) continue;
+          const dataLines = chunk.split('\n')
+            .filter(l => l.startsWith('data:'))
+            .map(l => l.slice(5).trim());
+          if(dataLines.length === 0) continue;
+          const dataStr = dataLines.join('\n');
+          let evt;
+          try{ evt = JSON.parse(dataStr); }
+          catch{ continue; }
+
+          if(evt.type === 'text'){
+            acc += evt.content;
+            assistantBubbleEl.innerHTML = renderMarkdown(acc);
+            const c = document.createElement('span');
+            c.className = 'ai-cursor';
+            assistantBubbleEl.appendChild(c);
+            const conv = document.getElementById('aiConv');
+            conv.scrollTop = conv.scrollHeight;
+          }else if(evt.type === 'error'){
+            throw new Error(evt.message || 'stream error');
+          }else if(evt.type === 'done'){
+            const c = assistantBubbleEl.querySelector('.ai-cursor');
+            if(c) c.remove();
+            break;
+          }
+        }
+      }
+
+      messages.push({ role: 'assistant', content: acc });
+      if(messages.length > MAX_HISTORY) messages = messages.slice(-MAX_HISTORY);
+
+    }catch(err){
+      const c = assistantBubbleEl.querySelector('.ai-cursor');
+      if(c) c.remove();
+
+      if(err.name === 'AbortError'){
+        if(acc){
+          messages.push({ role: 'assistant', content: acc });
+          if(messages.length > MAX_HISTORY) messages = messages.slice(-MAX_HISTORY);
+        }
+      }else{
+        assistantBubbleEl.innerHTML = '';
+        assistantBubbleEl.classList.add('err');
+        assistantBubbleEl.textContent = 'Connection lost. Try again?';
+      }
+    }finally{
+      setStreaming(false);
+      currentAbort = null;
+      assistantBubbleEl = null;
+    }
+  }
+
+  function stop(){
+    if(currentAbort) currentAbort.abort();
+  }
+
+  function autoGrow(el){
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const input = document.getElementById('aiInput');
+    if(!input) return;
+    pickJoke();
+    input.addEventListener('input', function(){ autoGrow(this); });
+    input.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' && !e.shiftKey){
+        e.preventDefault();
+        send();
+      }
+    });
+    document.getElementById('aiSend').addEventListener('click', send);
+    document.getElementById('aiStop').addEventListener('click', stop);
+  });
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const sai = document.getElementById('s-ai');
+    if(!sai) return;
+    const obs = new MutationObserver(function(){
+      if(sai.classList.contains('on') && messages.length === 0){
+        pickJoke();
+      }
+    });
+    obs.observe(sai, { attributes: true, attributeFilter: ['class'] });
+  });
+})();
 
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/app/sw.js').catch(()=>{});
