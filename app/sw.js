@@ -1,4 +1,5 @@
-const CACHE='bsd-v42';
+// Bump this version string whenever app/index.html changes meaningfully.
+const CACHE='bsd-v43';
 const ASSETS=['/app/','/app/index.html','/app/manifest.json'];
 
 self.addEventListener('install',e=>{

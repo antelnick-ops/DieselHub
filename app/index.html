@@ -185,6 +185,8 @@ body{font-family:'Manrope',sans-serif;background:#000;color:var(--t1);display:fl
 .ai-soon span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:var(--t2)}
 
 /* === AI Chat (active) === */
+/* hidden attribute should beat display rules (display:flex etc. otherwise wins) */
+[hidden]{display:none !important}
 .ai-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1;padding-bottom:80px}
 .ai-empty .ai-d{margin-bottom:20px}
 .ai-conv{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;display:flex;flex-direction:column;gap:14px;padding-bottom:80px}
@@ -3576,6 +3578,30 @@ function clearAllFilters(){
       }
     });
     obs.observe(sai, { attributes: true, attributeFilter: ['class'] });
+  });
+
+  window.addEventListener('pageshow', function(e){
+    if(e.persisted){
+      // Page restored from bfcache — reset chat to fresh state
+      messages = [];
+      sessionId = crypto.randomUUID();
+      const conv = document.getElementById('aiConv');
+      if(conv) conv.innerHTML = '';
+      const emptyEl = document.getElementById('aiEmpty');
+      const convEl = document.getElementById('aiConv');
+      if(emptyEl) emptyEl.hidden = false;
+      if(convEl) convEl.hidden = true;
+      pickJoke();  // refresh the joke too while we're at it
+      // Reset streaming state in case page was paused mid-stream
+      isStreaming = false;
+      if(currentAbort){ currentAbort.abort(); currentAbort = null; }
+      const send = document.getElementById('aiSend');
+      const stop = document.getElementById('aiStop');
+      if(send) send.hidden = false;
+      if(stop) stop.hidden = true;
+      const input = document.getElementById('aiInput');
+      if(input){ input.disabled = false; input.value = ''; }
+    }
   });
 })();
 
