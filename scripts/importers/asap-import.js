@@ -10,6 +10,7 @@ const PRODUCT_TYPE = 'Truck/SUV';
 const PER_CALL_TIMEOUT_MS = 30000;
 const RATE_LIMIT_MS = 100;        // delay between /product/{sku} calls
 const RETRY_PAUSE_MS = 2000;      // pause before single retry on 5xx/429/timeout
+const PRE_MATCH_CONCURRENCY = 5;  // workers fetching detail in 'detail' match strategy
 
 // =====================================================================
 // CLI ARG PARSING
@@ -21,6 +22,7 @@ function parseArgs(argv) {
     if (a === '--brand-id') out.brandId = argv[++i];
     else if (a === '--brand-pattern') out.brandPattern = argv[++i];
     else if (a === '--brand-name') out.brandName = argv[++i];
+    else if (a === '--match-via') out.matchVia = argv[++i];
     else if (a === '--commit') out.commit = true;
     else if (a === '--dry-run') out.dryRun = true;
     else if (a === '--help' || a === '-h') out.help = true;
@@ -43,6 +45,11 @@ if (args.help || !args.brandId) {
     '  --brand-name <n>     Brand display name. Used as fallback when no detail call',
     '                       fires (e.g., a brand with zero matches). The bulk wrapper',
     '                       passes this automatically from asap_approved_brands.json.',
+    '  --match-via <list|detail>  How to derive the BSD match key. Default "list":',
+    '                       normalizeAsapSku(item.sku) from the list endpoint (fast).',
+    '                       "detail": pre-fetch detail for every list item and match',
+    '                       on detail.mfg_original_sku. Required for brands like PPE',
+    '                       whose list-sku is an internal ID, not a manufacturer part #.',
     '  --dry-run            Default. Reports without writing to products.',
     '  --commit             Required to actually UPDATE products and INSERT unmatched.',
     '',
@@ -56,6 +63,11 @@ if (args.help || !args.brandId) {
 
 const DRY_RUN = !args.commit;
 const BRAND_ID = args.brandId;
+const MATCH_VIA = args.matchVia || 'list';
+if (!['list', 'detail'].includes(MATCH_VIA)) {
+  console.error(`Invalid --match-via value: ${MATCH_VIA}. Must be 'list' or 'detail'.`);
+  process.exit(2);
+}
 
 if (!process.env.ASAP_API_KEY || !process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
   console.error('Missing ASAP_API_KEY / SUPABASE_URL / SUPABASE_SERVICE_KEY in .env.local');
@@ -315,6 +327,10 @@ async function main() {
   const startMs = Date.now();
 
   console.log(`ASAP import — brand_id=${BRAND_ID} | mode=${DRY_RUN ? 'DRY-RUN' : 'COMMIT'}`);
+  console.log(
+    `Match strategy: ${MATCH_VIA}` +
+    (MATCH_VIA === 'detail' ? ' (slow path — detail call per list item)' : ' (fast path)')
+  );
 
   // 1. Insert run row (always — this is run metadata, not "data")
   const { data: runRow, error: runErr } = await supabase
@@ -355,26 +371,78 @@ async function main() {
   let brandName = args.brandName || null; // CLI fallback when no detail call fires
   let apiCalls = 1; // the list call counts
 
-  // 3. Pre-match phase: normalize all ASAP SKUs and batch-query BSD products
-  //    in one shot. Avoids fetching detail for SKUs that will never match.
-  const normalizedFor = new Map(); // original sku -> normalized
-  for (const item of productList) {
-    const sku = item.sku || item.SKU || item.id;
-    if (sku) normalizedFor.set(sku, normalizeAsapSku(sku));
+  // 3. Pre-match phase. Strategy depends on MATCH_VIA:
+  //    - 'list' (default): normalize from the list-sku stem (strip after the
+  //      last hyphen). Fast — no detail calls fire until matches are found.
+  //    - 'detail': fetch detail for every list item upfront and match on
+  //      detail.mfg_original_sku. Slower (1 call per list item), but required
+  //      for brands whose list-sku stem is not the manufacturer part number.
+  //      The fetched details are cached so the post-match enrichment loop
+  //      reuses them instead of re-fetching.
+  const detailCache = new Map(); // sku -> detail JSON (populated only when MATCH_VIA==='detail')
+  const keyFor = new Map();      // original sku -> match key (varies by strategy)
+
+  if (MATCH_VIA === 'detail') {
+    const skus = productList.map((item) => item.sku || item.SKU || item.id).filter(Boolean);
+    console.log(`Pre-fetching detail for ${skus.length} list items (concurrency ${PRE_MATCH_CONCURRENCY})...`);
+    let cursor = 0;
+    let completed = 0;
+    let detailErrors = 0;
+
+    async function detailWorker() {
+      while (true) {
+        const idx = cursor++;
+        if (idx >= skus.length) return;
+        const sku = skus[idx];
+        try {
+          const detail = await callAsap(`${ASAP_BASE}/product/${encodeURIComponent(sku)}`);
+          apiCalls++;
+          detailCache.set(sku, detail);
+          if (detail.mfg_original_sku) keyFor.set(sku, detail.mfg_original_sku);
+        } catch (err) {
+          detailErrors++;
+          // Leave keyFor unset for this sku; it will count as unmatched.
+        } finally {
+          completed++;
+          if (completed % 100 === 0) {
+            console.log(`  detail pre-fetch ${completed}/${skus.length}`);
+          }
+          await sleep(RATE_LIMIT_MS);
+        }
+      }
+    }
+
+    await Promise.all(Array.from({ length: PRE_MATCH_CONCURRENCY }, () => detailWorker()));
+    console.log(
+      `Detail pre-fetch complete: ${detailCache.size}/${skus.length}` +
+      (detailErrors > 0 ? ` (${detailErrors} errors)` : '')
+    );
+
+    if (!brandName) {
+      for (const d of detailCache.values()) {
+        if (d && d.brand) { brandName = d.brand; break; }
+      }
+    }
+  } else {
+    for (const item of productList) {
+      const sku = item.sku || item.SKU || item.id;
+      if (sku) keyFor.set(sku, normalizeAsapSku(sku));
+    }
   }
-  const uniqueNormalized = Array.from(new Set(normalizedFor.values()));
+
+  const uniqueKeys = Array.from(new Set(keyFor.values()));
 
   if (!args.brandPattern) {
     console.warn('WARNING: --brand-pattern not set; cross-brand mfg_sku collisions possible.');
   }
-  console.log(`Batch-matching ${uniqueNormalized.length} normalized SKUs against BSD...`);
-  const matchedRows = await batchMatchByMfgSku(uniqueNormalized, args.brandPattern || null);
+  console.log(`Batch-matching ${uniqueKeys.length} keys against BSD...`);
+  const matchedRows = await batchMatchByMfgSku(uniqueKeys, args.brandPattern || null);
   const matchByMfgSku = new Map();
   for (const row of matchedRows) {
     if (row.mfg_sku) matchByMfgSku.set(row.mfg_sku, row);
   }
   console.log(
-    `Batch match: ${matchByMfgSku.size}/${uniqueNormalized.length} normalized SKUs hit BSD products`
+    `Batch match: ${matchByMfgSku.size}/${uniqueKeys.length} keys hit BSD products`
   );
 
   // 4. Per-SKU loop. Detail is fetched ONLY for SKUs that batch-matched.
@@ -387,8 +455,8 @@ async function main() {
       continue;
     }
 
-    const norm = normalizedFor.get(sku);
-    const product = matchByMfgSku.get(norm);
+    const matchKey = keyFor.get(sku);
+    const product = matchKey ? matchByMfgSku.get(matchKey) : null;
 
     // UNMATCHED — log without detail fetch. asap_upc and asap_product_title
     // are NULL since we never called /product/{sku}. Acceptable tradeoff per
@@ -398,7 +466,7 @@ async function main() {
       counts.unmatched++;
       const unmatchedRow = {
         asap_sku: sku,
-        asap_mfg_sku: norm,
+        asap_mfg_sku: matchKey || null,
         asap_upc: null,
         asap_brand_id: BRAND_ID,
         asap_brand_name: brandName || null,
@@ -419,11 +487,13 @@ async function main() {
       continue; // no sleep — we never hit the API
     }
 
-    // MATCHED — fetch detail and run enrichment.
+    // MATCHED — fetch detail (or reuse cached detail from pre-match) and enrich.
     try {
-      const detailUrl = `${ASAP_BASE}/product/${encodeURIComponent(sku)}`;
-      const detail = await callAsap(detailUrl);
-      apiCalls++;
+      let detail = detailCache.get(sku);
+      if (!detail) {
+        detail = await callAsap(`${ASAP_BASE}/product/${encodeURIComponent(sku)}`);
+        apiCalls++;
+      }
       if (!brandName && detail.brand) brandName = detail.brand;
 
       const enrichment = buildEnrichmentPayload(detail, 'mfg_sku');

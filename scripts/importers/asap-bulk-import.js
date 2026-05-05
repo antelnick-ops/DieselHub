@@ -14,7 +14,15 @@ const IMPORT_SCRIPT = path.join('scripts', 'importers', 'asap-import.js');
 
 // Per-brand mfg_sku backfill rules. Each rule strips a known APG prefix from
 // `sku` to populate `mfg_sku` so the asap-import.js mfg_sku-match path can
-// hit. Schema: { brand_pattern, prefix, strip_length }.
+// hit. Schema: { brand_pattern, prefix, strip_length, match_via? }.
+//
+// match_via (optional, default 'list'): how asap-import.js derives the match
+// key for this brand. 'list' uses normalizeAsapSku(item.sku) from the list
+// endpoint — fast, no extra API calls. 'detail' opts into pre-fetching the
+// detail endpoint for every list item and matching on detail.mfg_original_sku
+// — required for brands whose list-sku stem is not the manufacturer part
+// number (e.g. PPE, where list-sku is an internal ID and only detail carries
+// the real mfg_original_sku that lines up with BSD's stripped sku).
 //
 // brand_pattern is fed straight into a `brand ILIKE <pattern>` query. Use
 // EXACT strings (no wildcards) where possible — short-token wildcards like
@@ -37,6 +45,7 @@ const PREFIX_RULES = {
   '12441':  { brand_pattern: 'Yukon Gear and Axle (Randys)',    prefix: 'YUK', strip_length: 3 },
   '22609':  { brand_pattern: 'Rigid Industries',                prefix: 'RIG', strip_length: 3 },
   '24899':  { brand_pattern: 'Skyjacker Suspension',            prefix: 'SKY', strip_length: 3 },
+  '29425':  { brand_pattern: 'Pacific Performance Engineerin',  prefix: 'PPE', strip_length: 3, match_via: 'detail' },
   '72434':  { brand_pattern: 'Diamond Eye MFG',                 prefix: 'DEM', strip_length: 3 },
   '83748':  { brand_pattern: 'Icon Suspension (Randys)',        prefix: 'IVD', strip_length: 3 },
   '115148': { brand_pattern: 'Choate Performance Engineering',  prefix: 'CHT', strip_length: 3 },
@@ -255,6 +264,9 @@ function runImportChild(brand) {
     const childArgs = [IMPORT_SCRIPT, '--brand-id', String(brandId)];
     if (rule && rule.brand_pattern) {
       childArgs.push('--brand-pattern', rule.brand_pattern);
+    }
+    if (rule && rule.match_via) {
+      childArgs.push('--match-via', rule.match_via);
     }
     if (brand.name) {
       childArgs.push('--brand-name', brand.name);
