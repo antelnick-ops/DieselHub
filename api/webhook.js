@@ -266,7 +266,7 @@ async function handleCheckoutCompleted(session, stripe, supabase) {
 
     await resend.emails.send({
       from: 'BlackStackDiesel <noreply@black-stack-diesel.com>',
-      to: 'antelnick@gmail.com', // TODO: move to env var BSD_OPERATOR_EMAIL
+      to: 'nick@black-stack-diesel.com', // TODO: move to env var BSD_OPERATOR_EMAIL
       subject: `New BSD order #${orderShortId} - $${total}`,
       text: [
         'New order received on BlackStackDiesel.',
