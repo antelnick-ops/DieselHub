@@ -295,6 +295,55 @@ async function handleCheckoutCompleted(session, stripe, supabase) {
     console.error('[webhook] Operator notification email failed:', emailErr);
     // Do not throw — webhook still returns 200.
   }
+
+  // Stage 3: Forward to APG. Gated by APG_AUTO_ORDER_ENABLED.
+  // Awaited (not fire-and-forget) so the fetch is guaranteed to complete before
+  // Vercel reaps the lambda. Bounded by an 8s AbortController so the webhook
+  // still acks Stripe well inside its 30s window even if APG is slow. Any APG
+  // failure is logged but never blocks the 200 response to Stripe.
+  try {
+    if (process.env.APG_AUTO_ORDER_ENABLED === 'true') {
+      const apgUrl = process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}/api/place-apg-order`
+        : 'https://www.black-stack-diesel.com/api/place-apg-order';
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      const apgPromise = fetch(apgUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: insertedOrder.id }),
+        signal: controller.signal,
+      })
+        .then((res) => {
+          clearTimeout(timeoutId);
+          if (!res.ok) {
+            return res.text().then((text) => {
+              console.error(
+                `[webhook] APG forward returned ${res.status} for order ${insertedOrder.id}:`,
+                text
+              );
+            });
+          }
+          console.log(`[webhook] APG forward succeeded for order ${insertedOrder.id}`);
+        })
+        .catch((err) => {
+          clearTimeout(timeoutId);
+          console.error(
+            `[webhook] APG forward failed for order ${insertedOrder.id}:`,
+            err.message
+          );
+        });
+
+      await apgPromise;
+    } else {
+      console.log('[webhook] APG_AUTO_ORDER_ENABLED is false, skipping APG forward');
+    }
+  } catch (apgErr) {
+    console.error('[webhook] APG forward block error:', apgErr);
+    // Do not throw — webhook still returns 200.
+  }
 }
 
 async function handleCheckoutFailed(session, supabase) {

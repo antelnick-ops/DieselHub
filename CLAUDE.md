@@ -133,7 +133,16 @@ STRIPE_SECRET_KEY=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+APG_API_KEY=
+APG_AUTH_URL=https://api.premierwd.com/api/v5/authenticate
+APG_API_BASE_URL=https://api.premierwd.com/api/v5
+APG_FALLBACK_PHONE=
+APG_AUTO_ORDER_ENABLED=false
 ```
+
+`APG_AUTO_ORDER_ENABLED`: Feature flag. Set to `'true'` to enable automatic
+APG order forwarding from the Stripe webhook. Defaults to false (manual
+fulfillment). Flip to `true` only after Stage 2 + Stage 3 are tested.
 
 ---
 
