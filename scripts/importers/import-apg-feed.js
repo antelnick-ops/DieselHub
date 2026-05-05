@@ -259,6 +259,17 @@ function parseFitment(productName, description) {
     makes.add('GMC');
   }
 
+  // Diesel-brand convention: PPE and similar vendors often write "GM Duramax"
+  // instead of calling out Chevrolet/GMC explicitly. Every Duramax-equipped HD
+  // truck is either a Chevrolet Silverado HD or a GMC Sierra HD, so when the
+  // text mentions GM AND a Duramax engine code, attribute both makes.
+  // Engine-code requirement bounds the rule so bare "GM" tokens (e.g. another
+  // brand abbreviation) don't false-positive.
+  if (/\bGM\b/.test(text) && /\b(Duramax|LB7|LLY|LBZ|LMM|LML|LGH|L5P|L5D)\b/i.test(text)) {
+    makes.add('Chevrolet');
+    makes.add('GMC');
+  }
+
   if (/\b7\.?3L?\b.*\b(Power\s*Stroke|PSD|Ford|IDI)/i.test(text)) {
     if (/\bIDI\b/i.test(text)) engines.add('7.3L IDI Turbo Diesel');
     else engines.add('7.3L Power Stroke');
