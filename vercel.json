@@ -3,6 +3,9 @@
     "api/webhook.js": {
       "maxDuration": 30
     },
+    "api/poll-apg-tracking.js": {
+      "maxDuration": 60
+    },
     "api/create-checkout.js": {
       "includeFiles": "shared/**"
     },
@@ -10,6 +13,12 @@
       "includeFiles": "shared/**"
     }
   },
+  "crons": [
+    {
+      "path": "/api/poll-apg-tracking",
+      "schedule": "0 */4 * * *"
+    }
+  ],
   "rewrites": [
     { "source": "/products/:sku", "destination": "/api/products/:sku" },
     { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" }

@@ -138,11 +138,25 @@ APG_AUTH_URL=https://api.premierwd.com/api/v5/authenticate
 APG_API_BASE_URL=https://api.premierwd.com/api/v5
 APG_FALLBACK_PHONE=
 APG_AUTO_ORDER_ENABLED=false
+APG_TRACKING_POLL_ENABLED=false
+RESEND_API_KEY=
+CRON_SECRET=
 ```
 
 `APG_AUTO_ORDER_ENABLED`: Feature flag. Set to `'true'` to enable automatic
 APG order forwarding from the Stripe webhook. Defaults to false (manual
 fulfillment). Flip to `true` only after Stage 2 + Stage 3 are tested.
+
+`APG_TRACKING_POLL_ENABLED`: Feature flag. Set to `'true'` to enable the
+4-hour Vercel cron that polls APG `/tracking` for submitted orders, flips
+`supplier_status` to `'fulfilled'` when tracking lands, and emails the
+customer their tracking number. Defaults to false. Flip to `true` only
+after Stage 4 is tested with at least one real submitted order.
+
+`CRON_SECRET`: Optional but recommended. When set, `/api/poll-apg-tracking`
+requires `Authorization: Bearer <CRON_SECRET>` header. Vercel cron provides
+this automatically. Without it, anyone with the URL can trigger the function
+(not destructive but consumes API quota).
 
 ---
 
