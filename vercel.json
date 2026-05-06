@@ -13,12 +13,6 @@
       "includeFiles": "shared/**"
     }
   },
-  "crons": [
-    {
-      "path": "/api/poll-apg-tracking",
-      "schedule": "0 */4 * * *"
-    }
-  ],
   "rewrites": [
     { "source": "/products/:sku", "destination": "/api/products/:sku" },
     { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" }

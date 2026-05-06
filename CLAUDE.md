@@ -147,11 +147,13 @@ CRON_SECRET=
 APG order forwarding from the Stripe webhook. Defaults to false (manual
 fulfillment). Flip to `true` only after Stage 2 + Stage 3 are tested.
 
-`APG_TRACKING_POLL_ENABLED`: Feature flag. Set to `'true'` to enable the
-4-hour Vercel cron that polls APG `/tracking` for submitted orders, flips
-`supplier_status` to `'fulfilled'` when tracking lands, and emails the
-customer their tracking number. Defaults to false. Flip to `true` only
-after Stage 4 is tested with at least one real submitted order.
+`APG_TRACKING_POLL_ENABLED`: Feature flag. Set to `'true'` to enable APG
+tracking polling. Trigger manually via authenticated POST/GET to
+`/api/poll-apg-tracking` with `Authorization: Bearer <CRON_SECRET>`.
+Defaults to false. Vercel cron not used (Hobby plan doesn't support
+crons; can be enabled by upgrading to Pro and re-adding the `crons`
+block to `vercel.json`, or by configuring an external cron service like
+cron-job.org to hit the endpoint with the bearer token).
 
 `CRON_SECRET`: Optional but recommended. When set, `/api/poll-apg-tracking`
 requires `Authorization: Bearer <CRON_SECRET>` header. Vercel cron provides
