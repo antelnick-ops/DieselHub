@@ -3,6 +3,7 @@ require('dotenv').config({ path: '.env.local' });
 const ftp = require('basic-ftp');
 const fs = require('fs');
 const path = require('path');
+const AdmZip = require('adm-zip');
 
 async function main() {
   const client = new ftp.Client();
@@ -38,7 +39,10 @@ async function main() {
       console.log(`- ${file.name}`);
     }
 
+    // Prefer .zip over .csv — Premier's FTP now publishes both, and the .zip
+    // is updated on a fresher cadence than the legacy uncompressed .csv.
     const remoteFile =
+      list.find((f) => /^premier_data_feed_master.*\.zip$/i.test(f.name))?.name ||
       list.find((f) => f.name === expectedFile)?.name ||
       list.find((f) => f.name.includes('premier_data_feed_master'))?.name ||
       list[0]?.name;
@@ -47,10 +51,36 @@ async function main() {
       throw new Error('No feed file found on FTP');
     }
 
+    console.log(`Selected remote file: ${remoteFile}`);
+
     const localPath = path.join(outDir, remoteFile);
     await client.downloadTo(localPath, remoteFile);
 
-    console.log(`✅ Downloaded feed to: ${localPath}`);
+    console.log(`✅ Downloaded to: ${localPath}`);
+
+    // Auto-extract if it's a zip; the importer expects an uncompressed CSV
+    // at tmp/premier_data_feed_master.csv (see import-apg-feed.js FEED_PATH).
+    let finalCsvPath = localPath;
+    if (remoteFile.toLowerCase().endsWith('.zip')) {
+      console.log('Detected .zip — extracting...');
+      const zip = new AdmZip(localPath);
+      const entries = zip.getEntries();
+      const csvEntry = entries.find((e) => e.entryName.toLowerCase().endsWith('.csv'));
+      if (!csvEntry) {
+        throw new Error(
+          `No .csv entry inside ${remoteFile}; entries: ${entries.map((e) => e.entryName).join(', ')}`
+        );
+      }
+      const csvName = path.basename(csvEntry.entryName);
+      zip.extractEntryTo(csvEntry, outDir, /* maintainEntryPath */ false, /* overwrite */ true);
+      finalCsvPath = path.join(outDir, csvName);
+      console.log(`✅ Extracted ${csvName} (${csvEntry.header.size.toLocaleString()} bytes) → ${finalCsvPath}`);
+
+      fs.unlinkSync(localPath);
+      console.log(`Removed ${localPath}`);
+    }
+
+    console.log(`Final CSV path: ${finalCsvPath}`);
   } finally {
     client.close();
   }
